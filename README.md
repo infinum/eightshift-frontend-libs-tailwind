@@ -1,0 +1,1 @@
+# eightshift-frontend-libs-tailwind
