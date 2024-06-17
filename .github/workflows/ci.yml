@@ -1,0 +1,31 @@
+name: Continuous Integration
+
+on:
+  push:
+    branches:
+      - develop
+      - master
+    paths-ignore:
+      - '**.md'
+  pull_request:
+    paths-ignore:
+      - '**.md'
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  lint:
+    name: Lint assets JS and CSS using Node version - ${{ matrix.node }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        node: [ 'latest' ]
+    steps:
+      - name: Lint assets
+        uses: infinum/eightshift-deploy-actions-public/.github/actions/lint-assets@main
+        with:
+          NODE_VERSION: ${{ matrix.node }}
+          PROJECT_PATH: '/'

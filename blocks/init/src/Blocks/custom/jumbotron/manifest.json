@@ -1,0 +1,17 @@
+{
+	"$schema": "https://raw.githubusercontent.com/infinum/eightshift-frontend-libs/develop/schemas/block.json",
+	"blockName": "jumbotron",
+	"title": "Jumbotron",
+	"description" : "Jumbotron block with custom settings.",
+	"category": "eightshift",
+	"icon": {
+		"src": "es-jumbotron"
+	},
+	"keywords": [
+		"jumbotron",
+		"cover"
+	],
+	"components": {
+		"jumbotron": "jumbotron"
+	}
+}

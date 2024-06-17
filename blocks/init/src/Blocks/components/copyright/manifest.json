@@ -1,0 +1,16 @@
+{
+	"$schema": "https://raw.githubusercontent.com/infinum/eightshift-frontend-libs/develop/schemas/component.json",
+	"componentName": "copyright",
+	"title": "Copyright",
+	"componentClass": "copyright",
+	"attributes": {
+		"copyrightUse": {
+			"type": "boolean",
+			"default": true
+		},
+		"copyrightContent": {
+			"type": "string",
+			"default": "Made with ❤️ by Team Eightshift"
+		}
+	}
+}
