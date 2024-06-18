@@ -74,14 +74,6 @@ module.exports = (options) => {
 			use: {
 				loader: 'swc-loader',
 			}
-			// use: [
-			// 	{
-			// 		loader: 'babel-loader',
-			// 		options: {
-			// 			cacheDirectory: true,
-			// 		},
-			// 	},
-			// ],
 		});
 	}
 

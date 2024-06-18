@@ -1,5 +1,5 @@
 import GutenbergSsr from '@wordpress/server-side-render';
-import { clsx } from 'clsx/lite';
+import { clsx } from '@eightshift/ui-components/utilities';
 
 /**
  * Wraps Gutenberg's ServerSideRender component with a bit of extra styles.

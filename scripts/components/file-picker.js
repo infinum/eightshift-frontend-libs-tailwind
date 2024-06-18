@@ -1,7 +1,8 @@
 import React from 'react';
 import { __ } from '@wordpress/i18n';
 import { MediaUpload, MediaUploadCheck } from '@wordpress/block-editor';
-import { Button, icons, HStack, VStack, FilePlaceholder, AnimatedVisibility } from '@eightshift/ui-components';
+import { Button, HStack, VStack, FilePlaceholder, AnimatedVisibility } from '@eightshift/ui-components';
+import { icons } from '@eightshift/ui-components/icons';
 
 /**
  * A customizable button for managing files from the Media library.

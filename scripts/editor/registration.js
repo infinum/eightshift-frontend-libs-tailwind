@@ -5,9 +5,9 @@ import { registerBlockType, registerBlockVariation } from '@wordpress/blocks';
 import { dispatch, select } from '@wordpress/data';
 import { addFilter } from '@wordpress/hooks';
 import { createElement } from '@wordpress/element';
-import { blockIcons } from '@eightshift/ui-components';
+import { blockIcons } from '@eightshift/ui-components/icons';
 import { STORE_NAME, setStoreGlobalWindow, setStore, setConfigFlags } from './store';
-import { camelCase, kebabCase, lowerFirst, upperFirst } from '../helpers';
+import { camelCase, kebabCase, lowerFirst, upperFirst } from '@eightshift/ui-components/utilities';
 
 /**
  * Register all Block Editor blocks using WP `registerBlockType` method.

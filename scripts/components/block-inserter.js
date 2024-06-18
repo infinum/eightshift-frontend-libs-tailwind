@@ -1,8 +1,9 @@
 import React from 'react';
 import { __, sprintf } from '@wordpress/i18n';
 import { Inserter } from '@wordpress/block-editor';
-import { Button, icons } from '@eightshift/ui-components';
-import { clsx } from 'clsx/lite';
+import { Button } from '@eightshift/ui-components';
+import { icons } from '@eightshift/ui-components/icons';
+import { clsx } from '@eightshift/ui-components/utilities';
 
 /**
  * A replacement for the default Gutenberg inserter, whose styling can vary between WP versions.

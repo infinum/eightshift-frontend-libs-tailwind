@@ -1,5 +1,5 @@
 import { checkAttr } from '../editor/attributes';
-import { clsx } from 'clsx/lite';
+import { clsx } from '@eightshift/ui-components/utilities';
 
 /**
  * Gets Tailwind classes for the provided part.

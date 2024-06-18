@@ -1,6 +1,8 @@
 import { select } from '@wordpress/data';
 import { STORE_NAME } from '../editor/store';
 
+export const getGlobalManifest = () => select(STORE_NAME)?.getSettings();
+
 export const getBreakpointNames = () => {
 	const breakpoints = select(STORE_NAME)?.getSettings()?.globalVariables?.breakpoints;
 

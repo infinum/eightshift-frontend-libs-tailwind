@@ -9,11 +9,6 @@ const DEFAULT_STATE = {
 	blocks: {},
 	components: {},
 	config: {
-		outputCssGlobally: false,
-		outputCssOptimize: false,
-		outputCssSelectorName: 'esCssVariables',
-		outputCssGloballyAdditionalStyles: [],
-		useRemBaseSize: false,
 		useWrapper: true,
 	},
 	wrapper: {},
@@ -46,21 +41,6 @@ const selectors = {
 	getConfig(state) {
 		return state.config;
 	},
-	getConfigOutputCssGlobally(state) {
-		return state.config.outputCssGlobally;
-	},
-	getConfigOutputCssOptimize(state) {
-		return state.config.outputCssOptimize;
-	},
-	getConfigOutputCssSelectorName(state) {
-		return state.config.outputCssSelectorName;
-	},
-	getConfigOutputCssGloballyAdditionalStyles(state) {
-		return state.config.outputCssGloballyAdditionalStyles;
-	},
-	getConfigUseRemBaseSize(state) {
-		return state.config.useRemBaseSize;
-	},
 	getConfigUseWrapper(state) {
 		return state.config.useWrapper;
 	},
@@ -82,12 +62,6 @@ const selectors = {
 	getSettingsGlobalVariablesBreakpoints(state) {
 		return state.settings.globalVariables.breakpoints;
 	},
-	getStyles(state) {
-		return state.styles;
-	},
-	hasStylesUpdated(state) {
-		return state.hasStylesUpdated;
-	},
 };
 
 // Define actions - getters and setters.
@@ -108,36 +82,6 @@ const actions = {
 		return {
 			type: 'SET_VARIATIONS',
 			variations,
-		};
-	},
-	setConfigOutputCssGlobally(config) {
-		return {
-			type: 'SET_CONFIG_OUTPUT_CSS_GLOBALLY',
-			config,
-		};
-	},
-	setConfigOutputCssOptimize(config) {
-		return {
-			type: 'SET_CONFIG_OUTPUT_CSS_OPTIMIZE',
-			config,
-		};
-	},
-	setConfigUseRemBaseSize(config) {
-		return {
-			type: 'SET_CONFIG_USE_REM_BASE_SIZE',
-			config,
-		};
-	},
-	setConfigOutputCssSelectorName(config) {
-		return {
-			type: 'SET_CONFIG_OUTPUT_CSS_SELECTOR_NAME',
-			config,
-		};
-	},
-	setConfigOutputCssGloballyAdditionalStyles(config) {
-		return {
-			type: 'SET_CONFIG_OUTPUT_CSS_GLOBALLY_ADDITIONAL_STYLES',
-			config,
 		};
 	},
 	setConfigUseWrapper(config) {
@@ -164,39 +108,10 @@ const actions = {
 			breakpoints,
 		};
 	},
-	setStyle(styles) {
-		return {
-			type: 'SET_STYLE',
-			styles,
-		};
-	},
-	unsetStyleByIndex(index) {
-		return {
-			type: 'UNSET_STYLE_BY_INDEX',
-			index,
-		};
-	},
-	setStyleByIndex(styles, index) {
-		return {
-			type: 'SET_STYLE_BY_INDEX',
-			styles,
-			index,
-		};
-	},
-	setStylesUpdated() {
-		return {
-			type: 'SET_STYLES_UPDATED',
-		};
-	},
-	unsetStylesUpdated() {
-		return {
-			type: 'UNSET_STYLES_UPDATED',
-		};
-	},
 };
 
 // Define reducers - only setters.
-const reducer = ( state = DEFAULT_STATE, action ) => {
+const reducer = (state = DEFAULT_STATE, action) => {
 	switch (action.type) {
 		case 'SET_BLOCKS': {
 			return {
@@ -216,58 +131,13 @@ const reducer = ( state = DEFAULT_STATE, action ) => {
 				variations: action.variations,
 			};
 		}
-		case 'SET_CONFIG_OUTPUT_CSS_GLOBALLY': {
-			return {
-				...state,
-				config: {
-					...state.config,
-					outputCssGlobally: action.config,
-				}
-			};
-		}
-		case 'SET_CONFIG_OUTPUT_CSS_OPTIMIZE': {
-			return {
-				...state,
-				config: {
-					...state.config,
-					outputCssOptimize: action.config,
-				}
-			};
-		}
-		case 'SET_CONFIG_OUTPUT_CSS_SELECTOR_NAME': {
-			return {
-				...state,
-				config: {
-					...state.config,
-					outputCssSelectorName: action.config,
-				}
-			};
-		}
-		case 'SET_CONFIG_USE_REM_BASE_SIZE': {
-			return {
-				...state,
-				config: {
-					...state.config,
-					useRemBaseSize: action.config,
-				}
-			};
-		}
-		case 'SET_CONFIG_OUTPUT_CSS_GLOBALLY_ADDITIONAL_STYLES': {
-			return {
-				...state,
-				config: {
-					...state.config,
-					outputCssGloballyAdditionalStyles: action.config,
-				}
-			};
-		}
 		case 'SET_CONFIG_USE_WRAPPER': {
 			return {
 				...state,
 				config: {
 					...state.config,
 					useWrapper: action.config,
-				}
+				},
 			};
 		}
 		case 'SET_WRAPPER': {
@@ -294,43 +164,6 @@ const reducer = ( state = DEFAULT_STATE, action ) => {
 				},
 			};
 		}
-		case 'SET_STYLE': {
-			state.styles.push(action.styles);
-			state.hasStylesUpdated = true;
-
-			return state;
-		}
-		case 'SET_STYLE_BY_INDEX': {
-			if (JSON.stringify(state.styles[action.index]) !== JSON.stringify(action.styles)) {
-				state.styles[action.index] = action.styles;
-				state.hasStylesUpdated = true;
-
-				return state;
-			}
-
-			return state;
-		}
-		case 'UNSET_STYLE_BY_INDEX': {
-			let internalStyles = {
-				...state,
-			};
-
-			internalStyles.styles.splice(action.index, 1);
-
-			return internalStyles;
-		}
-		case 'SET_STYLES_UPDATED': {
-			return {
-				...state,
-				hasStylesUpdated: true,
-			};
-		}
-		case 'UNSET_STYLES_UPDATED': {
-			return {
-				...state,
-				hasStylesUpdated: false,
-			};
-		}
 		default: {
 			return state;
 		}
@@ -339,15 +172,17 @@ const reducer = ( state = DEFAULT_STATE, action ) => {
 
 // Register the store.
 export const setStore = () => {
-	if (typeof window?.['eightshift'] === 'undefined') {
-		window['eightshift'] = {};
+	if (typeof window?.eightshift === 'undefined') {
+		window.eightshift = {};
 	}
 
-	register(createReduxStore(STORE_NAME, {
-		selectors,
-		actions,
-		reducer,
-	}));
+	register(
+		createReduxStore(STORE_NAME, {
+			selectors,
+			actions,
+			reducer,
+		}),
+	);
 };
 
 /**
@@ -357,36 +192,10 @@ export const setStore = () => {
  *
  * @returns {void}
  */
- export const setConfigFlags = () => {
-
+export const setConfigFlags = () => {
 	const config = select(STORE_NAME).getSettings()?.config;
 
 	if (typeof config !== 'undefined') {
-		// outputCssGlobally
-		if (typeof config?.outputCssGlobally === 'boolean') {
-			dispatch(STORE_NAME).setConfigOutputCssGlobally(config.outputCssGlobally);
-		}
-
-		// outputCssOptimize
-		if (typeof config?.outputCssOptimize === 'boolean') {
-			dispatch(STORE_NAME).setConfigOutputCssOptimize(config.outputCssOptimize);
-		}
-
-		// useRemBaseSize
-		if (typeof config?.useRemBaseSize === 'boolean') {
-			dispatch(STORE_NAME).setConfigUseRemBaseSize(config.useRemBaseSize);
-		}
-
-		// outputCssSelectorName
-		if (typeof config?.outputCssSelectorName === 'string') {
-			dispatch(STORE_NAME).setConfigOutputCssSelectorName(config.outputCssSelectorName);
-		}
-
-		// outputCssGloballyAdditionalStyles
-		if (Array.isArray(config?.outputCssGloballyAdditionalStyles)) {
-			dispatch(STORE_NAME).setConfigOutputCssGloballyAdditionalStyles(config.outputCssGloballyAdditionalStyles);
-		}
-
 		// useWrapper
 		if (typeof config?.useWrapper === 'boolean') {
 			dispatch(STORE_NAME).setConfigUseWrapper(config.useWrapper);
@@ -396,9 +205,9 @@ export const setStore = () => {
 
 // Set global window data for easier debugging.
 export const setStoreGlobalWindow = () => {
-	if (typeof window?.['eightshift']?.['store'] === 'undefined') {
-		window['eightshift']['store'] = {};
+	if (typeof window?.eightshift?.store === 'undefined') {
+		window.eightshift.store = {};
 	}
 
-	window['eightshift']['store'][select(STORE_NAME).getSettingsNamespace()] = STORE_NAME;
+	window.eightshift.store[select(STORE_NAME).getSettingsNamespace()] = STORE_NAME;
 };

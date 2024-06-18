@@ -1,6 +1,7 @@
 import React from 'react';
 import { __ } from '@wordpress/i18n';
-import { Button, icons, HStack, ImagePlaceholder } from '@eightshift/ui-components';
+import { Button, HStack, ImagePlaceholder } from '@eightshift/ui-components';
+import { icons } from '@eightshift/ui-components/icons';
 import { ManageFileButton } from '@eightshift/frontend-libs/scripts/components/file-picker';
 
 const MediaButton = (props) => {
@@ -24,11 +25,14 @@ const MediaButton = (props) => {
  * @property {string} props.imageUrl - URL of the currently selected image.
  * @property {boolean} [props.noDelete] - If `true`, the delete button will be hidden.
  * @property {boolean} [props.noUpload] - If `true`, the upload button will be hidden.
+ * @param {ImagePlaceholderImageMode} [props.imageMode='cover'] - Determines inner image display mode.
  *
- * @returns {JSX.Element} The MediaPlaceholder component.
+ * @returns {JSX.Element} The MediaPicker component.
+ *
+ * @typedef {'cover'|'contain' | 'fill'} ImagePlaceholderImageMode
  *
  * @example
- * <MediaPlaceholder
+ * <MediaPicker
  * 	onChange={onChange}
  * 	imageId={imageId}
  * 	imageAlt={imageAlt}
@@ -36,14 +40,15 @@ const MediaButton = (props) => {
  * />
  *
  */
-export const MediaPlaceholder = (props) => {
-	const { onChange, imageId, imageAlt, imageUrl, noDelete, noUpload } = props;
+export const MediaPicker = (props) => {
+	const { onChange, imageId, imageAlt, imageUrl, noDelete, noUpload, imageMode } = props;
 
 	return (
 		<HStack noWrap>
 			<ImagePlaceholder
 				url={imageUrl}
 				alt={imageAlt}
+				imageMode={imageMode}
 			/>
 
 			{!imageUrl && (

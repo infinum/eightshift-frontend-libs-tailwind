@@ -8,19 +8,20 @@
 		},
 		"active": {
 			"type": "boolean",
-			"description": "If set to false your block will not be registered and will not show in the block editor. Default: true."
+			"description": "Set to `false` if you don't want the block to be registered.",
+			"default": true
 		},
 		"blockName": {
 			"type": "string",
 			"pattern": "^[^\/][a-z0-9-]*$",
-			"description": "The name for a block is a unique string that identifies a block."
+			"description": "Block name. Should be unique!"
 		},
 		"title": {
 			"type": "string",
-			"description": "The display title for your block that can be translated with our translation functions. The block inserter will show this name."
+			"description": "Name of the block, shown in the Inserter, Sidebar, ..."
 		},
 		"category": {
-			"description": "Blocks are grouped into categories to help users browse and discover them.\n Default category is eightshift, but you can and more categories using php hooks in src/Blocks/Blocks.php file.",
+			"description": "To improve user experience, you can categorize blocks. The default category is `eightshift`, more can be added with hooks in `src/Blocks/Blocks.php`.",
 			"anyOf": [{
 					"type": "string"
 				},
@@ -34,48 +35,49 @@
 						"embed"
 					]
 				}
-			]
+			],
+			"default": "eightshift"
 		},
 		"parent": {
 			"type": "array",
-			"description": "Setting parent lets a block know that it is only available when nested within the specified blocks. For example, you might want to allow an 'Add to Cart' block to only be available within a 'Product' block.",
+			"description": "If set, this block will only be available within the provided block. For example, if a _Columns_ block can only have _Column_ blocks as children, set `parent` to the _Columns_ block in the _Column_ block manifest.",
 			"items": {
 				"type": "string"
 			}
 		},
 		"icon": {
 			"type": "object",
-			"description": "An icon property should be specified to make it easier to identify a block. These can be any of WordPress' Dashicons (slug serving also as a fallback in non-js contexts). Also, you can add our custom icons using the es- prefix. All icons can be found here https://eightshift.com/storybook/",
+			"description": "Icon to identify the block. The icon is shown in various places within the Block editor.",
 			"properties": {
 				"background": {
 					"type": "string",
-					"description": "Specifying a background color to appear with the icon e.g.: in the inserter."
+					"description": "Block icon background color. If not set, value from Global manifest is used."
 				},
 				"foreground": {
 					"type": "string",
-					"description": "Specifying a color for the icon (optional: if not set, a readable color will be automatically defined)"
+					"description": "Block icon color. If not set, value from Global manifest is used."
 				},
 				"src": {
 					"type": "string",
-					"description": "Specifying an icon for the block. Can be a name of a Dashicon, a name of an Eighshift block icon, or a SVG string."
+					"description": "Icon source, can be either Eightshift icons (`es-` prefix), SVG strings, or Dashicon name."
 				}
 			},
 			"additionalProperties": false
 		},
 		"description": {
 			"type": "string",
-			"description": "This is a short description for your block, which can be translated with our translation functions. This will be shown in the block inspector."
+			"description": "A short description of the block, shown in a couple of places in the Block editor, e.g. options sidebar."
 		},
 		"keywords": {
 			"type": "array",
-			"description": "Sometimes a block can have aliases that help users discover it while searching. For example, an image block could also want to be discovered by photo name. You can do so by providing an array of unlimited terms (which are translated).",
+			"description": "Additional keywords to help users find the block. Keywords are used when searching for blocks.",
 			"items": {
 				"type": "string"
 			}
 		},
 		"attributes": {
 			"type": "object",
-			"description": "Attributes provide the structured data of a block. They can exist in different forms when they are serialized, but they are declared together under a common interface.\n\nSee the attributes documentation at https://developer.wordpress.org/block-editor/reference-guides/block-api/block-attributes/ for more details.",
+			"description": "Source of truth for data used within the block. Check the [https://developer.wordpress.org/block-editor/reference-guides/block-api/block-attributes/](documentation) for more details.",
 			"patternProperties": {
 				"[a-zA-Z]": {
 					"type": "object",
@@ -147,77 +149,9 @@
 			},
 			"additionalProperties": false
 		},
-		"supports": {
-			"type": "object",
-			"description": "It contains as set of options to control features used in the editor. See the the supports documentation at https://developer.wordpress.org/block-editor/reference-guides/block-api/block-supports/ for more details.",
-			"properties": {
-				"anchor": {
-					"type": "boolean",
-					"description": "Anchors let you link directly to a specific block on a page. This property adds a field to define an id for the block and a button to copy the direct link.",
-					"default": false
-				},
-				"align": {
-					"default": false,
-					"description": "This property adds block controls which allow changing block's alignment.",
-					"oneOf": [{
-							"type": "boolean"
-						},
-						{
-							"type": "array",
-							"items": {
-								"type": "string",
-								"enum": [
-									"wide",
-									"full",
-									"left",
-									"center",
-									"right"
-								]
-							}
-						}
-					]
-				},
-				"alignWide": {
-					"type": "boolean",
-					"description": "This property allows enabling wide alignment for your theme. To disable this behavior for a single block, set this flag to false.",
-					"default": true
-				},
-				"customClassName": {
-					"type": "boolean",
-					"description": "This property adds a field, defining a custom className for the block's wrapper.",
-					"default": true
-				},
-				"defaultStylePicker": {
-					"type": "boolean",
-					"description": "When the style picker is shown, a dropdown is displayed so the user can select a default style for this block type. If you prefer not to show the dropdown, set this property to false.",
-					"default": true
-				},
-				"html": {
-					"type": "boolean",
-					"description": "By default, a block's markup can be edited individually. To disable this behavior, set it to false.",
-					"default": true
-				},
-				"inserter": {
-					"type": "boolean",
-					"description": "By default, all blocks will appear in the inserter. To hide a block so that it can only be inserted programmatically, set inserter to false.",
-					"default": true
-				},
-				"multiple": {
-					"type": "boolean",
-					"description": "A non-multiple block can be inserted into each post, one time only. For example, the built-in 'More' block cannot be inserted again if it already exists in the post being edited. A non-multiple block’s icon is automatically dimmed (unclickable) to prevent multiple instances.",
-					"default": true
-				},
-				"reusable": {
-					"type": "boolean",
-					"description": "A block may want to disable the ability of being converted into a reusable block. By default all blocks can be converted to a reusable block. If supports reusable is set to false, the option to convert the block into a reusable block will not appear.",
-					"default": true
-				}
-			},
-			"additionalProperties": true
-		},
 		"example": {
 			"type": "object",
-			"description": "It provides structured example data for the block. This data is used to construct a preview for the block to be shown in the Inspector Help Panel when the user mouses over the block.\n\nSee the the example documentation at https://developer.wordpress.org/block-editor/reference-guides/block-api/block-registration/#example-optional for more details.",
+			"description": "Data for the block preview, shown in the Inserter when hovering over block names.",
 			"properties": {
 				"attributes": {
 					"type": "object",
@@ -231,23 +165,16 @@
 		},
 		"hasInnerBlocks": {
 			"type": "boolean",
-			"description": "If the hasInnerBlocks key is set to true, the block's save method for inner blocks will be used. This method is used when the block has InnerBlocks. In the PHP view file, you will have the $renderContent variable available. Default: false."
+			"description": "Set to `true` if the block needs to support `InnerBlocks`. You can then use `$renderContent` in the PHP view file to render the inner blocks.",
+			"default": false
 		},
 		"components": {
 			"type": "object",
-			"description": "This key gives you the ability to use component attributes in your block without mapping all the component's attributes every time. Please check https://eightshift.com/docs/basics/blocks-component-in-block/ chapter for more details."
-		},
-		"responsiveAttributes": {
-			"type": "object",
-			"description": "This key is used to combine multiple attributes with the similar name for the responsive breakpoints. Please check https://eightshift.com/docs/basics/blocks-styles/ chapter for more details."
-		},
-		"variables": {
-			"type": "object",
-			"description": "This key is used to provide output for CSS variables. Please check https://eightshift.com/docs/basics/blocks-styles/ chapter for more details."
+			"description": "Defines components used within the block. Component attributes can be provided with the `props` function. Check the [documentation](https://eightshift.com/docs/basics/blocks-component-in-block/) for more info."
 		},
 		"options": {
 			"type": "object",
-			"description": "This key is used to provide options used in the Block Editor options for components like SelectControl or RangeControl. With this key, you can pass options and change them depending on the component used. Please check https://eightshift.com/docs/basics/blocks-component-in-block/ chapter for more details."
+			"description": "Defines common option presets for attributes. Check the [documentation](https://eightshift.com/docs/basics/blocks-component-in-block/) for more info."
 		}
 	},
 	"required": [

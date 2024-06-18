@@ -1,6 +1,6 @@
 import { useSelect } from '@wordpress/data';
 import { STORE_NAME } from './store';
-import { upperFirst } from '@eightshift/frontend-libs/scripts/helpers';
+import { upperFirst } from '@eightshift/ui-components/utilities';
 
 /**
  * Returns colors from the global stores from the theme.
@@ -25,7 +25,6 @@ export const getPaletteColors = () => useSelect((select) => {
 		{}
 	);
 });
-
 
 export const getColorData = (themeColors) => Object.entries(themeColors ?? {}).reduce((curr, [name, value]) => {
 	if (name === 'current') {

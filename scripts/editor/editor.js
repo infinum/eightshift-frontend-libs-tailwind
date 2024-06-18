@@ -2,7 +2,7 @@ import React from 'react';
 import { dispatch } from '@wordpress/data';
 import { InspectorControls, BlockControls } from '@wordpress/block-editor';
 import { ContainerPanel } from '@eightshift/ui-components';
-import { upperFirst } from '@eightshift/frontend-libs/scripts/helpers/es-dash';
+import { upperFirst } from '@eightshift/ui-components/utilities';
 
 /**
  * Given a block's client ID and an attribute key, locks post saving in Gutenberg.
@@ -88,8 +88,9 @@ export const lockIfUndefined = (blockClientId, attributeKey, value) => {
  * @param {JSX.Element?} [props.toolbar] - Toolbar component
  * @param {JSX.Element?} [props.editor] - Editor component
  * @param {boolean} [props.noOptionsContainer] - If `true`, the options component will not be wrapped in a container.
+ * @param {string} props.title - Block name. Will fall back to a name generated from the `blockName` attribute.
  *
- * @returns {JSX.Element} The componentName component.
+ * @returns {JSX.Element} The GutenbergBlock component.
  *
  * @access public
  * @since 1.0.0
@@ -108,6 +109,7 @@ export const GutenbergBlock = (props) => {
 		toolbar: ToolbarComponent,
 		editor: EditorComponent,
 		noOptionsContainer = false,
+		title,
 	} = props;
 
 	return (
@@ -115,7 +117,7 @@ export const GutenbergBlock = (props) => {
 			{OptionsComponent &&
 				<InspectorControls>
 					{!noOptionsContainer &&
-						<ContainerPanel title={upperFirst(props?.attributes?.blockName)}>
+						<ContainerPanel title={title ?? upperFirst(props?.attributes?.blockName)}>
 							<OptionsComponent {...props} />
 						</ContainerPanel>
 					}

@@ -1,25 +1,12 @@
 // All exports are sorted in alphabetical order.
 
-export {
-	overrideInnerBlockAttributes,
-	checkAttr,
-	checkAttrResponsive,
-	getAttrKey,
-	props,
-} from './attributes';
-export { getPaletteColors } from './colors';
-export {
-	GutenbergBlock,
-	lockIfUndefined,
-	lockPostEditing,
-	unlockPostEditing,
-} from './editor';
-export { fetchFromWpRest, wpSearchRoute } from './fetch';
-export {
-	getOption,
-	getOptionColors,
-	getOptions
-} from './options';
+export * from './attributes';
+export * from './colors';
+export * from './editor';
+export * from './fetch';
+export * from './options';
+export * from './utility';
+export * from './tailwindcss';
 export {
 	getAttributes,
 	getExample,
@@ -28,13 +15,4 @@ export {
 	registerBlocks,
 	registerVariations,
 } from './registration';
-export {
-	STORE_NAME,
-	BUILD_VERSION,
-	setStore,
-	setStoreGlobalWindow,
-	setConfigFlags,
-} from './store';
-export { ucfirst } from './utility';
-
-export * from './tailwindcss';
+export { STORE_NAME, BUILD_VERSION, setStore, setStoreGlobalWindow, setConfigFlags } from './store';

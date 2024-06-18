@@ -1,4 +1,4 @@
-import { unescapeHTML } from '../helpers/text-helpers';
+import { unescapeHTML } from '@eightshift/ui-components/utilities';
 
 /**
  * Returns a function that fetches data from WordPress REST API.

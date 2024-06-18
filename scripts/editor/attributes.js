@@ -1,4 +1,4 @@
-import { camelCase, has, isEmpty, lowerFirst, upperFirst } from '../helpers';
+import { camelCase, isEmpty, lowerFirst, upperFirst } from '@eightshift/ui-components/utilities';
 
 /**
  * Sets attributes on all `innerBlocks`. This value will be stored in the Block editor store and set to a block.
@@ -98,7 +98,6 @@ export const overrideInnerBlockAttributes = (select, clientId, attributesObject 
  * ```
  */
 export const checkAttr = (key, attributes, manifest, undefinedAllowed = false) => {
-
 	// Get the correct key for the check in the attributes object.
 	const newKey = getAttrKey(key, attributes, manifest);
 
@@ -152,92 +151,6 @@ export const checkAttr = (key, attributes, manifest, undefinedAllowed = false) =
 	}
 
 	return defaultValue;
-};
-
-/**
- * Maps and check attributes for a responsive object using the checkAttr helper.
- *
- * @param {string} keyName                   - Key name to find in responsiveAttributes object.
- * @param {array} attributes                 - Array of attributes.
- * @param {object} manifest                  - Components/blocks manifest.json
- * @param {boolean} [undefinedAllowed=false] - Allowed detection of undefined values.
- *
- * @access public
- *
- * @returns {mixed}
- *
-* Manifest:
-	* ```js
-	* {
-	*   "attributes": {
-	*     "headingContentSpacingLarge": {
-	*       "type": "integer",
-	*       "default": 10,
-	*     },
-	*     "headingContentSpacingDesktop": {
-	*       "type": "integer",
-	*       "default": 5,
-	*     },
-	*     "headingContentSpacingTablet": {
-	*       "type": "integer",
-	*       "default": 3,
-	*     },
-	*     "headingContentSpacingMobile": {
-	*       "type": "integer",
-	*       "default": 1,
-	*     }
-	*   },
-	*   "responsiveAttributes": {
-	*     "headingContentSpacing": {
-	*       "large": "headingContentSpacingLarge",
-	*       "desktop": "headingContentSpacingDesktop",
-	*       "tablet": "headingContentSpacingTablet",
-	*       "mobile": "headingContentSpacingMobile"
-	*     }
-	*   }
-	* }
-	* ```
-	*
-	* Usage:
-	* ```js
-	* checkAttrResponsive('headingContentSpacing', attributes, manifest);
-	* ```
-	*
-	* Output:
-	* ```js
-	* [
-	*   large: 10,
-	*   desktop: 5,
-	*   tablet: 3,
-	*   mobile: 1,
-	* ]
-	* ```
-	*/
-export const checkAttrResponsive = (keyName, attributes, manifest, undefinedAllowed = false) => {
-	const output = {};
-
-	// Bailout if missing keys.
-	const responsiveAttributes = manifest?.responsiveAttributes;
-
-	if (typeof responsiveAttributes === 'undefined') {
-		if (typeof manifest['blockName'] === 'undefined') {
-			throw Error(`It looks like you are missing responsiveAttributes key in your ${manifest['blockName']} block manifest.`);
-		} else {
-			throw Error(`It looks like you are missing responsiveAttributes key in your ${manifest['componentName']} component manifest.`);
-		}
-	}
-
-	// Bailout if attribute keys is missing.
-	if (!has(responsiveAttributes, keyName)) {
-		throw Error(`It looks like you are missing ${keyName} key in your manifest responsiveAttributes object.`);
-	}
-
-	// Iterate keys in responsiveAttributes object and use checkAttr helper.
-	for (const [key, value] of Object.entries(responsiveAttributes[keyName])) {
-		output[key] = checkAttr(value, attributes, manifest, undefinedAllowed);
-	}
-
-	return output;
 };
 
 /**

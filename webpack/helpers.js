@@ -4,7 +4,6 @@
  */
 
 const path = require('path');
-const fs = require('fs');
 
 /**
  * Generate all paths required for Webpack build to work.
