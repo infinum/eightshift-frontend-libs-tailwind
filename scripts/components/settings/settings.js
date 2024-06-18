@@ -2,7 +2,7 @@
 
 import { Toaster } from 'sonner';
 import { __ } from '@wordpress/i18n';
-import { Button, Tabs, TabList, Tab, TabPanel, HStack } from '@eightshift/ui-components';
+import { Button, HStack } from '@eightshift/ui-components';
 import { icons } from '@eightshift/ui-components/icons';
 import { createContext } from '@wordpress/element';
 import { clsx } from '@eightshift/ui-components/utilities';
@@ -10,7 +10,9 @@ import { useThemeOptions } from './use-theme-options';
 
 export const EsThemeOptionsContext = createContext(null);
 
-export const ThemeOptionsPage = ({ title = __('Theme options', 'fe-libs-tailwind'), tabs, settingName }) => {
+export const tabPanelClassName = 'es-uic-bg-white es-uic-w-full es-uic-max-w-96';
+
+export const ThemeOptionsPage = ({ title = __('Theme options', 'fe-libs-tailwind'), children, settingName }) => {
 	const themeOptions = useThemeOptions(settingName);
 	const { isLoading, saveSettings } = themeOptions;
 
@@ -31,30 +33,7 @@ export const ThemeOptionsPage = ({ title = __('Theme options', 'fe-libs-tailwind
 					</Button>
 				</HStack>
 
-				<Tabs>
-					<TabList>
-						{tabs.map(({ icon, label, subtitle }, index) => {
-							return (
-								<Tab
-									key={index}
-									icon={icon}
-									label={label}
-									subtitle={subtitle}
-								/>
-							);
-						})}
-					</TabList>
-					{tabs.map(({ panel }, index) => {
-						return (
-							<TabPanel
-								key={index}
-								className='es-uic-bg-white es-uic-w-full es-uic-max-w-96'
-							>
-								{panel}
-							</TabPanel>
-						);
-					})}
-				</Tabs>
+				{children}
 			</div>
 		</EsThemeOptionsContext.Provider>
 	);
