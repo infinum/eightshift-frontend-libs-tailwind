@@ -68,7 +68,7 @@
 		"webpack-merge": "^5.10.0",
 		"postcss-mixins": "^10.0.1",
 		"tailwindcss": "^3.4.3",
-		"@eightshift/ui-components": "^0.0.3",
+		"@eightshift/ui-components": "^0.0.4",
 		"@wordpress/server-side-render": "^5.1.0",
 		"sonner": "^1.5.0"
 	},
