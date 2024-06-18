@@ -6,12 +6,12 @@ import { Button, Tabs, TabList, Tab, TabPanel, HStack } from '@eightshift/ui-com
 import { icons } from '@eightshift/ui-components/icons';
 import { createContext } from '@wordpress/element';
 import { clsx } from '@eightshift/ui-components/utilities';
-import { useThemeOptions } from '@eightshift/frontend-libs-tailwind/scripts/components/settings/use-theme-options';
+import { useThemeOptions } from './use-theme-options';
 
 export const EsThemeOptionsContext = createContext(null);
 
-export const ThemeOptionsPage = ({ title = __('Theme options', 'fe-libs-tailwind'), tabs }) => {
-	const themeOptions = useThemeOptions();
+export const ThemeOptionsPage = ({ title = __('Theme options', 'fe-libs-tailwind'), tabs, settingName }) => {
+	const themeOptions = useThemeOptions(settingName);
 	const { isLoading, saveSettings } = themeOptions;
 
 	return (
