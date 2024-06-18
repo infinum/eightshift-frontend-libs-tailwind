@@ -1,5 +1,5 @@
 {
-	"title": "JSON schema for Eightshift blocks used in block manifest.json",
+	"title": "JSON schema for Eightshift blocks",
 	"$schema": "http://json-schema.org/draft-04/schema#",
 	"type": "object",
 	"properties": {
@@ -8,7 +8,7 @@
 		},
 		"active": {
 			"type": "boolean",
-			"description": "Set to `false` if you don't want the block to be registered.",
+			"description": "Set to 'false' if you don't want the block to be registered.",
 			"default": true
 		},
 		"blockName": {
@@ -21,7 +21,7 @@
 			"description": "Name of the block, shown in the Inserter, Sidebar, ..."
 		},
 		"category": {
-			"description": "To improve user experience, you can categorize blocks. The default category is `eightshift`, more can be added with hooks in `src/Blocks/Blocks.php`.",
+			"description": "To improve user experience, you can categorize blocks. The default category is 'eightshift', more can be added with hooks in 'src/Blocks/Blocks.php'.",
 			"anyOf": [{
 					"type": "string"
 				},
@@ -40,14 +40,14 @@
 		},
 		"parent": {
 			"type": "array",
-			"description": "If set, this block will only be available within the provided block. For example, if a _Columns_ block can only have _Column_ blocks as children, set `parent` to the _Columns_ block in the _Column_ block manifest.",
+			"description": "If set, this block will only be available within the provided block. For example, if a 'Columns' block can only have 'Column' blocks as children, set 'parent' to '<namespace>/columns' in the 'Column' block manifest.",
 			"items": {
 				"type": "string"
 			}
 		},
 		"icon": {
 			"type": "object",
-			"description": "Icon to identify the block. The icon is shown in various places within the Block editor.",
+			"description": "Icon to identify the block, shown in various places within the Block editor.",
 			"properties": {
 				"background": {
 					"type": "string",
@@ -59,7 +59,7 @@
 				},
 				"src": {
 					"type": "string",
-					"description": "Icon source, can be either Eightshift icons (`es-` prefix), SVG strings, or Dashicon name."
+					"description": "Icon source, can be either Eightshift icons ('es-' prefix), SVG strings, or Dashicon name."
 				}
 			},
 			"additionalProperties": false
@@ -77,7 +77,7 @@
 		},
 		"attributes": {
 			"type": "object",
-			"description": "Source of truth for data used within the block. Check the [https://developer.wordpress.org/block-editor/reference-guides/block-api/block-attributes/](documentation) for more details.",
+			"description": "Source of truth for data used within the block. Check https://developer.wordpress.org/block-editor/reference-guides/block-api/block-attributes/ for more details.",
 			"patternProperties": {
 				"[a-zA-Z]": {
 					"type": "object",
@@ -165,16 +165,16 @@
 		},
 		"hasInnerBlocks": {
 			"type": "boolean",
-			"description": "Set to `true` if the block needs to support `InnerBlocks`. You can then use `$renderContent` in the PHP view file to render the inner blocks.",
+			"description": "Set to 'true' if the block needs to support 'InnerBlocks'. You can then use '$renderContent' in the PHP view file to render the inner blocks.",
 			"default": false
 		},
 		"components": {
 			"type": "object",
-			"description": "Defines components used within the block. Component attributes can be provided with the `props` function. Check the [documentation](https://eightshift.com/docs/basics/blocks-component-in-block/) for more info."
+			"description": "Defines components used within the block. Component attributes can be used with the 'props' function. Check https://eightshift.com/docs/basics/blocks-component-in-block/ for more info."
 		},
 		"options": {
 			"type": "object",
-			"description": "Defines common option presets for attributes. Check the [documentation](https://eightshift.com/docs/basics/blocks-component-in-block/) for more info."
+			"description": "Defines common option definitions for attributes. Check https://eightshift.com/docs/basics/blocks-component-in-block/ for more info."
 		}
 	},
 	"required": [

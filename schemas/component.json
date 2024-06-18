@@ -1,5 +1,5 @@
 {
-	"title": "JSON schema for Eightshift blocks used in component manifest.json",
+	"title": "JSON schema for Eightshift components",
 	"$schema": "http://json-schema.org/draft-04/schema#",
 	"type": "object",
 	"properties": {
@@ -9,23 +9,19 @@
 		"componentName": {
 			"type": "string",
 			"pattern": "^[^\/][a-z0-9-]*$",
-			"description": "The name for a componentName is a unique string that identifies a componentName."
+			"description": "Unique identifier for the component."
 		},
 		"title": {
 			"type": "string",
-			"description": "The display title of your component."
-		},
-		"componentClass": {
-			"type": "string",
-			"description": "The value your component class will have."
+			"description": "User-facing name of the component."
 		},
 		"description": {
 			"type": "string",
-			"description": "A short description for your block that can be translated with our translation functions. This will be shown in the block inspector."
+			"description": "A short description of the component."
 		},
 		"attributes": {
 			"type": "object",
-			"description": "Attributes provide the structured data needs of a block. They can exist in different forms when they are serialized, but they are declared together under a common interface.\n\nSee the attributes documentation at https://developer.wordpress.org/block-editor/reference-guides/block-api/block-attributes/ for more details.",
+			"description": "Source of truth for data used within the component. Check https://developer.wordpress.org/block-editor/reference-guides/block-api/block-attributes/ for more details.",
 			"patternProperties": {
 				"[a-zA-Z]": {
 					"type": "object",
@@ -99,7 +95,7 @@
 		},
 		"example": {
 			"type": "object",
-			"description": "It provides structured example data for the block. This data is used to construct a preview for the block to be shown in the Inspector Help Panel when the user mouses over the block.\n\nSee the the example documentation at https://developer.wordpress.org/block-editor/reference-guides/block-api/block-registration/#example-optional for more details.",
+			"description": "Sample data to showcase the component.",
 			"properties": {
 				"attributes": {
 					"type": "object",
@@ -113,19 +109,11 @@
 		},
 		"components": {
 			"type": "object",
-			"description": "This key gives you the ability to use component attributes in your block without mapping all the component's attributes every time. Please check https://eightshift.com/docs/basics/blocks-component-in-block/ chapter for more details."
-		},
-		"responsiveAttributes": {
-			"type": "object",
-			"description": "This key is used to combine multiple attributes with the similar name for the responsive breakpoints. Please check https://eightshift.com/docs/basics/blocks-styles/ chapter for more details."
-		},
-		"variables": {
-			"type": "object",
-			"description": "This key is used to provide output for CSS variables. Please check https://eightshift.com/docs/basics/blocks-styles/ chapter for more details."
+			"description": "Defines components included in this component. Component attributes can be used with the 'props' function. Check https://eightshift.com/docs/basics/blocks-component-in-block/ for more info."
 		},
 		"options": {
 			"type": "object",
-			"description": "This key is used to provide options used in the Block Editor options for components like SelectControl or RangeControl. With this key, you can pass options and change them depending on the component used. Please check https://eightshift.com/docs/basics/blocks-component-in-block/ chapter for more details."
+			"description": "Defines common option definitions for attributes. Check https://eightshift.com/docs/basics/blocks-component-in-block/ for more info."
 		}
 	},
 	"required": [
