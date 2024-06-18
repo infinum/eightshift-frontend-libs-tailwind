@@ -10,8 +10,6 @@ import { useThemeOptions } from './use-theme-options';
 
 export const EsThemeOptionsContext = createContext(null);
 
-export const tabPanelClassName = 'es-uic-bg-white es-uic-w-full es-uic-max-w-96';
-
 export const ThemeOptionsPage = ({ title = __('Theme options', 'fe-libs-tailwind'), children, settingName }) => {
 	const themeOptions = useThemeOptions(settingName);
 	const { isLoading, saveSettings } = themeOptions;
