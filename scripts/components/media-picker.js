@@ -2,7 +2,7 @@ import React from 'react';
 import { __ } from '@wordpress/i18n';
 import { Button, HStack, ImagePlaceholder } from '@eightshift/ui-components';
 import { icons } from '@eightshift/ui-components/icons';
-import { ManageFileButton } from '@eightshift/frontend-libs/scripts/components/file-picker';
+import { ManageFileButton } from '@eightshift/frontend-libs-tailwind/scripts/components/file-picker';
 
 const MediaButton = (props) => {
 	return (

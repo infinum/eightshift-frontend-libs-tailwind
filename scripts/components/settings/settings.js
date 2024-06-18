@@ -6,7 +6,7 @@ import { Button, Tabs, TabList, Tab, TabPanel, HStack } from '@eightshift/ui-com
 import { icons } from '@eightshift/ui-components/icons';
 import { createContext } from '@wordpress/element';
 import { clsx } from '@eightshift/ui-components/utilities';
-import { useThemeOptions } from '@eightshift/frontend-libs/scripts/components/settings/use-theme-options';
+import { useThemeOptions } from '@eightshift/frontend-libs-tailwind/scripts/components/settings/use-theme-options';
 
 export const EsThemeOptionsContext = createContext(null);
 
