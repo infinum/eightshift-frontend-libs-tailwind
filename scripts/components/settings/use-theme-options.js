@@ -3,7 +3,7 @@ import { useState, useEffect } from '@wordpress/element';
 import { toast } from 'sonner';
 import apiFetch from '@wordpress/api-fetch';
 
-export const useThemeOptions = (settingName = 'eightshift-theme-options') => {
+export const useThemeOptions = (settingName) => {
 	const [settings, setSettings] = useState();
 	const [isLoading, setIsLoading] = useState(false);
 
