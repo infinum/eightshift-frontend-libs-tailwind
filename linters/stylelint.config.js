@@ -138,16 +138,6 @@ module.exports = {
 		'no-unknown-animations': true,
 
 		'keyframes-name-pattern': null,
-		'scss/at-function-pattern': null,
-		'scss/dollar-variable-pattern': null,
-		'scss/at-import-partial-extension': null,
-		'scss/no-global-function-names': null,
-		'scss/dollar-variable-empty-line-before': null,
-		'scss/at-if-closing-brace-newline-after': null,
-		'scss/at-if-closing-brace-space-after': null,
-		'scss/at-else-closing-brace-newline-after': null,
-		'scss/at-else-closing-brace-space-after': null,
-		'scss/at-if-no-null': null,
 		'selector-class-pattern': null,
 		'no-descending-specificity': null,
 
