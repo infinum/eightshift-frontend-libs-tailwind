@@ -100,9 +100,6 @@ module.exports = (options) => {
 				{
 					loader: 'postcss-loader',
 				},
-				{
-					loader: 'import-glob',
-				},
 			],
 		});
 
