@@ -3,6 +3,7 @@
  *
  */
 
+const { merge } = require('webpack-merge');
 const { getConfig } = require('./helpers');
 
 module.exports = (mode, optionsData = {}) => {
@@ -33,10 +34,7 @@ module.exports = (mode, optionsData = {}) => {
 	const production = require('./production')(options);
 
 	// Default output that is going to be merged in any env.
-	const outputDefault = {
-		...base,
-		...project,
-	};
+	const outputDefault = merge(project, base);
 
 	// Output development setup by default.
 	const development = {
@@ -46,16 +44,5 @@ module.exports = (mode, optionsData = {}) => {
 		},
 	};
 
-	const additional = (mode === 'production'
-		? production
-		: development);
-
-	return {
-		...outputDefault,
-		...additional,
-		plugins: [
-			...outputDefault.plugins,
-			...(additional?.plugins ?? []),
-		],
-	};
+	return merge(outputDefault, mode === 'production' ? production : development);
 };

@@ -62,7 +62,8 @@
 		"@wordpress/server-side-render": "^5.1.0",
 		"sonner": "^1.5.0",
 		"prettier": "^3.3.2",
-		"prettier-plugin-tailwindcss": "^0.6.5"
+		"prettier-plugin-tailwindcss": "^0.6.5",
+		"webpack-merge": "^5.10.0"
 	},
 	"devDependencies": {
 		"lint-staged": "^15.2.7",
