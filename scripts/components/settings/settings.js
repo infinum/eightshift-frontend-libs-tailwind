@@ -32,7 +32,6 @@ export const ThemeOptionsPage = ({
 
 					<Button
 						onPress={() => saveSettings()}
-						size='large'
 						disabled={isLoading}
 						icon={isLoading ? icons.moreH : icons.save}
 					>
