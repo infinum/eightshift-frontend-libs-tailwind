@@ -36,7 +36,6 @@
 	"dependencies": {
 		"@stylistic/stylelint-plugin": "^2.1.2",
 		"@swc/core": "^1.5.25",
-		"@wordpress/api-fetch": "^6.55.0",
 		"@wordpress/block-editor": "^12.26.0",
 		"@wordpress/dependency-extraction-webpack-plugin": "^5.9.0",
 		"@wordpress/dom-ready": "^4.0.0",
