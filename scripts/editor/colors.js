@@ -26,7 +26,7 @@ export const getPaletteColors = () => useSelect((select) => {
 	);
 });
 
-export const getColorData = (themeColors) => Object.entries(themeColors ?? {}).reduce((curr, [name, value]) => {
+export const getColorData = (themeColors) => Object.entries(themeColors ?? {})?.reduce((curr, [name, value]) => {
 	if (name === 'current') {
 		return curr;
 	}
