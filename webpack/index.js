@@ -39,15 +39,17 @@ module.exports = (mode, optionsData = {}) => {
 	};
 
 	// Output development setup by default.
-	return merge(
-		outputDefault,
-		mode === 'production'
+	const development = {
+		devtool: false,
+		watchOptions: {
+			ignored: '**/node_modules',
+		},
+	};
+
+	return {
+		...outputDefault,
+		...(mode === 'production'
 			? production
-			: {
-					devtool: false,
-					watchOptions: {
-						ignored: '**/node_modules',
-					},
-			  }
-	);
+			: development)
+	};
 };

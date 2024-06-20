@@ -37,6 +37,7 @@
 		"webpack-cli": "^5.1.4",
 		"@swc/core": "^1.6.3",
 		"@stylistic/stylelint-plugin": "^2.1.2",
+		"@wordpress/block-editor": "^13.1.0",
 		"@wordpress/dependency-extraction-webpack-plugin": "^6.1.0",
 		"swc-loader": "^0.2.6",
 		"browserslist": "^4.23.1",
@@ -71,8 +72,7 @@
 		"tailwindcss-animate": "^1.0.7",
 		"fluid-tailwind": "^1.0.2",
 		"@wordpress/api-fetch": "^7.1.0",
-		"@wordpress/dom-ready": "^4.1.0",
-		"@wordpress/block-editor": "^13.1.0"
+		"@wordpress/dom-ready": "^4.1.0"
 	},
 	"sideEffects": false,
 	"lint-staged": {
