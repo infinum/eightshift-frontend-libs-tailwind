@@ -43,7 +43,6 @@ module.exports = (options) => {
 	if (!options.overrides.includes('cssMinimizerPlugin')) {
 		optimization.minimizer.push(new CssMinimizerPlugin({
 			parallel: true,
-			// minify: CssMinimizerPlugin.cssoMinify,
 			minify: CssMinimizerPlugin.lightningCssMinify,
 			minimizerOptions: {
 				targets: lightningcss.browserslistToTargets(browserslist('>= 0.25%'))

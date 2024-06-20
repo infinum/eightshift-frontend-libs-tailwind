@@ -6,20 +6,12 @@
 const webpack = require('webpack');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const { WebpackManifestPlugin } = require('webpack-manifest-plugin');
-const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 const DependencyExtractionWebpackPlugin = require('@wordpress/dependency-extraction-webpack-plugin');
 
 module.exports = (options) => {
 
 	// All Plugins used in production and development build.
 	const plugins = [];
-
-	// Clean public files before next build.
-	if (!options.overrides.includes('cleanWebpackPlugin')) {
-		plugins.push(new CleanWebpackPlugin({
-			cleanStaleWebpackAssets: false,
-		}));
-	}
 
 	// Provide global variables to window object.
 	if (!options.overrides.includes('providePlugin')) {
