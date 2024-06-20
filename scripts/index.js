@@ -30,7 +30,7 @@ export {
 	setStore,
 	setStoreGlobalWindow,
 	setConfigFlags,
-} from './store';
+} from './editor/store';
 
 // Helpers.
 export {
