@@ -1,0 +1,17 @@
+{
+	"$schema": "https://raw.githubusercontent.com/infinum/eightshift-frontend-libs-tailwind/main/schemas/variation.json",
+	"parentName": "card",
+	"name": "card-simple",
+	"title": "Card: Simple",
+	"description" : "Card Block Variation for simple style.",
+	"icon": {
+		"src": "es-card-simple"
+	},
+	"attributes": {
+		"cardCardParagraphUse": false,
+		"cardCardButtonUse": false
+	},
+	"scope": [
+		"inserter"
+	]
+}

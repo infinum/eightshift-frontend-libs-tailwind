@@ -25,9 +25,9 @@ export const useThemeOptions = (settingName) => {
 				},
 			});
 
-			toast.success(__('Saved successfully', 'fe-libs-tailwind'));
+			toast.success(__('Saved successfully', '%g_textdomain%'));
 		} catch (error) {
-			toast.error(__('Something went wrong while saving', 'fe-libs-tailwind'), {
+			toast.error(__('Something went wrong while saving', '%g_textdomain%'), {
 				description: error.message,
 			});
 		} finally {

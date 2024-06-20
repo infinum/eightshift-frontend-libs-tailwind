@@ -1,0 +1,127 @@
+{
+	"$schema": "https://raw.githubusercontent.com/infinum/eightshift-frontend-libs-tailwind/main/schemas/component.json",
+	"componentName": "list",
+	"title": "List",
+	"componentClass": "list",
+	"example": {
+		"attributes": {
+			"listContent": "<li>List item 1</li><li>List item 2</li><li>List item 3</li>",
+			"listType": "ul",
+			"listSize": "default",
+			"listColor": "primary500",
+			"listUse": true
+		}
+	},
+	"attributes": {
+		"listContent": {
+			"type": "string"
+		},
+		"listType": {
+			"type": "string",
+			"default": "ul"
+		},
+		"listStyle": {
+			"type": "string",
+			"default": "disc"
+		},
+		"listSize": {
+			"type": "string",
+			"default": "base"
+		},
+		"listFontWeight": {
+			"type": "string",
+			"default": "400"
+		},
+		"listUse": {
+			"type": "boolean",
+			"default": true
+		}
+	},
+	"options": {
+		"listSize": [
+			{
+				"label": "24",
+				"value": "lg"
+			},
+			{
+				"label": "20",
+				"value": "md"
+			},
+			{
+				"label": "16",
+				"value": "base"
+			},
+			{
+				"label": "14",
+				"value": "sm"
+			}
+		],
+		"listFontWeight": [
+			{
+				"label": "Normal",
+				"value": "400"
+			},
+			{
+				"label": "Bold",
+				"value": "700"
+			}
+		],
+		"listStyle": [
+			{
+				"label": "No list markers",
+				"value": "none",
+				"icon": "emptyCircle"
+			},
+			{
+				"label": "Numeric list",
+				"value": "decimal",
+				"icon": "listOrdered"
+			},
+			{
+				"label": "Bulleted list",
+				"value": "disc",
+				"icon": "listUnordered"
+			},
+			{
+				"label": "Checkmark list",
+				"value": "checks",
+				"icon": "optionList"
+			}
+		]
+	},
+	"tailwind": {
+		"base": {
+			"twClasses": "font-sans [&>a]:underline font-synthesis-none list-inside",
+			"twClassesEditor": "font-sans [&>a]:underline font-synthesis-none *:list-inside"
+		},
+		"options": {
+			"listSize": {
+				"twClasses": {
+					"sm": "text-sm",
+					"base": "~mobile/desktop:~text-sm/base",
+					"md": "~mobile/desktop:~text-lg/2xl",
+					"lg": "~mobile/desktop:~text-xl/3xl"
+				}
+			},
+			"listFontWeight": {
+				"twClasses": {
+					"700": "font-bold"
+				}
+			},
+			"listStyle": {
+				"twClasses": {
+					"none": "list-none",
+					"disc": "list-disc",
+					"decimal": "list-decimal",
+					"checks": "list-['✓']"
+				},
+				"twClassesEditor": {
+					"none": "*:list-none",
+					"disc": "*:list-disc",
+					"decimal": "*:list-decimal",
+					"checks": "*:list-['✓']"
+				}
+			}
+		}
+	}
+}

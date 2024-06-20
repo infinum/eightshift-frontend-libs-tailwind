@@ -1,0 +1,81 @@
+{
+	"$schema": "https://raw.githubusercontent.com/infinum/eightshift-frontend-libs-tailwind/main/schemas/component.json",
+	"componentName": "paragraph",
+	"title": "Paragraph",
+	"componentClass": "paragraph",
+	"example": {
+		"attributes": {
+			"paragraphContent": "This is paragraph",
+			"paragraphSize": "base",
+			"paragraphFontWeight": "400",
+			"paragraphUse": true
+		}
+	},
+	"attributes": {
+		"paragraphContent": {
+			"type": "string"
+		},
+		"paragraphSize": {
+			"type": "string",
+			"default": "base"
+		},
+		"paragraphFontWeight": {
+			"type": "string",
+			"default": "400"
+		},
+		"paragraphUse": {
+			"type": "boolean",
+			"default": true
+		}
+	},
+	"options": {
+		"paragraphSize": [
+			{
+				"label": "24",
+				"value": "lg"
+			},
+			{
+				"label": "20",
+				"value": "md"
+			},
+			{
+				"label": "16",
+				"value": "base"
+			},
+			{
+				"label": "14",
+				"value": "sm"
+			}
+		],
+		"paragraphFontWeight": [
+			{
+				"label": "Normal",
+				"value": "400"
+			},
+			{
+				"label": "Bold",
+				"value": "700"
+			}
+		]
+	},
+	"tailwind": {
+		"base": {
+			"twClasses": "font-sans [&>a]:underline font-synthesis-none"
+		},
+		"options": {
+			"paragraphSize": {
+				"twClasses": {
+					"sm": "text-sm",
+					"base": "~mobile/desktop:~text-sm/base",
+					"md": "~mobile/desktop:~text-lg/2xl",
+					"lg": "~mobile/desktop:~text-xl/3xl"
+				}
+			},
+			"paragraphFontWeight": {
+				"twClasses": {
+					"700": "font-bold"
+				}
+			}
+		}
+	}
+}

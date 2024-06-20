@@ -1,0 +1,7 @@
+.wrapper-contained {
+	@apply max-w-screen-tablet ~mobile/tablet:~px-4/6 [@media(min-width:81.5rem)]:mx-auto;
+}
+
+.wrapper-full {
+	@apply *:max-w-[77rem] ~mobile/tablet:~px-4/6 [@media(min-width:81.5rem)]:*:mx-auto;
+}

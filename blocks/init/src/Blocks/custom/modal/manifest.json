@@ -1,0 +1,51 @@
+{
+	"$schema": "https://raw.githubusercontent.com/infinum/eightshift-frontend-libs-tailwind/main/schemas/block.json",
+	"blockName": "modal",
+	"title": "Modal",
+	"description": "Modal content.",
+	"category": "eightshift",
+	"icon": {
+		"src": "es-modal"
+	},
+	"keywords": [
+		"modal"
+	],
+	"example": {
+		"attributes": {
+			"modalId": "my-demo-preview-modal",
+			"modalTitle": "Demo modal"
+		},
+		"innerBlocks": [
+			{
+				"name": "eightshift-boilerplate/heading",
+				"attributes": {
+					"headingHeadingContent": "Lorem ipsum dolor sit amet"
+				}
+			},
+			{
+				"name": "eightshift-boilerplate/paragraph",
+				"attributes": {
+					"paragraphParagraphContent": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nam aliquam est id semper aliquet. Aenean accumsan lacus justo, a lacinia turpis semper condimentum. "
+				}
+			}
+		]
+	},
+	"attributes": {
+		"modalId": {
+			"type": "string"
+		},
+		"modalTitle": {
+			"type": "string"
+		},
+
+		"wrapperUse": {
+			"type": "boolean",
+			"default": false
+		},
+		"wrapperNoControls": {
+			"type": "boolean",
+			"default": true
+		}
+	},
+	"hasInnerBlocks": true
+}

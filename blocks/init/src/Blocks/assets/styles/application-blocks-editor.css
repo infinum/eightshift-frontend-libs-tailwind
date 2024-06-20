@@ -1,0 +1,13 @@
+/**
+ * Main entry point for styles used in the Block editor.
+ *
+ * To add your own, add a `styles-editor.css` file to your block/component folder.
+ */
+
+/* Eightshift UI components */
+@import '~@eightshift/ui-components/dist/assets/fonts.css';
+@import '~@eightshift/ui-components/dist/assets/wp.css';
+@import '~@eightshift/ui-components/dist/assets/style.css';
+
+/* OpenLayers */
+@import '~ol/ol.css';

@@ -1,0 +1,96 @@
+{
+	"$schema": "https://raw.githubusercontent.com/infinum/eightshift-frontend-libs-tailwind/main/schemas/component.json",
+	"componentName": "hero",
+	"title": "Hero",
+	"componentClass": "hero",
+	"example": {
+		"attributes": {
+			"heroContentPosition": "center center",
+			"heroUse": true
+		}
+	},
+	"attributes": {
+		"heroUse": {
+			"type": "boolean",
+			"default": true
+		},
+		"heroColor": {
+			"type": "string",
+			"default": "navy"
+		},
+
+		"heroHeadingSize": {
+			"type": "string",
+			"default": "2xl"
+		},
+		"heroParagraphSize": {
+			"type": "string",
+			"default": "base"
+		},
+		"heroButtonMainVariant": {
+			"type": "string",
+			"default": "primary"
+		},
+		"heroButtonSecondaryVariant": {
+			"type": "string",
+			"default": "secondary"
+		}
+	},
+	"components": {
+		"image": "image",
+		"heading": "heading",
+		"paragraph": "paragraph",
+		"buttonMain": "button",
+		"buttonSecondary": "button"
+	},
+	"options": {
+		"heroColor": [
+			{
+				"label": "Navy",
+				"value": "navy"
+			},
+			{
+				"label": "Navy (dark)",
+				"value": "navy-dark"
+			},
+			{
+				"label": "Red",
+				"value": "red"
+			},
+			{
+				"label": "Red (dark)",
+				"value": "red-dark"
+			},
+			{
+				"label": "Gray",
+				"value": "gray"
+			},
+			{
+				"label": "Gray (dark)",
+				"value": "gray-dark"
+			}
+		]
+	},
+	"tailwind": {
+		"base": {
+			"twClasses": "relative min-h-[40vh] mobile:min-h-[50vh] tablet:min-h-[60vh] isolate flex flex-col items-center justify-center bg-gradient-to-br text-center rounded-xl ~m-4/8 overflow-hidden shadow-lg p-4"
+		},
+		"parts": {
+			"imagePicture": {
+				"twClasses": "absolute inset-0 -z-10 mix-blend-color-burn opacity-50 blur-[2px]"
+			}
+		},
+		"options": {
+			"heroColor": {
+				"twClasses": {
+					"navy": "from-white to-navy-50 shadow-navy-600/15 text-navy-950",
+					"red": "from-white to-red-50 shadow-red-600/15 text-red-950",
+					"gray": "from-white to-gray-50 shadow-gray-600/15 text-gray-950",
+					"navy-dark": "from-navy-950 to-navy-800 shadow-navy-600/15 text-navy-100",
+					"red-dark": "from-red-950 to-red-800 shadow-red-600/15 text-red-100",
+					"gray-dark": "from-gray-950 to-gray-800 shadow-gray-600/15 text-gray-100"
+				}
+			}
+		}
+	}
+}

@@ -43,19 +43,19 @@ export const ManageFileButton = (props) => {
 	const strings = {
 		file: {
 			buttonTooltip: {
-				browse: __('Select a file from Media library', 'fe-libs-tailwind'),
-				upload: __('Upload a file', 'fe-libs-tailwind'),
-				replace: __('Replace file', 'fe-libs-tailwind'),
+				browse: __('Select a file from Media library', '%g_textdomain%'),
+				upload: __('Upload a file', '%g_textdomain%'),
+				replace: __('Replace file', '%g_textdomain%'),
 			},
 			buttonLabel: {
-				browse: __('Select', 'fe-libs-tailwind'),
-				upload: __('Upload', 'fe-libs-tailwind'),
-				replace: __('Replace', 'fe-libs-tailwind'),
+				browse: __('Select', '%g_textdomain%'),
+				upload: __('Upload', '%g_textdomain%'),
+				replace: __('Replace', '%g_textdomain%'),
 			},
 			modalTitle: {
-				browse: __('Select a file', 'fe-libs-tailwind'),
-				upload: __('Upload a file', 'fe-libs-tailwind'),
-				replace: __('Select a new file', 'fe-libs-tailwind'),
+				browse: __('Select a file', '%g_textdomain%'),
+				upload: __('Upload a file', '%g_textdomain%'),
+				replace: __('Select a new file', '%g_textdomain%'),
 			},
 			buttonIcon: {
 				browse: icons.itemSelect,
@@ -65,50 +65,50 @@ export const ManageFileButton = (props) => {
 		},
 		video: {
 			buttonTooltip: {
-				browse: __('Select a video from Media library', 'fe-libs-tailwind'),
-				upload: __('Upload a video', 'fe-libs-tailwind'),
-				replace: __('Replace video', 'fe-libs-tailwind'),
+				browse: __('Select a video from Media library', '%g_textdomain%'),
+				upload: __('Upload a video', '%g_textdomain%'),
+				replace: __('Replace video', '%g_textdomain%'),
 			},
 			modalTitle: {
-				browse: __('Select a video', 'fe-libs-tailwind'),
-				upload: __('Upload a video', 'fe-libs-tailwind'),
-				replace: __('Select a new video', 'fe-libs-tailwind'),
+				browse: __('Select a video', '%g_textdomain%'),
+				upload: __('Upload a video', '%g_textdomain%'),
+				replace: __('Select a new video', '%g_textdomain%'),
 			},
 		},
 		image: {
 			buttonTooltip: {
-				browse: __('Select an image from Media library', 'fe-libs-tailwind'),
-				upload: __('Upload an image', 'fe-libs-tailwind'),
-				replace: __('Replace image', 'fe-libs-tailwind'),
+				browse: __('Select an image from Media library', '%g_textdomain%'),
+				upload: __('Upload an image', '%g_textdomain%'),
+				replace: __('Replace image', '%g_textdomain%'),
 			},
 			modalTitle: {
-				browse: __('Select an image', 'fe-libs-tailwind'),
-				upload: __('Upload an image', 'fe-libs-tailwind'),
-				replace: __('Select a new image', 'fe-libs-tailwind'),
+				browse: __('Select an image', '%g_textdomain%'),
+				upload: __('Upload an image', '%g_textdomain%'),
+				replace: __('Select a new image', '%g_textdomain%'),
 			},
 		},
 		subtitle: {
 			buttonTooltip: {
-				browse: __('Select a subtitle file', 'fe-libs-tailwind'),
-				upload: __('Upload a subtitle file', 'fe-libs-tailwind'),
-				replace: __('Replace subtitle file', 'fe-libs-tailwind'),
+				browse: __('Select a subtitle file', '%g_textdomain%'),
+				upload: __('Upload a subtitle file', '%g_textdomain%'),
+				replace: __('Replace subtitle file', '%g_textdomain%'),
 			},
 			modalTitle: {
-				browse: __('Select a subtitle file', 'fe-libs-tailwind'),
-				upload: __('Upload a subtitle file', 'fe-libs-tailwind'),
-				replace: __('Select a new subtitle file', 'fe-libs-tailwind'),
+				browse: __('Select a subtitle file', '%g_textdomain%'),
+				upload: __('Upload a subtitle file', '%g_textdomain%'),
+				replace: __('Select a new subtitle file', '%g_textdomain%'),
 			},
 		},
 		geoJson: {
 			buttonTooltip: {
-				browse: __('Select a GeoJSON file', 'fe-libs-tailwind'),
-				upload: __('Upload a GeoJSON file', 'fe-libs-tailwind'),
-				replace: __('Replace GeoJSON file', 'fe-libs-tailwind'),
+				browse: __('Select a GeoJSON file', '%g_textdomain%'),
+				upload: __('Upload a GeoJSON file', '%g_textdomain%'),
+				replace: __('Replace GeoJSON file', '%g_textdomain%'),
 			},
 			modalTitle: {
-				browse: __('Select a GeoJSON file', 'fe-libs-tailwind'),
-				upload: __('Upload a GeoJSON file', 'fe-libs-tailwind'),
-				replace: __('Select a new GeoJSON file', 'fe-libs-tailwind'),
+				browse: __('Select a GeoJSON file', '%g_textdomain%'),
+				upload: __('Upload a GeoJSON file', '%g_textdomain%'),
+				replace: __('Select a new GeoJSON file', '%g_textdomain%'),
 			},
 		},
 		custom: {
@@ -184,11 +184,11 @@ export const FileSelector = (props) => {
 	};
 
 	const removeTooltips = {
-		file: __('Remove file', 'fe-libs-tailwind'),
-		image: __('Remove image', 'fe-libs-tailwind'),
-		video: __('Remove video', 'fe-libs-tailwind'),
-		subtitle: __('Remove subtitle file', 'fe-libs-tailwind'),
-		geoJson: __('Remove GeoJSON file', 'fe-libs-tailwind'),
+		file: __('Remove file', '%g_textdomain%'),
+		image: __('Remove image', '%g_textdomain%'),
+		video: __('Remove video', '%g_textdomain%'),
+		subtitle: __('Remove subtitle file', '%g_textdomain%'),
+		geoJson: __('Remove GeoJSON file', '%g_textdomain%'),
 		custom: labels?.removeTooltip,
 	};
 

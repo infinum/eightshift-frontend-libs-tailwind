@@ -1,0 +1,555 @@
+{
+	"$schema": "https://raw.githubusercontent.com/infinum/eightshift-frontend-libs-tailwind/main/schemas/block.json",
+	"blockName": "columns",
+	"title": "Columns",
+	"description": "Display content across multiple columns with flexible sizing and alignment options.",
+	"category": "eightshift",
+	"icon": {
+		"src": "es-columns"
+	},
+	"keywords": [
+		"columns"
+	],
+	"example": {
+		"attributes": {
+			"columnsColumnGapLarge": 30,
+			"columnsRowGapLarge": 30
+		},
+		"innerBlocks": [
+			{
+				"name": "eightshift-boilerplate/column",
+				"attributes": {
+					"columnWidthLarge": 4
+				},
+				"innerBlocks": [
+					{
+						"name": "eightshift-boilerplate/card",
+						"attributes": {
+							"cardCardImageUrl": "https://picsum.photos/400/400",
+							"cardCardIntroContent": "Intro",
+							"cardCardIntroSize": "small",
+							"cardCardIntroColor": "light",
+							"cardCardHeadingContent": "Heading",
+							"cardCardParagraphContent": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nam aliquam est id semper aliquet.",
+							"cardCardButtonUse": false
+						}
+					}
+				]
+			},
+			{
+				"name": "eightshift-boilerplate/column",
+				"attributes": {
+					"columnWidthLarge": 4
+				},
+				"innerBlocks": [
+					{
+						"name": "eightshift-boilerplate/card",
+						"attributes": {
+							"cardCardImageUrl": "https://picsum.photos/400/400",
+							"cardCardIntroContent": "Intro",
+							"cardCardIntroSize": "small",
+							"cardCardIntroColor": "light",
+							"cardCardHeadingContent": "Heading",
+							"cardCardParagraphContent": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nam aliquam est id semper aliquet.",
+							"cardCardButtonUse": false
+						}
+					}
+				]
+			},
+			{
+				"name": "eightshift-boilerplate/column",
+				"attributes": {
+					"columnWidthLarge": 4
+				},
+				"innerBlocks": [
+					{
+						"name": "eightshift-boilerplate/card",
+						"attributes": {
+							"cardCardImageUrl": "https://picsum.photos/400/400",
+							"cardCardIntroContent": "Intro",
+							"cardCardIntroSize": "small",
+							"cardCardIntroColor": "light",
+							"cardCardHeadingContent": "Heading",
+							"cardCardParagraphContent": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nam aliquam est id semper aliquet.",
+							"cardCardButtonUse": false
+						}
+					}
+				]
+			}
+		]
+	},
+	"hasInnerBlocks": true,
+	"attributes": {
+		"columnsNumOfColumns": {
+			"type": "object",
+			"default": {
+				"_default": "12",
+				"_mobileFirst": true
+			}
+		},
+		"columnsColumnGap": {
+			"type": "object",
+			"default": {
+				"_default": "m",
+				"_mobileFirst": true
+			}
+		},
+		"columnsRowGap": {
+			"type": "object",
+			"default": {
+				"_default": "m",
+				"_mobileFirst": true
+			}
+		},
+		"columnsRowHeight": {
+			"type": "object",
+			"default": {
+				"_default": "auto",
+				"_mobileFirst": true
+			}
+		}
+	},
+	"options": {
+		"columnsGap": [
+			{
+				"label": "No gap",
+				"value": "none"
+			},
+			{
+				"label": "8",
+				"value": "s"
+			},
+			{
+				"label": "16",
+				"value": "m"
+			},
+			{
+				"label": "32",
+				"value": "l"
+			},
+			{
+				"label": "64",
+				"value": "xl"
+			}
+		],
+		"columnsRowHeight": [
+			{
+				"label": "Auto",
+				"value": "auto"
+			},
+			{
+				"label": "Equal",
+				"value": "equal"
+			}
+		]
+	},
+	"innerBlocksDependency": [
+		"column"
+	],
+	"layoutPresets": [
+		{
+			"name": "2 columns",
+			"icon": "twoColumns",
+			"attributes": {
+				"columnsNumOfColumns": {
+					"_default": "2",
+					"_mobileFirst": true,
+					"max-mobile": "1"
+				}
+			},
+			"blocks": [
+				{
+					"name": "eightshift-boilerplate/column",
+					"attributes": {
+						"columnOffset": {
+							"_default": "1",
+							"_mobileFirst": true,
+							"max-mobile": "1"
+						},
+						"columnWidth": {
+							"_default": "1",
+							"_mobileFirst": true,
+							"max-mobile": "1"
+						}
+					}
+				},
+				{
+					"name": "eightshift-boilerplate/column",
+					"attributes": {
+						"columnOffset": {
+							"_default": "2",
+							"_mobileFirst": true,
+							"max-mobile": "1"
+						},
+						"columnWidth": {
+							"_default": "1",
+							"_mobileFirst": true,
+							"max-mobile": "1"
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "3 columns",
+			"icon": "columns",
+			"attributes": {
+				"columnsNumOfColumns": {
+					"_default": "3",
+					"_mobileFirst": true,
+					"max-mobile": "1",
+					"max-tablet": "4"
+				}
+			},
+			"blocks": [
+				{
+					"name": "eightshift-boilerplate/column",
+					"attributes": {
+						"columnOffset": {
+							"_default": "1",
+							"_mobileFirst": true,
+							"max-mobile": "1",
+							"max-tablet": "1"
+						},
+						"columnWidth": {
+							"_default": "1",
+							"_mobileFirst": true,
+							"max-mobile": "1",
+							"max-tablet": "2"
+						}
+					}
+				},
+				{
+					"name": "eightshift-boilerplate/column",
+					"attributes": {
+						"columnOffset": {
+							"_default": "2",
+							"_mobileFirst": true,
+							"max-mobile": "1",
+							"max-tablet": "3"
+						},
+						"columnWidth": {
+							"_default": "1",
+							"_mobileFirst": true,
+							"max-mobile": "1",
+							"max-tablet": "2"
+						}
+					}
+				},
+				{
+					"name": "eightshift-boilerplate/column",
+					"attributes": {
+						"columnOffset": {
+							"_default": "3",
+							"_mobileFirst": true,
+							"max-mobile": "1",
+							"max-tablet": "2"
+						},
+						"columnWidth": {
+							"_default": "1",
+							"_mobileFirst": true,
+							"max-mobile": "1",
+							"max-tablet": "2"
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "4 columns",
+			"icon": "fourColumns",
+			"attributes": {
+				"columnsNumOfColumns": {
+					"_default": "4",
+					"_mobileFirst": true,
+					"max-mobile": "1",
+					"max-tablet": "2"
+				}
+			},
+			"blocks": [
+				{
+					"name": "eightshift-boilerplate/column",
+					"attributes": {
+						"columnOffset": {
+							"_default": "1",
+							"_mobileFirst": true,
+							"max-mobile": "1",
+							"max-tablet": "1"
+						},
+						"columnWidth": {
+							"_default": "1",
+							"_mobileFirst": true,
+							"max-mobile": "1",
+							"max-tablet": "1"
+						}
+					}
+				},
+				{
+					"name": "eightshift-boilerplate/column",
+					"attributes": {
+						"columnOffset": {
+							"_default": "2",
+							"_mobileFirst": true,
+							"max-mobile": "1",
+							"max-tablet": "2"
+						},
+						"columnWidth": {
+							"_default": "1",
+							"_mobileFirst": true,
+							"max-mobile": "1",
+							"max-tablet": "1"
+						}
+					}
+				},
+				{
+					"name": "eightshift-boilerplate/column",
+					"attributes": {
+						"columnOffset": {
+							"_default": "3",
+							"_mobileFirst": true,
+							"max-mobile": "1",
+							"max-tablet": "1"
+						},
+						"columnWidth": {
+							"_default": "1",
+							"_mobileFirst": true,
+							"max-mobile": "1",
+							"max-tablet": "1"
+						}
+					}
+				},
+				{
+					"name": "eightshift-boilerplate/column",
+					"attributes": {
+						"columnOffset": {
+							"_default": "4",
+							"_mobileFirst": true,
+							"max-mobile": "1",
+							"max-tablet": "2"
+						},
+						"columnWidth": {
+							"_default": "1",
+							"_mobileFirst": true,
+							"max-mobile": "1",
+							"max-tablet": "1"
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "1/3 - 2/3",
+			"icon": "columns3366",
+			"attributes": {
+				"columnsNumOfColumns": {
+					"_default": "3",
+					"_mobileFirst": true,
+					"max-mobile": "1",
+					"max-tablet": "2"
+				}
+			},
+			"blocks": [
+				{
+					"name": "eightshift-boilerplate/column",
+					"attributes": {
+						"columnOffset": {
+							"_default": "1",
+							"_mobileFirst": true,
+							"max-mobile": "1",
+							"max-tablet": "1"
+						},
+						"columnWidth": {
+							"_default": "1",
+							"_mobileFirst": true,
+							"max-mobile": "1",
+							"max-tablet": "1"
+						}
+					}
+				},
+				{
+					"name": "eightshift-boilerplate/column",
+					"attributes": {
+						"columnOffset": {
+							"_default": "2",
+							"_mobileFirst": true,
+							"max-mobile": "1",
+							"max-tablet": "2"
+						},
+						"columnWidth": {
+							"_default": "2",
+							"_mobileFirst": true,
+							"max-mobile": "1",
+							"max-tablet": "1"
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "2/3 - 1/3",
+			"icon": "columns6633",
+			"attributes": {
+				"columnsNumOfColumns": {
+					"_default": "3",
+					"_mobileFirst": true,
+					"max-mobile": "1",
+					"max-tablet": "2"
+				}
+			},
+			"blocks": [
+				{
+					"name": "eightshift-boilerplate/column",
+					"attributes": {
+						"columnOffset": {
+							"_default": "1",
+							"_mobileFirst": true,
+							"max-mobile": "1",
+							"max-tablet": "1"
+						},
+						"columnWidth": {
+							"_default": "2",
+							"_mobileFirst": true,
+							"max-mobile": "1",
+							"max-tablet": "1"
+						}
+					}
+				},
+				{
+					"name": "eightshift-boilerplate/column",
+					"attributes": {
+						"columnOffset": {
+							"_default": "3",
+							"_mobileFirst": true,
+							"max-mobile": "1",
+							"max-tablet": "2"
+						},
+						"columnWidth": {
+							"_default": "1",
+							"_mobileFirst": true,
+							"max-mobile": "1",
+							"max-tablet": "1"
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Bento box",
+			"icon": "layoutAlt2",
+			"attributes": {
+				"columnsNumOfColumns": {
+					"_default": "2",
+					"_mobileFirst": true,
+					"max-mobile": "1"
+				},
+				"columnsRowHeight": {
+					"_default": "equal",
+					"_mobileFirst": true,
+					"max-mobile": "auto"
+				}
+			},
+			"blocks": [
+				{
+					"name": "eightshift-boilerplate/column",
+					"attributes": {
+						"columnOffset": {
+							"_default": "1",
+							"_mobileFirst": true,
+							"max-mobile": "1"
+						},
+						"columnWidth": {
+							"_default": "1",
+							"_mobileFirst": true,
+							"max-mobile": "1"
+						},
+						"columnRowSpan": {
+							"_default": "2",
+							"_mobileFirst": true
+						}
+					}
+				},
+				{
+					"name": "eightshift-boilerplate/column",
+					"attributes": {
+						"columnOffset": {
+							"_default": "2",
+							"_mobileFirst": true,
+							"max-mobile": "1"
+						},
+						"columnWidth": {
+							"_default": "1",
+							"_mobileFirst": true,
+							"max-mobile": "1",
+							"max-tablet": "2"
+						}
+					}
+				},
+				{
+					"name": "eightshift-boilerplate/column",
+					"attributes": {
+						"columnOffset": {
+							"_default": "2",
+							"_mobileFirst": true,
+							"max-mobile": "1"
+						},
+						"columnWidth": {
+							"_default": "1",
+							"_mobileFirst": true,
+							"max-mobile": "1"
+						}
+					}
+				}
+			]
+		}
+	],
+	"tailwind": {
+		"base": {
+			"twClasses": "grid"
+		},
+		"options": {
+			"columnsNumOfColumns": {
+				"responsive": true,
+				"twClasses": {
+					"1": "grid-cols-1",
+					"2": "grid-cols-2",
+					"3": "grid-cols-3",
+					"4": "grid-cols-4",
+					"5": "grid-cols-5",
+					"6": "grid-cols-6",
+					"7": "grid-cols-7",
+					"8": "grid-cols-8",
+					"9": "grid-cols-9",
+					"10": "grid-cols-10",
+					"11": "grid-cols-11",
+					"12": "grid-cols-12"
+				}
+			},
+			"columnsRowGap": {
+				"responsive": true,
+				"twClasses": {
+					"none": "",
+					"s": "gap-y-2",
+					"m": "gap-y-4",
+					"l": "gap-y-8",
+					"xl": "gap-y-16"
+				}
+			},
+			"columnsColumnGap": {
+				"responsive": true,
+				"twClasses": {
+					"none": "",
+					"s": "gap-x-2",
+					"m": "gap-x-4",
+					"l": "gap-x-8",
+					"xl": "gap-x-16"
+				}
+			},
+			"columnsRowHeight": {
+				"responsive": true,
+				"twClasses": {
+					"equal": "auto-rows-fr"
+				}
+			}
+		}
+	}
+}

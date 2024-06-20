@@ -1,0 +1,18 @@
+{
+	"$schema": "https://raw.githubusercontent.com/infinum/eightshift-frontend-libs-tailwind/main/schemas/block.json",
+	"blockName": "button",
+	"title": "Button",
+	"description": "Button block with custom settings.",
+	"category": "eightshift",
+	"icon": {
+		"src": "es-button"
+	},
+	"keywords": [
+		"button",
+		"btn",
+		"link"
+	],
+	"components": {
+		"button": "button"
+	}
+}

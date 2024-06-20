@@ -1,0 +1,19 @@
+{
+	"$schema": "https://raw.githubusercontent.com/infinum/eightshift-frontend-libs-tailwind/main/schemas/block.json",
+	"blockName": "share",
+	"title": "Share",
+	"description": "Allows linking to or sharing to social media.",
+	"category": "eightshift",
+	"icon": {
+		"src": "es-social-share"
+	},
+	"keywords": [
+		"social",
+		"network",
+		"networks",
+		"share"
+	],
+	"components": {
+		"share": "share"
+	}
+}

@@ -11,7 +11,7 @@ import { useThemeOptions } from './use-theme-options';
 export const EsThemeOptionsContext = createContext(null);
 
 export const ThemeOptionsPage = ({
-	title = __('Theme options', 'fe-libs-tailwind'),
+	title = __('Theme options', '%g_textdomain%'),
 	children,
 	settingName = 'eightshift-theme-options',
 }) => {
@@ -36,8 +36,8 @@ export const ThemeOptionsPage = ({
 						icon={isLoading ? icons.moreH : icons.save}
 					>
 						{isLoading
-							? __('Saving...', 'fe-libs-tailwind')
-							: __('Save', 'fe-libs-tailwind')}
+							? __('Saving...', '%g_textdomain%')
+							: __('Save', '%g_textdomain%')}
 					</Button>
 				</HStack>
 

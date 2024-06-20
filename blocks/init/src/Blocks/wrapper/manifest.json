@@ -1,0 +1,398 @@
+{
+	"$schema": "https://raw.githubusercontent.com/infinum/eightshift-frontend-libs-tailwind/main/schemas/component.json",
+	"componentName": "wrapper",
+	"title": "Wrapper",
+	"componentClass": "wrapper",
+	"example": {
+		"attributes": {
+			"wrapperId": "This a custom ID",
+			"wrapperBgColorType": "project",
+			"wrapperBgColorProject": "white",
+			"wrapperUse": true,
+			"wrapperSimple": false,
+			"wrapperUseShowControl": true,
+			"wrapperNoControls": false,
+			"wrapperParentClass": "",
+			"wrapperWidthLarge": 12,
+			"wrapperOffsetLarge": 1,
+			"wrapperHideLarge": false,
+			"wrapperIsFullWidthLarge": true,
+			"wrapperSpacingTopLarge": 1,
+			"wrapperSpacingBottomLarge": 1,
+			"wrapperSpacingTopInLarge": 1,
+			"wrapperDividerTopLarge": true,
+			"wrapperDividerColor": "black"
+		}
+	},
+	"attributes": {
+		"wrapperUse": {
+			"type": "boolean",
+			"default": true
+		},
+		"wrapperNoControls": {
+			"type": "boolean",
+			"default": false
+		},
+		"wrapperNoWidthControls": {
+			"type": "boolean",
+			"default": false
+		},
+		"wrapperTag": {
+			"type": "string",
+			"default": "div"
+		},
+		"wrapperWidth": {
+			"type": "string",
+			"default": "contained"
+		},
+		"wrapperBackground": {
+			"type": "string",
+			"default": "none"
+		},
+		"wrapperGradientDirection": {
+			"type": "string"
+		},
+		"wrapperBorderRadius": {
+			"type": "string",
+			"default": "none"
+		},
+		"wrapperHide": {
+			"type": "object",
+			"default": {
+				"_default": false,
+				"_mobileFirst": true
+			}
+		},
+		"wrapperMarginTop": {
+			"type": "object",
+			"default": {
+				"_default": "",
+				"_mobileFirst": true
+			}
+		},
+		"wrapperMarginBottom": {
+			"type": "object",
+			"default": {
+				"_default": "sm",
+				"_mobileFirst": true
+			}
+		},
+		"wrapperPaddingTop": {
+			"type": "object",
+			"default": {
+				"_default": "",
+				"_mobileFirst": true
+			}
+		},
+		"wrapperPaddingBottom": {
+			"type": "object",
+			"default": {
+				"_default": "",
+				"_mobileFirst": true
+			}
+		},
+		"wrapperId": {
+			"type": "string"
+		}
+	},
+	"options": {
+		"wrapperTag": [
+			{
+				"value": "div",
+				"label": "div",
+				"subtitle": "Lorem ipsum"
+			},
+			{
+				"value": "section",
+				"label": "section",
+				"subtitle": "Dolor sit amet"
+			},
+			{
+				"value": "aside",
+				"label": "aside",
+				"subtitle": "No ideas for dummy text"
+			},
+			{
+				"value": "article",
+				"label": "article",
+				"subtitle": "Should be fine"
+			}
+		],
+		"wrapperWidth": [
+			{
+				"value": "contained",
+				"label": "Contained"
+			},
+			{
+				"value": "full",
+				"label": "Full-width"
+			}
+		],
+		"wrapperBackground": [
+			{
+				"value": "none",
+				"label": "None",
+				"icon": "none"
+			},
+			{
+				"value": "solid",
+				"label": "Color",
+				"icon": "color"
+			},
+			{
+				"value": "gradient",
+				"label": "Gradient",
+				"icon": "gradient"
+			}
+		],
+		"wrapperBackgroundSolid": [
+			"red-50",
+			"red-500",
+			"red-950",
+			"navy-50",
+			"navy-500",
+			"navy-950",
+			"gray-50",
+			"gray-500",
+			"gray-950"
+		],
+		"wrapperBackgroundGradient": [
+			{
+				"label": "Light gray",
+				"value": "gradient-light-gray"
+			},
+			{
+				"label": "Dark gray",
+				"value": "gradient-dark-gray"
+			},
+			{
+				"label": "Light navy",
+				"value": "gradient-light-navy"
+			},
+			{
+				"label": "Dark navy",
+				"value": "gradient-dark-navy"
+			},
+			{
+				"label": "Light red",
+				"value": "gradient-light-red"
+			},
+			{
+				"label": "Dark red",
+				"value": "gradient-dark-red"
+			},
+			{
+				"label": "Navy to red (light)",
+				"value": "gradient-navy-red-light"
+			},
+			{
+				"label": "Navy to red (dark)",
+				"value": "gradient-navy-red-dark"
+			}
+		],
+		"wrapperGradientDirection": [
+			{
+				"label": "To top",
+				"value": "to-t"
+			},
+			{
+				"label": "To top-right",
+				"value": "to-tr"
+			},
+			{
+				"label": "To right",
+				"value": "to-r"
+			},
+			{
+				"label": "To bottom-right",
+				"value": "to-br"
+			},
+			{
+				"label": "To bottom",
+				"value": "to-b"
+			},
+			{
+				"label": "To bottom-left",
+				"value": "to-bl"
+			},
+			{
+				"label": "To left",
+				"value": "to-l"
+			},
+			{
+				"label": "To top-left",
+				"value": "to-tl"
+			}
+		],
+		"wrapperBorderRadius": [
+			{
+				"label": "Square",
+				"value": "none",
+				"separator": "below"
+			},
+			{
+				"label": "Small",
+				"value": "sm"
+			},
+			{
+				"label": "Medium",
+				"value": "md"
+			},
+			{
+				"label": "Large",
+				"value": "lg"
+			},
+			{
+				"label": "Very large",
+				"value": "xl"
+			}
+		],
+		"wrapperSpacing": [
+			{
+				"label": "0",
+				"value": "none"
+			},
+			{
+				"label": "16",
+				"value": "sm"
+			},
+			{
+				"label": "32",
+				"value": "md"
+			},
+			{
+				"label": "48",
+				"value": "lg"
+			},
+			{
+				"label": "64",
+				"value": "xl"
+			},
+			{
+				"label": "80",
+				"value": "2xl"
+			}
+		],
+		"wrapperHide": [
+			{
+				"label": "Visible",
+				"value": "false",
+				"icon": "visible"
+			},
+			{
+				"label": "Hidden",
+				"value": "true",
+				"icon": "hide"
+			}
+		]
+	},
+	"tailwind": {
+		"base": {
+			"twClasses": "scroll-my-24",
+			"twClassesEditor": "flow-root"
+		},
+		"options": {
+			"wrapperBackground": {
+				"twClasses": {
+					"solid-red-50": "bg-red-50",
+					"solid-red-500": "bg-red-500",
+					"solid-red-950": "bg-red-950",
+					"solid-navy-50": "bg-navy-50",
+					"solid-navy-500": "bg-navy-500",
+					"solid-navy-950": "bg-navy-950",
+					"solid-gray-50": "bg-gray-50",
+					"solid-gray-500": "bg-gray-500",
+					"solid-gray-950": "bg-gray-950",
+					"gradient-light-gray": "from-gray-50 to-gray-100",
+					"gradient-dark-gray": "from-gray-800 to-gray-950",
+					"gradient-light-navy": "from-navy-50 to-navy-100",
+					"gradient-dark-navy": "from-navy-800 to-navy-950",
+					"gradient-light-red": "from-red-50 to-red-100",
+					"gradient-dark-red": "from-red-800 to-red-950",
+					"gradient-navy-red-light": "from-red-200 to-navy-300",
+					"gradient-navy-red-dark": "from-red-700 to-navy-800"
+				}
+			},
+			"wrapperGradientDirection": {
+				"twClasses": {
+					"to-t": "bg-gradient-to-r",
+					"to-tr": "bg-gradient-to-tr",
+					"to-r": "bg-gradient-to-r",
+					"to-br": "bg-gradient-to-br",
+					"to-b": "bg-gradient-to-b",
+					"to-bl": "bg-gradient-to-bl",
+					"to-l": "bg-gradient-to-l",
+					"to-tl": "bg-gradient-to-tl"
+				}
+			},
+			"wrapperWidth": {
+				"twClasses": {
+					"contained": "wrapper-contained",
+					"full": "wrapper-full"
+				}
+			},
+			"wrapperBorderRadius": {
+				"twClasses": {
+					"sm": "rounded",
+					"md": "rounded-md",
+					"lg": "rounded-lg",
+					"xl": "rounded-xl"
+				}
+			},
+			"wrapperHide": {
+				"responsive": true,
+				"twClasses": {
+					"true": "hidden",
+					"false": "block"
+				},
+				"twClassesEditor": {
+					"true": "opacity-25"
+				}
+			},
+			"wrapperMarginTop": {
+				"responsive": true,
+				"twClasses": {
+					"none": "mt-0",
+					"sm": "mt-4",
+					"md": "mt-8",
+					"lg": "mt-12",
+					"xl": "mt-16",
+					"2xl": "mt-20"
+				}
+			},
+			"wrapperMarginBottom": {
+				"responsive": true,
+				"twClasses": {
+					"none": "mb-0",
+					"sm": "mb-4",
+					"md": "mb-8",
+					"lg": "mb-12",
+					"xl": "mb-16",
+					"2xl": "mb-20"
+				}
+			},
+			"wrapperPaddingTop": {
+				"responsive": true,
+				"twClasses": {
+					"none": "pt-0",
+					"sm": "pt-4",
+					"md": "pt-8",
+					"lg": "pt-12",
+					"xl": "pt-16",
+					"2xl": "pt-20"
+				}
+			},
+			"wrapperPaddingBottom": {
+				"responsive": true,
+				"twClasses": {
+					"none": "pb-0",
+					"sm": "pb-4",
+					"md": "pb-8",
+					"lg": "pb-12",
+					"xl": "pb-16",
+					"2xl": "pb-20"
+				}
+			}
+		}
+	}
+}

@@ -1,0 +1,299 @@
+{
+	"$schema": "https://raw.githubusercontent.com/infinum/eightshift-frontend-libs-tailwind/main/schemas/component.json",
+	"componentName": "button",
+	"title": "Button",
+	"componentClass": "btn",
+	"example": {
+		"attributes": {
+			"buttonContent": "This is a button",
+			"buttonUrl": "https://eightshift.com/",
+			"buttonId": "custom ID"
+		}
+	},
+	"attributes": {
+		"buttonContent": {
+			"type": "string"
+		},
+		"buttonUrl": {
+			"type": "string"
+		},
+		"buttonId": {
+			"type": "string"
+		},
+		"buttonColor": {
+			"type": "string",
+			"default": "navy-500"
+		},
+		"buttonVariant": {
+			"type": "string",
+			"default": "primary"
+		},
+		"buttonSize": {
+			"type": "string",
+			"default": "base"
+		},
+		"buttonIsAnchor": {
+			"type": "boolean",
+			"default": false
+		},
+		"buttonIsNewTab": {
+			"type": "boolean",
+			"default": false
+		},
+		"buttonAriaLabel": {
+			"type": "string"
+		},
+		"buttonUse": {
+			"type": "boolean",
+			"default": true
+		},
+		"buttonIconUse": {
+			"type": "boolean",
+			"default": false
+		}
+	},
+	"components": {
+		"icon": "icon"
+	},
+	"options": {
+		"buttonVariant": [
+			{
+				"label": "Primary",
+				"value": "primary",
+				"icon": "buttonFilled"
+			},
+			{
+				"label": "Secondary",
+				"value": "secondary",
+				"icon": "buttonOutline"
+			},
+			{
+				"label": "Link",
+				"value": "link",
+				"icon": "link"
+			}
+		],
+		"buttonSize": [
+			{
+				"label": "Regular",
+				"value": "base"
+			},
+			{
+				"label": "Small",
+				"value": "sm"
+			}
+		],
+		"buttonColorPrimary": [
+			"navy-100",
+			"navy-500",
+			"navy-800",
+			"red-100",
+			"red-500",
+			"red-800",
+			"gray-100",
+			"gray-500",
+			"gray-800"
+		],
+		"buttonColorSecondary": [
+			"navy-100",
+			"navy-800",
+			"red-100",
+			"red-800",
+			"gray-100",
+			"gray-500",
+			"gray-800"
+		],
+		"buttonColorLink": [
+			"black",
+			"white",
+			"red-500",
+			"navy-500"
+		]
+	},
+	"tailwind": {
+		"base": {
+			"twClasses": "font-sans transition duration-300 inline-flex items-center focus-visible:ring focus:outline-none text-sm disabled:shadow-none disabled:grayscale disabled:cursor-default disabled:opacity-85"
+		},
+		"options": {
+			"buttonVariant": {
+				"twClasses": {
+					"primary": "border shadow hover:shadow-md bg-gradient-to-br [&>svg]:size-6 gap-2",
+					"secondary": "border [&>svg]:size-6 gap-2",
+					"link": "leading-tight rounded-sm underline cursor-pointer underline-offset-1 decoration-[1.5px] [&>svg]:size-4 gap-1 hover:ring-4"
+				}
+			}
+		},
+		"combinations": [
+			{
+				"attributes": {
+					"buttonVariant": [
+						"primary",
+						"secondary"
+					],
+					"buttonSize": "base"
+				},
+				"twClasses": "~pr-3/4 ~pl-2.5/3.5 ~py-2/3 ~rounded-lg/xl"
+			},
+			{
+				"attributes": {
+					"buttonVariant": [
+						"primary",
+						"secondary"
+					],
+					"buttonSize": "sm"
+				},
+				"twClasses": "~pr-1/2 ~pl-1.5/2.5 ~py-1/1.5 ~rounded-md/lg"
+			},
+			{
+				"attributes": {
+					"buttonVariant": [
+						"primary",
+						"secondary"
+					],
+					"buttonSize": "square"
+				},
+				"twClasses": "size-14 mobile:size-9 rounded-full mobile:[&>svg]:size-5 justify-center"
+			},
+			{
+				"attributes": {
+					"buttonColor": "navy-100",
+					"buttonVariant": "primary"
+				},
+				"twClasses": "from-navy-100 to-navy-200 text-navy-950 border-navy-200 hover:border-navy-200 focus-visible:ring-navy-500/30"
+			},
+			{
+				"attributes": {
+					"buttonColor": "navy-500",
+					"buttonVariant": "primary"
+				},
+				"twClasses": "from-navy-500 to-navy-600 text-navy-50 border-navy-500 hover:border-navy-600 focus-visible:ring-navy-500/30"
+			},
+			{
+				"attributes": {
+					"buttonColor": "navy-800",
+					"buttonVariant": "primary"
+				},
+				"twClasses": "from-navy-700 to-navy-800 text-navy-50 border-navy-800 hover:border-navy-900 focus-visible:ring-navy-500/30"
+			},
+			{
+				"attributes": {
+					"buttonColor": "red-100",
+					"buttonVariant": "primary"
+				},
+				"twClasses": "from-red-100 to-red-200 text-red-950 border-red-200 hover:border-red-300 focus-visible:ring-red-500/30"
+			},
+			{
+				"attributes": {
+					"buttonColor": "red-500",
+					"buttonVariant": "primary"
+				},
+				"twClasses": "from-red-500 to-red-600 text-red-50 border-red-500 hover:border-red-600 focus-visible:ring-red-500/30"
+			},
+			{
+				"attributes": {
+					"buttonColor": "red-800",
+					"buttonVariant": "primary"
+				},
+				"twClasses": "from-red-700 to-red-800 text-red-50 border-red-800 hover:border-red-900 focus-visible:ring-red-500/30"
+			},
+			{
+				"attributes": {
+					"buttonColor": "gray-100",
+					"buttonVariant": "primary"
+				},
+				"twClasses": "from-gray-100 to-gray-200 text-gray-950 border-gray-200 hover:border-gray-300 focus-visible:ring-gray-500/30"
+			},
+			{
+				"attributes": {
+					"buttonColor": "gray-500",
+					"buttonVariant": "primary"
+				},
+				"twClasses": "from-gray-500 to-gray-600 text-gray-50 border-gray-500 hover:border-gray-600 focus-visible:ring-gray-500/30"
+			},
+			{
+				"attributes": {
+					"buttonColor": "gray-800",
+					"buttonVariant": "primary"
+				},
+				"twClasses": "from-gray-700 to-gray-800 text-gray-50 border-gray-800 hover:border-gray-900 focus-visible:ring-gray-500/30"
+			},
+			{
+				"attributes": {
+					"buttonColor": "navy-100",
+					"buttonVariant": "secondary"
+				},
+				"twClasses": "text-navy-100 border-navy-100 focus-visible:ring-navy-500/30 hover:bg-navy-50"
+			},
+			{
+				"attributes": {
+					"buttonColor": "navy-800",
+					"buttonVariant": "secondary"
+				},
+				"twClasses": "text-navy-800 border-navy-800 focus-visible:ring-navy-500/30 hover:bg-navy-50"
+			},
+			{
+				"attributes": {
+					"buttonColor": "red-100",
+					"buttonVariant": "secondary"
+				},
+				"twClasses": "text-red-100 border-red-100 focus-visible:ring-red-500/30 hover:bg-red-50"
+			},
+			{
+				"attributes": {
+					"buttonColor": "red-800",
+					"buttonVariant": "secondary"
+				},
+				"twClasses": "text-red-800 border-red-800 focus-visible:ring-red-500/30 hover:bg-red-50"
+			},
+			{
+				"attributes": {
+					"buttonColor": "gray-100",
+					"buttonVariant": "secondary"
+				},
+				"twClasses": "text-gray-100 border-gray-100 focus-visible:ring-gray-500/30 hover:bg-gray-50"
+			},
+			{
+				"attributes": {
+					"buttonColor": "gray-500",
+					"buttonVariant": "secondary"
+				},
+				"twClasses": "text-gray-500 border-gray-500 focus-visible:ring-gray-500/30 hover:bg-gray-50"
+			},
+			{
+				"attributes": {
+					"buttonColor": "gray-800",
+					"buttonVariant": "secondary"
+				},
+				"twClasses": "text-gray-800 border-gray-800 focus-visible:ring-gray-500/30"
+			},
+			{
+				"attributes": {
+					"buttonColor": "black",
+					"buttonVariant": "link"
+				},
+				"twClasses": "text-gray-950 decoration-gray-500 hover:bg-gray-100 focus-visible:ring-gray-500/30 hover:ring-gray-100"
+			},
+			{
+				"attributes": {
+					"buttonColor": "white",
+					"buttonVariant": "link"
+				},
+				"twClasses": "text-gray-50 decoration-gray-100 hover:bg-gray-100 focus-visible:ring-gray-500/30 hover:ring-gray-100"
+			},
+			{
+				"attributes": {
+					"buttonColor": "red-500",
+					"buttonVariant": "link"
+				},
+				"twClasses": "text-current decoration-red-500 hover:bg-red-50 focus-visible:ring-red-500/30 hover:ring-red-50"
+			},
+			{
+				"attributes": {
+					"buttonColor": "navy-500",
+					"buttonVariant": "link"
+				},
+				"twClasses": "text-current decoration-navy-500 hover:bg-navy-50 focus-visible:ring-navy-500/30 hover:ring-navy-50"
+			}
+		]
+	}
+}

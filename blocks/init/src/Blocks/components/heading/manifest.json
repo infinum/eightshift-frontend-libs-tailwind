@@ -1,0 +1,76 @@
+{
+	"$schema": "https://raw.githubusercontent.com/infinum/eightshift-frontend-libs-tailwind/main/schemas/component.json",
+	"componentName": "heading",
+	"title": "Heading",
+	"componentClass": "heading",
+	"example": {
+		"attributes": {
+			"headingContent": "This is heading",
+			"headingTag": "h2",
+			"headingSize": "base",
+			"headingUse": true
+		}
+	},
+	"attributes": {
+		"headingContent": {
+			"type": "string"
+		},
+		"headingTag": {
+			"type": "string",
+			"default": "h2"
+		},
+		"headingSize": {
+			"type": "string",
+			"default": "base"
+		},
+		"headingUse": {
+			"type": "boolean",
+			"default": true
+		}
+	},
+	"options": {
+		"headingSize": [
+			{
+				"label": "24",
+				"value": "sm"
+			},
+			{
+				"label": "30",
+				"value": "base"
+			},
+			{
+				"label": "36",
+				"value": "md"
+			},
+			{
+				"label": "48",
+				"value": "lg"
+			},
+			{
+				"label": "60",
+				"value": "xl"
+			},
+			{
+				"label": "96",
+				"value": "2xl"
+			}
+		]
+	},
+	"tailwind": {
+		"base": {
+			"twClasses": "font-display text-balance font-synthesis-none font-soft-50 scroll-m-20"
+		},
+		"options": {
+			"headingSize": {
+				"twClasses": {
+					"sm": "~text-lg/2xl !leading-tight",
+					"base": "~text-xl/3xl !leading-none",
+					"md": "~text-2xl/4xl !leading-none",
+					"lg": "~text-3xl/5xl !leading-none",
+					"xl": "~text-4xl/6xl !leading-none",
+					"2xl": "~text-5xl/8xl !leading-none !font-soft-25 italic"
+				}
+			}
+		}
+	}
+}

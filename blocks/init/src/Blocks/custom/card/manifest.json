@@ -1,0 +1,18 @@
+{
+	"$schema": "https://raw.githubusercontent.com/infinum/eightshift-frontend-libs-tailwind/main/schemas/block.json",
+	"blockName": "card",
+	"title": "Card",
+	"description" : "Card with custom settings.",
+	"category": "eightshift",
+	"icon": {
+		"src": "es-card"
+	},
+	"keywords": [
+		"Service",
+		"Box",
+		"Card"
+	],
+	"components": {
+		"card": "card"
+	}
+}

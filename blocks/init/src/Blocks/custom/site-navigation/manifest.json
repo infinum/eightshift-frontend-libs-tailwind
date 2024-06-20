@@ -1,0 +1,77 @@
+{
+	"$schema": "https://raw.githubusercontent.com/infinum/eightshift-frontend-libs-tailwind/main/schemas/block.json",
+	"blockName": "site-navigation",
+	"title": "Site navigation",
+	"description": "Main site navigation with a logo, links, and mobile menu button.",
+	"category": "eightshift",
+	"icon": {
+		"src": "es-navbar"
+	},
+	"keywords": [
+		"site",
+		"navigation",
+		"navbar"
+	],
+	"example": {
+		"attributes": {
+			"siteNavigationLogoUrl": "https://loremflickr.com/200/150"
+		}
+	},
+	"attributes": {
+		"siteNavigationLinks": {
+			"type": "array",
+			"default": []
+		},
+		"siteNavigationLogoUrl": {
+			"type": "string"
+		},
+		"siteNavigationLogoId": {
+			"type": "string"
+		},
+		"wrapperUse": {
+			"type": "boolean",
+			"default": false
+		},
+		"wrapperNoControls": {
+			"type": "boolean",
+			"default": true
+		}
+	},
+	"tailwind": {
+		"base": {
+			"twClasses": "flex items-center justify-between gap-4 max-w-screen-tablet mx-auto ~mobile/tablet:~px-3/6 ~/tablet:~h-16/20 bg-white/90 shadow-md backdrop-blur-3xl backdrop-brightness-125 ~mobile/tablet:~my-3/6 rounded-xl",
+			"twClassesEditor": "flex items-center justify-between gap-4 p-1"
+		},
+		"parts": {
+			"wrapper": {
+				"twClasses": "fixed top-0 wp-admin-bar-offset ~mobile/tablet:~inset-x-3/6 z-20"
+			},
+			"logo": {
+				"twClasses": "~/tablet:~w-20/28",
+				"twClassesEditor": "max-w-32"
+			},
+			"link": {
+				"twClasses": "text-base text-gray-700 hover:underline underline-offset-2 decoration-red-500 decoration-2",
+				"twClassesEditor": "text-base"
+			},
+			"drawerLink": {
+				"twClasses": "text-lg mobile:text-base text-gray-700 hover:underline underline-offset-2 decoration-red-500 decoration-2 block py-4 mobile:py-2"
+			},
+			"linkContainer": {
+				"twClasses": "hidden tablet:flex items-center gap-6 pr-2"
+			},
+			"button": {
+				"twClasses": "size-9 flex items-center justify-center rounded-md border border-gray-500 hover:bg-gray-500 focus:outline-none focus-visible:ring focus-visible:ring-navy-500/30 text-gray-600 hover:text-white transition"
+			},
+			"modalWrapper": {
+				"twClasses": "hidden open:block group"
+			},
+			"modalBackdrop": {
+				"twClasses": "fixed inset-0 wp-admin-bar-offset bg-black/50 z-30 duration-300 group-aria-hidden:animate-out group-aria-hidden:fade-out animate-in fade-in-0"
+			},
+			"modalContent": {
+				"twClasses": "bg-white rounded-lg ~mobile/tablet:~m-2/6 mobile:w-80 p-6 mobile:p-4 mobile:pl-6 space-y-3 mobile:ml-auto shadow-md animate-in slide-in-from-top-4 group-aria-hidden:animate-out group-aria-hidden:slide-out-to-top-4"
+			}
+		}
+	}
+}

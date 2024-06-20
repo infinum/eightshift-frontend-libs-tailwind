@@ -1,0 +1,82 @@
+{
+	"$schema": "https://raw.githubusercontent.com/infinum/eightshift-frontend-libs-tailwind/main/schemas/component.json",
+	"componentName": "image",
+	"title": "Image",
+	"componentClass": "image",
+	"example": {
+		"attributes": {
+			"imageData": {
+				"_mobileFirst": false,
+				"_default": {
+					"id": "1",
+					"url": "https://loremflickr.com/1000/800"
+				}
+			},
+			"imageUse": true
+		}
+	},
+	"attributes": {
+		"imageData": {
+			"type": "object",
+			"default": {
+				"_mobileFirst": false,
+				"_default": {
+					"id": "",
+					"url": ""
+				}
+			}
+		},
+		"imageUse": {
+			"type": "boolean",
+			"default": true
+		},
+		"imageRoundedCorners": {
+			"type": "string",
+			"default": "none"
+		}
+	},
+	"options": {
+		"imageRoundedCorners": [
+			{
+				"label": "None",
+				"value": "none"
+			},
+			{
+				"label": "Small",
+				"value": "small"
+			},
+			{
+				"label": "Medium",
+				"value": "medium"
+			},
+			{
+				"label": "Large",
+				"value": "large"
+			},
+			{
+				"label": "Full",
+				"value": "full"
+			}
+		]
+	},
+	"tailwind": {
+		"base": {
+			"twClasses": "object-cover"
+		},
+		"parts": {
+			"picture": {
+				"twClasses": "inline-block"
+			}
+		},
+		"options": {
+			"imageRoundedCorners": {
+				"twClasses": {
+					"small": "rounded",
+					"medium": "rounded-lg",
+					"large": "rounded-2xl",
+					"full": "rounded-full"
+				}
+			}
+		}
+	}
+}
