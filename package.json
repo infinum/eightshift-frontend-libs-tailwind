@@ -58,7 +58,7 @@
 		"terser-webpack-plugin": "^5.3.10",
 		"webpack": "^5.92.1",
 		"webpack-manifest-plugin": "^5.0.0",
-		"@eightshift/ui-components": "^1.0.0",
+		"@eightshift/ui-components": "^0.0.8",
 		"@wordpress/server-side-render": "^5.1.0",
 		"sonner": "^1.5.0",
 		"prettier": "^3.3.2",

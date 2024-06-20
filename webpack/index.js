@@ -55,7 +55,7 @@ module.exports = (mode, optionsData = {}) => {
 		...additional,
 		plugins: [
 			...outputDefault.plugins,
-			...additional.plugins,
+			...(additional?.plugins ?? []),
 		],
 	};
 };
