@@ -1,0 +1,6 @@
+/**
+ * Main entry point for styles used in the WordPress admin.
+ */
+
+@import '~@eightshift/ui-components/dist/assets/fonts.css';
+@import '~@eightshift/ui-components/dist/assets/style.css';
