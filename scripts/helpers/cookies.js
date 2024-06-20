@@ -2,7 +2,6 @@
  * Helper to set and unset cookies.
  */
 export const cookies = {
-
 	/**
 	 * Set a cookie value
 	 *
