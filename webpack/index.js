@@ -46,10 +46,16 @@ module.exports = (mode, optionsData = {}) => {
 		},
 	};
 
+	const additional = (mode === 'production'
+		? production
+		: development);
+
 	return {
 		...outputDefault,
-		...(mode === 'production'
-			? production
-			: development)
+		...additional,
+		plugins: {
+			...outputDefault.plugins,
+			...additional.plugins,
+		}
 	};
 };
