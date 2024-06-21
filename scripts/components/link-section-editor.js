@@ -250,7 +250,7 @@ export const LinkSectionEditor = (props) => {
 		<>
 			{links.map(({ items, header }, index) => {
 				return (
-					<div className={classNames?.sectionContainer}>
+					<div className={classNames?.sectionContainer} key={index}>
 						<RichText
 							placeholder={__('Section', '%g_textdomain%')}
 							value={header}
@@ -265,6 +265,7 @@ export const LinkSectionEditor = (props) => {
 						{items.map(({ text }, i) => {
 							return (
 								<RichText
+									key={i}
 									placeholder={__('Item', '%g_textdomain%')}
 									value={text}
 									onChange={(value) => updateInnerItem(index, i, { text: value })}
