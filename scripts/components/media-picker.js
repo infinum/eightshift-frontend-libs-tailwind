@@ -11,7 +11,7 @@ const MediaButton = (props) => {
 			kind='image'
 			allowedTypes={['image']}
 		/>
-	)
+	);
 };
 
 /**

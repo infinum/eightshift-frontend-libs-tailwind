@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import { useCallback } from 'react';
 import { __ } from '@wordpress/i18n';
 import { RichText } from '@wordpress/block-editor';
@@ -5,8 +6,9 @@ import { Button } from '@eightshift/ui-components';
 import { icons } from '@eightshift/ui-components/icons';
 
 /**
- * LinkSectionEditor component.
+ * Link section editor.
  *
+ * @component
  * @param {object} props - Component props.
  * @param {{ header: string, items: [{ text: string, url: string, newTab: boolean }] }[]} props.links - Link data.
  * @param {Function} props.onChange - Function to call when links are changed.
@@ -105,16 +107,19 @@ export const LinkSectionEditor = (props) => {
 		[links, onChange],
 	);
 
-	const updateItem = useCallback((index, value) => {
-		const newValue = [...links];
+	const updateItem = useCallback(
+		(index, value) => {
+			const newValue = [...links];
 
-		newValue[index] = {
-			...newValue[index],
-			...value,
-		};
+			newValue[index] = {
+				...newValue[index],
+				...value,
+			};
 
-		onChange(newValue);
-	});
+			onChange(newValue);
+		},
+		[links, onChange],
+	);
 
 	const updateInnerItem = useCallback(
 		(index, innerIndex, value) => {
@@ -130,26 +135,29 @@ export const LinkSectionEditor = (props) => {
 		[links, onChange],
 	);
 
-	const jumpToEnd = useCallback((element) => {
-		if (!element) {
-			return;
-		}
+	const jumpToEnd = useCallback(
+		(element) => {
+			if (!element) {
+				return;
+			}
 
-		const textNode = element.childNodes[0];
+			const textNode = element.childNodes[0];
 
-		if (!textNode) {
-			return;
-		}
+			if (!textNode) {
+				return;
+			}
 
-		const selection = document.getSelection();
-		selection.removeAllRanges();
+			const selection = document.getSelection();
+			selection.removeAllRanges();
 
-		const range = document.createRange();
-		range.setStart(textNode, textNode?.length);
-		range.setEnd(textNode, textNode?.length);
+			const range = document.createRange();
+			range.setStart(textNode, textNode?.length);
+			range.setEnd(textNode, textNode?.length);
 
-		selection.addRange(range);
-	});
+			selection.addRange(range);
+		},
+		[links, onChange],
+	);
 
 	const handleKeyDown = useCallback(
 		(event, index, i, text) => {
@@ -227,11 +235,7 @@ export const LinkSectionEditor = (props) => {
 				setTimeout(() => {
 					target.parentElement.nextElementSibling?.querySelector('[contenteditable="true"]')?.focus();
 				}, 25);
-			} else if (
-				code === 'Backspace' &&
-				header === '' &&
-				(items?.length < 1 || items?.every(({ text }) => text === ''))
-			) {
+			} else if (code === 'Backspace' && header === '' && (items?.length < 1 || items?.every(({ text }) => text === ''))) {
 				event.preventDefault();
 
 				// Jump to end of previous input.
@@ -252,7 +256,7 @@ export const LinkSectionEditor = (props) => {
 				return (
 					<div className={classNames?.sectionContainer} key={index}>
 						<RichText
-							placeholder={__('Section', '%g_textdomain%')}
+							placeholder={__('Section', 'eightshift-frontend-libs')}
 							value={header}
 							onChange={(value) => updateItem(index, { header: value })}
 							allowedFormats={[]}
@@ -266,7 +270,7 @@ export const LinkSectionEditor = (props) => {
 							return (
 								<RichText
 									key={i}
-									placeholder={__('Item', '%g_textdomain%')}
+									placeholder={__('Item', 'eightshift-frontend-libs')}
 									value={text}
 									onChange={(value) => updateInnerItem(index, i, { text: value })}
 									allowedFormats={[]}
@@ -281,7 +285,7 @@ export const LinkSectionEditor = (props) => {
 						<Button
 							size='small'
 							icon={icons.add}
-							tooltip={__('Add link', '%g_textdomain%')}
+							tooltip={__('Add link', 'eightshift-frontend-libs')}
 							onPress={({ target }) => {
 								updateItem(index, {
 									items: [...links[index].items, defaultLink],
@@ -305,10 +309,10 @@ export const LinkSectionEditor = (props) => {
 					}, 20);
 				}}
 				icon={icons.add}
-				tooltip={__('Add a section', '%g_textdomain%')}
+				tooltip={__('Add a section', 'eightshift-frontend-libs')}
 				className='justify-self-start'
 			>
-				{__('Section', '%g_textdomain%')}
+				{__('Section', 'eightshift-frontend-libs')}
 			</Button>
 		</>
 	);
