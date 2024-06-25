@@ -8,9 +8,6 @@ module.exports = {
 		'vendor/*',
 		'tests/*',
 	],
-	extends: [
-		'@infinumjs/eslint-config-react-js'
-	],
 	globals: {
 		wp: true,
 	},
