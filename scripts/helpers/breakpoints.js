@@ -26,3 +26,23 @@ export const getBreakpointData = (convertToPx = false) => {
 
 	return breakpoints;
 };
+
+export const getBreakpointUiData = () => select(STORE_NAME)?.getSettings()?.globalVariables?.breakpointData;
+
+export const getResponsiveData = (convertToPx = false) => {
+	const uiData = getBreakpointUiData();
+
+	const baseData = {
+		breakpoints: getBreakpointNames(),
+		breakpointData: getBreakpointData(convertToPx),
+	};
+
+	if (!uiData) {
+		return baseData;
+	}
+
+	return {
+		...baseData,
+		...uiData,
+	};
+};

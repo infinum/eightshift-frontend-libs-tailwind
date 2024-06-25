@@ -37,6 +37,8 @@ export {
 	getBreakpointData,
 	getBreakpointNames,
 	getGlobalManifest,
+	getBreakpointUiData,
+	getResponsiveData,
 } from './helpers/breakpoints';
 export { cookies } from './helpers/cookies';
 export { dynamicImport } from './helpers/dynamic-import';
