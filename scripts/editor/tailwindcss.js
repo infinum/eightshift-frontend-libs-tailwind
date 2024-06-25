@@ -64,7 +64,7 @@ export const getTwClasses = (attributes, manifest, ...custom) => {
 		}
 
 		const responsiveClasses = Object.keys(value).reduce((curr, breakpoint) => {
-			if (breakpoint === '_mobileFirst') {
+			if (breakpoint === '_desktopFirst') {
 				return curr;
 			}
 
@@ -189,7 +189,7 @@ export const getScreens = (breakpointData, unit = 'rem') => {
 };
 
 export const generateOptionsFromValue = (value, getLabel = (v) => v) => {
-	return Object.entries(value).filter(([breakpoint]) => breakpoint !== '_mobileFirst').map(([breakpoint, innerValue]) => ({
+	return Object.entries(value).filter(([breakpoint]) => breakpoint !== '_desktopFirst').map(([breakpoint, innerValue]) => ({
 		value: innerValue,
 		label: getLabel(innerValue, breakpoint),
 	}));
