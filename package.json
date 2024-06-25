@@ -27,8 +27,8 @@
 	},
 	"scripts": {
 		"lintStyle": "stylelint **/*.css",
-		"lintJs": "eslint blocks/ webpack/ scripts/ babel/ linters/",
-		"lint": "npm run lintJs && npm run lintStyle",
+		"lintJs": "npx eslint",
+		"lint": "pnpm run lintJs && pnpm run lintStyle",
 		"prepare": "husky"
 	},
 	"homepage": "https://github.com/infinum/eightshift-frontend-libs-tailwind#readme",
@@ -40,12 +40,11 @@
 		"@wordpress/block-editor": "^13.1.0",
 		"@wordpress/api-fetch": "^7.1.0",
 		"@wordpress/dom-ready": "^4.1.0",
-		"@wordpress/dependency-extraction-webpack-plugin": "^5.9.0",
+		"@wordpress/dependency-extraction-webpack-plugin": "^6.1.0",
 		"browserslist": "^4.23.1",
 		"css-loader": "^7.1.2",
 		"css-minimizer-webpack-plugin": "^7.0.0",
 		"lightningcss": "^1.25.1",
-		"eslint": "^9.5.0",
 		"file-loader": "^6.2.0",
 		"husky": "^9.0.11",
 		"mini-css-extract-plugin": "^2.9.0",
@@ -61,7 +60,12 @@
 		"sonner": "^1.5.0",
 		"prettier": "^3.3.2",
 		"prettier-plugin-tailwindcss": "^0.6.5",
-		"webpack-merge": "^5.10.0"
+		"webpack-merge": "^5.10.0",
+		"eslint": "^9.5.0",
+		"eslint-config-prettier": "^9.1.0",
+		"eslint-plugin-prettier": "^5.1.3",
+		"eslint-plugin-react": "^7.34.3",
+		"eslint-plugin-react-hooks": "^4.6.2"
 	},
 	"devDependencies": {
 		"swc-loader": "^0.2.6",
@@ -77,10 +81,10 @@
 	"sideEffects": false,
 	"lint-staged": {
 		"*.css": [
-			"npm run lintStyle"
+			"pnpm run lintStyle"
 		],
 		"*.js": [
-			"npm run lintJs"
+			"pnpm run lintJs"
 		],
 		"*.php": [
 			"composer test"
