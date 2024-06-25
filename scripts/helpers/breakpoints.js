@@ -43,6 +43,6 @@ export const getResponsiveData = (convertToPx = false) => {
 
 	return {
 		...baseData,
-		...uiData,
+		breakpointUiData: uiData,
 	};
 };
