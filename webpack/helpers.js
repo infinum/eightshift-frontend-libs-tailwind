@@ -64,6 +64,4 @@ function getConfig(
 	};
 }
 
-export default {
-	getConfig,
-};
+export { getConfig };
