@@ -65,7 +65,7 @@ export default (options) => {
 		rules: [],
 	};
 
-	// Module for JS and JSX.
+	// Module for JS and JSX.
 	if (!options.overrides.includes('js')) {
 		module.rules.push({
 			test: /\.(js|jsx)$/,
@@ -76,25 +76,25 @@ export default (options) => {
 		});
 	}
 
-	// Module for Images.
-	if (!options.overrides.includes('images')) {
-		module.rules.push({
-			test: /\.(png|svg|jpg|jpeg|gif|ico|webp)$/i,
-			exclude: [/fonts/, /node_modules/],
-			use: 'file-loader?name=[name].[ext]',
-		});
-	}
+	// // Module for Images.
+	// if (!options.overrides.includes('images')) {
+	// 	module.rules.push({
+	// 		test: /\.(png|svg|jpg|jpeg|gif|ico|webp)$/i,
+	// 		exclude: [/fonts/, /node_modules/],
+	// 		use: 'file-loader?name=[name].[ext]',
+	// 	});
+	// }
 
-	// Module for Fonts.
-	if (!options.overrides.includes('fonts')) {
-		module.rules.push({
-			test: /\.(otf|ttf|woff2)$/,
-			exclude: [/images/, /node_modules/],
-			use: 'file-loader?name=[name].[ext]',
-		});
-	}
+	// // Module for Fonts.
+	// if (!options.overrides.includes('fonts')) {
+	// 	module.rules.push({
+	// 		test: /\.(otf|ttf|woff2)$/,
+	// 		exclude: [/images/, /node_modules/],
+	// 		use: 'file-loader?name=[name].[ext]',
+	// 	});
+	// }
 
-	// Module for CSS.
+	// Module for CSS.
 	if (!options.overrides.includes('css')) {
 		module.rules.push({
 			test: /\.css$/,
