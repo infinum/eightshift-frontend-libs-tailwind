@@ -52,7 +52,6 @@ export default (options) => {
 			new DependencyExtractionWebpackPlugin({
 				outputFormat: 'json',
 				requestToExternal: function (request) {
-					// eslint-disable-line consistent-return
 					if (request === '@wordpress/dom-ready') {
 						return '';
 					}
