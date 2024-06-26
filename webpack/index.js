@@ -21,12 +21,11 @@ module.exports = (mode, optionsData = {}) => {
 		optionsData.config.assetsPath,
 		optionsData.config.blocksAssetsPath,
 		optionsData.config.outputPath,
-		optionsData.config.blocksManifestSettingsPath
+		optionsData.config.blocksManifestSettingsPath,
 	);
 
 	options.config.mode = mode;
-	options.config.filesOutput =
-		mode === 'production' ? '[name]-[contenthash]' : '[name]';
+	options.config.filesOutput = mode === 'production' ? '[name]-[contenthash]' : '[name]';
 
 	// Get all webpack partials.
 	const base = require('./base')(options);
@@ -40,7 +39,7 @@ module.exports = (mode, optionsData = {}) => {
 	const development = {
 		devtool: false,
 		watchOptions: {
-			ignored: '**/node_modules',
+			ignored: ['**/node_modules', '**/vendor', '**/public'],
 		},
 	};
 

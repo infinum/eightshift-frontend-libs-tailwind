@@ -1,3 +1,3 @@
-import linterConfig from './linters/eslint.config.js';
+import linterConfig from './linters/base.config.js';
 
 export default linterConfig;

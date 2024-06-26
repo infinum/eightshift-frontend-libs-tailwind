@@ -8,9 +8,7 @@ const CssMinimizerPlugin = require('css-minimizer-webpack-plugin');
 const lightningcss = require('lightningcss');
 const browserslist = require('browserslist');
 
-
 module.exports = (options) => {
-
 	// Enable Webpack caching for production
 	const cache = true;
 
@@ -25,34 +23,38 @@ module.exports = (options) => {
 
 	// Plugin used to minify output.
 	if (!options.overrides.includes('terserPlugin')) {
-		optimization.minimizer.push(new TerserPlugin({
-			parallel: true,
-			minify: TerserPlugin.swcMinify,
-			terserOptions: {
-				compress: {
-					drop_console: true,
-					passes: 2,
+		optimization.minimizer.push(
+			new TerserPlugin({
+				parallel: true,
+				minify: TerserPlugin.swcMinify,
+				terserOptions: {
+					compress: {
+						drop_console: true,
+						passes: 2,
+					},
+					format: {
+						comments: false,
+					},
 				},
-				format: {
-					comments: false,
-				},
-			},
-		}));
+			}),
+		);
 	}
 
 	if (!options.overrides.includes('cssMinimizerPlugin')) {
-		optimization.minimizer.push(new CssMinimizerPlugin({
-			parallel: true,
-			minify: CssMinimizerPlugin.lightningCssMinify,
-			minimizerOptions: {
-				targets: lightningcss.browserslistToTargets(browserslist('>= 0.25%'))
-			},
-		}));
+		optimization.minimizer.push(
+			new CssMinimizerPlugin({
+				parallel: true,
+				minify: CssMinimizerPlugin.lightningCssMinify,
+				minimizerOptions: {
+					targets: lightningcss.browserslistToTargets(browserslist('>= 0.25%')),
+				},
+			}),
+		);
 	}
 
 	return {
 		plugins,
 		optimization,
-		cache
+		cache,
 	};
 };
