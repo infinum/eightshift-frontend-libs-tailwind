@@ -6,6 +6,9 @@ import globals from 'globals';
 
 export default [
 	{
+		ignores: ['**/dist/', 'public/'],
+	},
+	{
 		files: ['**/*.js', '**/*.jsx'],
 		languageOptions: {
 			parserOptions: {
