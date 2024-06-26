@@ -2,7 +2,6 @@
 	"name": "@eightshift/frontend-libs-tailwind",
 	"version": "1.0.0",
 	"description": "A framework for creating modern Gutenberg themes with styling provided by Tailwind CSS.",
-	"type": "module",
 	"author": {
 		"name": "Eightshift team",
 		"email": "team@eightshift.com",
