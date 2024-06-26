@@ -3,37 +3,42 @@
  *
  */
 
-const webpack = require('webpack');
-const MiniCssExtractPlugin = require('mini-css-extract-plugin');
-const { WebpackManifestPlugin } = require('webpack-manifest-plugin');
-const DependencyExtractionWebpackPlugin = require('@wordpress/dependency-extraction-webpack-plugin');
+import webpack from 'webpack';
+import MiniCssExtractPlugin from 'mini-css-extract-plugin';
+import { WebpackManifestPlugin } from 'webpack-manifest-plugin';
+import DependencyExtractionWebpackPlugin from '@wordpress/dependency-extraction-webpack-plugin';
 
-module.exports = (options) => {
-
+export default (options) => {
 	// All Plugins used in production and development build.
 	const plugins = [];
 
 	// Provide global variables to window object.
 	if (!options.overrides.includes('providePlugin')) {
-		plugins.push(new webpack.ProvidePlugin({
-			$: 'jquery',
-			jQuery: 'jquery',
-		}));
+		plugins.push(
+			new webpack.ProvidePlugin({
+				$: 'jquery',
+				jQuery: 'jquery',
+			}),
+		);
 	}
 
 	// Provide variables to code build.
 	if (!options.overrides.includes('definePlugin')) {
-		plugins.push(new webpack.DefinePlugin({
-			'process.env.VERSION': JSON.stringify(Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15)),
-			'process.browser': true,
-		}));
+		plugins.push(
+			new webpack.DefinePlugin({
+				'process.env.VERSION': JSON.stringify(Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15)),
+				'process.browser': true,
+			}),
+		);
 	}
 
 	// Output css from Js.
 	if (!options.overrides.includes('miniCssExtractPlugin')) {
-		plugins.push(new MiniCssExtractPlugin({
-			filename: `${options.config.filesOutput}.css`,
-		}));
+		plugins.push(
+			new MiniCssExtractPlugin({
+				filename: `${options.config.filesOutput}.css`,
+			}),
+		);
 	}
 
 	// Create manifest.json file.
@@ -43,14 +48,17 @@ module.exports = (options) => {
 
 	// Enable export for all WordPress related packages
 	if (!options.overrides.includes('dependencyExtractionWebpackPlugin')) {
-		plugins.push(new DependencyExtractionWebpackPlugin({
-			outputFormat: 'json',
-			requestToExternal: function (request) { // eslint-disable-line consistent-return
-				if (request === '@wordpress/dom-ready') {
-					return '';
-				}
-			}
-		}));
+		plugins.push(
+			new DependencyExtractionWebpackPlugin({
+				outputFormat: 'json',
+				requestToExternal: function (request) {
+					// eslint-disable-line consistent-return
+					if (request === '@wordpress/dom-ready') {
+						return '';
+					}
+				},
+			}),
+		);
 	}
 
 	// All module used in production and development build.
@@ -65,7 +73,7 @@ module.exports = (options) => {
 			exclude: /node_modules[\\/](?!@eightshift)/,
 			use: {
 				loader: 'swc-loader',
-			}
+			},
 		});
 	}
 
@@ -121,6 +129,6 @@ module.exports = (options) => {
 	return {
 		plugins,
 		module,
-		resolve
+		resolve,
 	};
 };

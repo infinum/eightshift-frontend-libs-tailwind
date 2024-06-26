@@ -3,9 +3,9 @@
  *
  */
 
-const fs = require('fs');
+import fs from 'fs';
 
-module.exports = (options) => {
+export default (options) => {
 	const entry = {};
 	const output = {
 		path: options.config.outputPath,
@@ -38,10 +38,10 @@ module.exports = (options) => {
 		entry.applicationBlocksEditor = options.config.applicationBlocksEditorEntry;
 	}
 
-		// Load applicationBlocksFrontend Entrypoint.
-		if (!options.overrides.includes('applicationBlocksFrontend') && fs.existsSync(options.config.applicationBlocksFrontendEntry)) {
-			entry.applicationBlocksFrontend = options.config.applicationBlocksFrontendEntry;
-		}
+	// Load applicationBlocksFrontend Entrypoint.
+	if (!options.overrides.includes('applicationBlocksFrontend') && fs.existsSync(options.config.applicationBlocksFrontendEntry)) {
+		entry.applicationBlocksFrontend = options.config.applicationBlocksFrontendEntry;
+	}
 
 	// Load filename Output.
 	if (!options.overrides.includes('filename')) {

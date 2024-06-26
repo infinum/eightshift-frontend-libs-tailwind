@@ -3,7 +3,7 @@
  *
  */
 
-const path = require('path');
+import path from 'path';
 
 /**
  * Generate all paths required for Webpack build to work.
@@ -24,14 +24,14 @@ function getConfig(
 	outputPathConfig = 'public',
 	blocksManifestSettingsPath = 'src/Blocks/manifest.json',
 ) {
-
 	if (typeof projectDir === 'undefined') {
 		throw Error('projectDir parameter is empty, please provide. This key represents: Current project directory absolute path. For example: __dirname');
 	}
 
 	if (typeof projectPathConfig === 'undefined') {
-		// eslint-disable-next-line max-len
-		throw Error('projectPath parameter is empty, please provide. This key represents: Project path relative to project root. For example: wp-content/themes/eightshift-boilerplate');
+		throw Error(
+			'projectPath parameter is empty, please provide. This key represents: Project path relative to project root. For example: wp-content/themes/eightshift-boilerplate',
+		);
 	}
 
 	// Clear all slashes from user config.
@@ -64,6 +64,6 @@ function getConfig(
 	};
 }
 
-module.exports = {
-	getConfig
+export default {
+	getConfig,
 };

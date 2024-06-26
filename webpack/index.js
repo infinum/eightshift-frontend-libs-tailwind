@@ -3,10 +3,13 @@
  *
  */
 
-const { merge } = require('webpack-merge');
-const { getConfig } = require('./helpers');
+import { merge } from 'webpack-merge';
+import { getConfig } from './helpers';
+import baseConfig from './base';
+import projectConfig from './project';
+import productionConfig from './production';
 
-module.exports = (mode, optionsData = {}) => {
+export default (mode, optionsData = {}) => {
 	// All config and default setting overrides must be provided using this object.
 	const options = {
 		config: {},
@@ -28,9 +31,9 @@ module.exports = (mode, optionsData = {}) => {
 	options.config.filesOutput = mode === 'production' ? '[name]-[contenthash]' : '[name]';
 
 	// Get all webpack partials.
-	const base = require('./base')(options);
-	const project = require('./project')(options);
-	const production = require('./production')(options);
+	const base = baseConfig(options);
+	const project = projectConfig(options);
+	const production = productionConfig(options);
 
 	// Default output that is going to be merged in any env.
 	const outputDefault = merge(project, base);

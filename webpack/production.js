@@ -3,12 +3,12 @@
  *
  */
 
-const TerserPlugin = require('terser-webpack-plugin');
-const CssMinimizerPlugin = require('css-minimizer-webpack-plugin');
-const lightningcss = require('lightningcss');
-const browserslist = require('browserslist');
+import TerserPlugin from 'terser-webpack-plugin';
+import CssMinimizerPlugin from 'css-minimizer-webpack-plugin';
+import lightningcss from 'lightningcss';
+import browserslist from 'browserslist';
 
-module.exports = (options) => {
+export default (options) => {
 	// Enable Webpack caching for production
 	const cache = true;
 
