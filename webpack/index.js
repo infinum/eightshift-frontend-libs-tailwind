@@ -4,10 +4,10 @@
  */
 
 import { merge } from 'webpack-merge';
-import { getConfig } from './helpers';
-import baseConfig from './base';
-import projectConfig from './project';
-import productionConfig from './production';
+import { getConfig } from './helpers.js';
+import baseConfig from './base.js';
+import projectConfig from './project.js';
+import productionConfig from './production.js';
 
 export default (mode, optionsData = {}) => {
 	// All config and default setting overrides must be provided using this object.
