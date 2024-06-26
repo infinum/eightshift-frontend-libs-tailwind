@@ -9,7 +9,7 @@ import baseConfig from './base.mjs';
 import projectConfig from './project.mjs';
 import productionConfig from './production.mjs';
 
-export default (mode, optionsData = {}) => {
+const eightshiftConfig = (mode, optionsData = {}) => {
 	// All config and default setting overrides must be provided using this object.
 	const options = {
 		config: {},
@@ -48,3 +48,5 @@ export default (mode, optionsData = {}) => {
 
 	return merge(outputDefault, mode === 'production' ? production : development);
 };
+
+export { eightshiftConfig };
