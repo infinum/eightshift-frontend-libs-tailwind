@@ -28,7 +28,7 @@
 	"scripts": {
 		"lintStyle": "stylelint **/*.css",
 		"lintJs": "npx eslint",
-		"lint": "pnpm run lintJs && pnpm run lintStyle",
+		"lint": "npm run lintJs && npm run lintStyle",
 		"prepare": "husky"
 	},
 	"homepage": "https://github.com/infinum/eightshift-frontend-libs-tailwind#readme",
@@ -84,10 +84,10 @@
 	"sideEffects": false,
 	"lint-staged": {
 		"*.css": [
-			"pnpm run lintStyle"
+			"npm run lintStyle"
 		],
 		"*.js": [
-			"pnpm run lintJs --ignore-pattern node_modules"
+			"npm run lintJs --ignore-pattern node_modules"
 		],
 		"*.php": [
 			"composer test"
