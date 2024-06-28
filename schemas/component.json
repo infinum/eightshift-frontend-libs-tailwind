@@ -139,14 +139,17 @@
 				"options": {
 					"type": "object",
 					"description": "Per-attribute classes, added to the base class. Key represents the attribute name.",
-					"properties": {
-						"twClasses": {
-							"type": "object",
-							"description": "Classnames to apply. Key is the attribute value, value is the classnames to apply."
-						},
-						"twClassesEditor": {
-							"type": "object",
-							"description": "Editor-specific classnames to apply. Overrides 'twClasses'. Key is the attribute value, value is the classnames to apply."
+					"additionalProperties": {
+						"type": "object",
+						"properties": {
+							"twClasses": {
+								"type": "object",
+								"description": "Classnames to apply. Key is the attribute value, value is the classnames to apply."
+							},
+							"twClassesEditor": {
+								"type": "object",
+								"description": "Editor-specific classnames to apply. Overrides 'twClasses'. Key is the attribute value, value is the classnames to apply."
+							}
 						}
 					},
 					"minProperties": 1
@@ -154,14 +157,17 @@
 				"parts": {
 					"type": "object",
 					"description": "Stand-alone parts of the component, not affected by 'options' or 'combinations'. Key represents the part name.",
-					"properties": {
-						"twClasses": {
-							"type": "object",
-							"description": "Classnames to apply. Key is the attribute value, value is the classnames to apply."
-						},
-						"twClassesEditor": {
-							"type": "object",
-							"description": "Editor-specific classnames to apply. Overrides 'twClasses'. Key is the attribute value, value is the classnames to apply."
+					"additionalProperties": {
+						"type": "object",
+						"properties": {
+							"twClasses": {
+								"type": "object",
+								"description": "Classnames to apply. Key is the attribute value, value is the classnames to apply."
+							},
+							"twClassesEditor": {
+								"type": "object",
+								"description": "Editor-specific classnames to apply. Overrides 'twClasses'. Key is the attribute value, value is the classnames to apply."
+							}
 						}
 					},
 					"minProperties": 1
