@@ -242,14 +242,18 @@
 								}
 							},
 							"twClasses": {
-								"type": "object",
+								"type": "string",
 								"description": "Classnames to apply if all conditions match. Key is the attribute value, value is the classnames to apply."
 							},
 							"twClassesEditor": {
-								"type": "object",
+								"type": "string",
 								"description": "Editor-specific classnames to apply if all conditions match. Overrides 'twClasses'. Key is the attribute value, value is the classnames to apply."
 							}
-						}
+						},
+						"required": [
+							"attributes",
+							"twClasses"
+						]
 					},
 					"minLength": 1
 				}
