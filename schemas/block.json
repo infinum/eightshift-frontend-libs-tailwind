@@ -175,6 +175,97 @@
 		"options": {
 			"type": "object",
 			"description": "Defines common option definitions for attributes. Check https://eightshift.com/docs/basics/blocks-component-in-block/ for more info."
+		},
+		"tailwind": {
+			"type": "object",
+			"description": "Defines shared Tailwind configs for the block. 'base' sets the base classes for the main part of the block. The base is augmented by 'options' and 'combinations', if set. 'parts' can be used for static/supporting parts of the block.",
+			"properties": {
+				"base": {
+					"type": "object",
+					"description": "Base classes for the main part of the block.",
+					"properties": {
+						"twClasses": {
+							"type": "string",
+							"description": "Classnames to apply."
+						},
+						"twClassesEditor": {
+							"type": "string",
+							"description": "Editor-specific classnames to apply. Overrides 'twClasses'"
+						}
+					},
+					"minProperties": 1
+				},
+				"options": {
+					"type": "object",
+					"description": "Per-attribute classes, added to the base class. Key represents the attribute name.",
+					"properties": {
+						"twClasses": {
+							"type": "object",
+							"description": "Classnames to apply. Key is the attribute value, value is the classnames to apply."
+						},
+						"twClassesEditor": {
+							"type": "object",
+							"description": "Editor-specific classnames to apply. Overrides 'twClasses'. Key is the attribute value, value is the classnames to apply."
+						}
+					},
+					"minProperties": 1
+				},
+				"parts": {
+					"type": "object",
+					"description": "Stand-alone parts of the block, not affected by 'options' or 'combinations'. Key represents the part name.",
+					"properties": {
+						"twClasses": {
+							"type": "object",
+							"description": "Classnames to apply. Key is the attribute value, value is the classnames to apply."
+						},
+						"twClassesEditor": {
+							"type": "object",
+							"description": "Editor-specific classnames to apply. Overrides 'twClasses'. Key is the attribute value, value is the classnames to apply."
+						}
+					},
+					"minProperties": 1
+				},
+				"combinations": {
+					"type": "array",
+					"description": "Conditionally applied classes, depending on the set attribute values. Added to the base class.",
+					"items": {
+						"type": "object",
+						"properties": {
+							"attributes": {
+								"type": "object",
+								"description": "Attributes to check for the condition. Key is the attribute name, value is the attribute value (or an array of possible values) to check for.",
+								"patternProperties": {
+									"[a-zA-Z]": {
+										"anyOf": [
+											{
+												"type": "string",
+												"minLength": 1
+											},
+											{
+												"type": "array",
+												"items": {
+													"type": "string",
+													"minLength": 1
+												}
+											}
+										]
+									}
+								}
+							},
+							"twClasses": {
+								"type": "object",
+								"description": "Classnames to apply if all conditions match. Key is the attribute value, value is the classnames to apply."
+							},
+							"twClassesEditor": {
+								"type": "object",
+								"description": "Editor-specific classnames to apply if all conditions match. Overrides 'twClasses'. Key is the attribute value, value is the classnames to apply."
+							}
+						}
+					},
+					"minLength": 1
+				}
+			},
+			"minProperties": 1
 		}
 	},
 	"required": [

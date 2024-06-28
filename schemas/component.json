@@ -28,7 +28,8 @@
 					"properties": {
 						"type": {
 							"description": "The type indicates the type of data that is stored by the attribute. It does not indicate where the data is stored, which is defined by the source field.\n\nA type is required, unless an enum is provided. A type can be used with an enum.\n\nNote that the validity of an object is determined by your source. For an example, see the query details below.",
-							"oneOf": [{
+							"oneOf": [
+								{
 									"type": "string",
 									"enum": [
 										"null",
@@ -62,7 +63,8 @@
 							"type": "array",
 							"description": "An attribute can be defined as one of a fixed set of values. This is specified by an enum, which contains an array of allowed values:",
 							"items": {
-								"oneOf": [{
+								"oneOf": [
+									{
 										"type": "boolean"
 									},
 									{
@@ -114,6 +116,97 @@
 		"options": {
 			"type": "object",
 			"description": "Defines common option definitions for attributes. Check https://eightshift.com/docs/basics/blocks-component-in-block/ for more info."
+		},
+		"tailwind": {
+			"type": "object",
+			"description": "Defines shared Tailwind configs for the component. 'base' sets the base classes for the main part of the component. The base is augmented by 'options' and 'combinations', if set. 'parts' can be used for static/supporting parts of the component.",
+			"properties": {
+				"base": {
+					"type": "object",
+					"description": "Base classes for the main part of the component.",
+					"properties": {
+						"twClasses": {
+							"type": "string",
+							"description": "Classnames to apply."
+						},
+						"twClassesEditor": {
+							"type": "string",
+							"description": "Editor-specific classnames to apply. Overrides 'twClasses'"
+						}
+					},
+					"minProperties": 1
+				},
+				"options": {
+					"type": "object",
+					"description": "Per-attribute classes, added to the base class. Key represents the attribute name.",
+					"properties": {
+						"twClasses": {
+							"type": "object",
+							"description": "Classnames to apply. Key is the attribute value, value is the classnames to apply."
+						},
+						"twClassesEditor": {
+							"type": "object",
+							"description": "Editor-specific classnames to apply. Overrides 'twClasses'. Key is the attribute value, value is the classnames to apply."
+						}
+					},
+					"minProperties": 1
+				},
+				"parts": {
+					"type": "object",
+					"description": "Stand-alone parts of the component, not affected by 'options' or 'combinations'. Key represents the part name.",
+					"properties": {
+						"twClasses": {
+							"type": "object",
+							"description": "Classnames to apply. Key is the attribute value, value is the classnames to apply."
+						},
+						"twClassesEditor": {
+							"type": "object",
+							"description": "Editor-specific classnames to apply. Overrides 'twClasses'. Key is the attribute value, value is the classnames to apply."
+						}
+					},
+					"minProperties": 1
+				},
+				"combinations": {
+					"type": "array",
+					"description": "Conditionally applied classes, depending on the set attribute values. Added to the base class.",
+					"items": {
+						"type": "object",
+						"properties": {
+							"attributes": {
+								"type": "object",
+								"description": "Attributes to check for the condition. Key is the attribute name, value is the attribute value (or an array of possible values) to check for.",
+								"patternProperties": {
+									"[a-zA-Z]": {
+										"anyOf": [
+											{
+												"type": "string",
+												"minLength": 1
+											},
+											{
+												"type": "array",
+												"items": {
+													"type": "string",
+													"minLength": 1
+												}
+											}
+										]
+									}
+								}
+							},
+							"twClasses": {
+								"type": "object",
+								"description": "Classnames to apply if all conditions match. Key is the attribute value, value is the classnames to apply."
+							},
+							"twClassesEditor": {
+								"type": "object",
+								"description": "Editor-specific classnames to apply if all conditions match. Overrides 'twClasses'. Key is the attribute value, value is the classnames to apply."
+							}
+						}
+					},
+					"minLength": 1
+				}
+			},
+			"minProperties": 1
 		}
 	},
 	"required": [
