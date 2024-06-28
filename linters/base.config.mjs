@@ -1,5 +1,5 @@
-import react from 'eslint-plugin-react';
-import reactHooks from 'eslint-plugin-react-hooks';
+// import react from 'eslint-plugin-react';
+// import reactHooks from 'eslint-plugin-react-hooks';
 import stylistic from '@stylistic/eslint-plugin-js';
 import eslintPluginPrettierRecommended from 'eslint-plugin-prettier/recommended';
 import globals from 'globals';
@@ -23,8 +23,8 @@ export default [
 			},
 		},
 		plugins: {
-			react,
-			'react-hooks': reactHooks,
+			// react,
+			// 'react-hooks': reactHooks,
 			'@stylistic/js': stylistic,
 		},
 		rules: {
@@ -61,20 +61,21 @@ export default [
 				},
 			],
 			// React-specific.
-			'consistent-return': 'warn',
-			'no-param-reassign': 'warn',
-			'react-hooks/rules-of-hooks': 'error',
-			// 'react-hooks/exhaustive-deps': ['error', { additionalHooks: '(useSafeLayoutEffect|useUpdateEffect)' }],
-			'react/prop-types': ['error', { skipUndeclared: true }],
-			'react/react-in-jsx-scope': 'off',
-			'react/self-closing-comp': ['warn', { component: true, html: true }],
-			'react/no-unknown-property': ['error', { ignore: ['css'] }],
+			// Note: React rules are temporarily disabled until the plugin gets full compatibility with ESLint 9.
+			// 'consistent-return': 'warn',
+			// 'no-param-reassign': 'warn',
+			// 'react-hooks/rules-of-hooks': 'error',
+			// // 'react-hooks/exhaustive-deps': ['error', { additionalHooks: '(useSafeLayoutEffect|useUpdateEffect)' }],
+			// 'react/prop-types': ['error', { skipUndeclared: true }],
+			// 'react/react-in-jsx-scope': 'off',
+			// 'react/self-closing-comp': ['warn', { component: true, html: true }],
+			// 'react/no-unknown-property': ['error', { ignore: ['css'] }],
 		},
-		settings: {
-			react: {
-				version: '18',
-			},
-		},
+		// settings: {
+		// 	react: {
+		// 		version: '18',
+		// 	},
+		// },
 	},
 	eslintPluginPrettierRecommended,
 ];
