@@ -140,17 +140,7 @@
 					"type": "object",
 					"description": "Per-attribute classes, added to the base class. Key represents the attribute name.",
 					"additionalProperties": {
-						"type": "object",
-						"properties": {
-							"twClasses": {
-								"type": "object",
-								"description": "Classnames to apply. Key is the attribute value, value is the classnames to apply."
-							},
-							"twClassesEditor": {
-								"type": "object",
-								"description": "Editor-specific classnames to apply. Overrides 'twClasses'. Key is the attribute value, value is the classnames to apply."
-							}
-						}
+						"$ref": "#/$defs/twOptionsEntry"
 					},
 					"minProperties": 1
 				},
@@ -158,17 +148,7 @@
 					"type": "object",
 					"description": "Stand-alone parts of the component, not affected by 'options' or 'combinations'. Key represents the part name.",
 					"additionalProperties": {
-						"type": "object",
-						"properties": {
-							"twClasses": {
-								"type": "object",
-								"description": "Classnames to apply. Key is the attribute value, value is the classnames to apply."
-							},
-							"twClassesEditor": {
-								"type": "object",
-								"description": "Editor-specific classnames to apply. Overrides 'twClasses'. Key is the attribute value, value is the classnames to apply."
-							}
-						}
+						"$ref": "#/$defs/twPartEntry"
 					},
 					"minProperties": 1
 				},
@@ -218,5 +198,33 @@
 	"required": [
 		"componentName",
 		"title"
-	]
+	],
+	"$defs": {
+		"twPartEntry": {
+			"type": "object",
+			"properties": {
+				"twClasses": {
+					"type": "object",
+					"description": "Classnames to apply. Key is the attribute value, value is the classnames to apply."
+				},
+				"twClassesEditor": {
+					"type": "object",
+					"description": "Editor-specific classnames to apply. Overrides 'twClasses'. Key is the attribute value, value is the classnames to apply."
+				}
+			}
+		},
+		"twOptionsEntry": {
+			"type": "object",
+			"properties": {
+				"twClasses": {
+					"type": "object",
+					"description": "Classnames to apply. Key is the attribute value, value is the classnames to apply."
+				},
+				"twClassesEditor": {
+					"type": "object",
+					"description": "Editor-specific classnames to apply. Overrides 'twClasses'. Key is the attribute value, value is the classnames to apply."
+				}
+			}
+		}
+	}
 }
