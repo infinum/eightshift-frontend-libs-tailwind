@@ -208,12 +208,18 @@
 			"type": "object",
 			"properties": {
 				"twClasses": {
-					"type": "string",
-					"description": "Classnames to apply. Key is the attribute value, value is the classnames to apply."
+					"type": "object",
+					"description": "Classnames to apply. Key is the attribute value, value is the classnames to apply.",
+					"properties": {
+						"type": "string"
+					}
 				},
 				"twClassesEditor": {
-					"type": "string",
-					"description": "Editor-specific classnames to apply. Overrides 'twClasses'. Key is the attribute value, value is the classnames to apply."
+					"type": "object",
+					"description": "Editor-specific classnames to apply. Overrides 'twClasses'. Key is the attribute value, value is the classnames to apply.",
+					"properties": {
+						"type": "string"
+					}
 				}
 			}
 		},
@@ -222,11 +228,17 @@
 			"properties": {
 				"twClasses": {
 					"type": "string",
-					"description": "Classnames to apply. Key is the attribute value, value is the classnames to apply."
+					"description": "Classnames to apply. Key is the attribute value, value is the classnames to apply.",
+					"properties": {
+						"type": "string"
+					}
 				},
 				"twClassesEditor": {
 					"type": "string",
-					"description": "Editor-specific classnames to apply. Overrides 'twClasses'. Key is the attribute value, value is the classnames to apply."
+					"description": "Editor-specific classnames to apply. Overrides 'twClasses'. Key is the attribute value, value is the classnames to apply.",
+					"properties": {
+						"type": "string"
+					}
 				}
 			}
 		}
