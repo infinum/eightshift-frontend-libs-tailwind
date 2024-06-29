@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Template for the Modal Component.
+ * Modal component template.
  *
  * @package %g_namespace%.
  */

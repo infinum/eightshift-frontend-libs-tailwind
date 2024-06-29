@@ -76,7 +76,7 @@
 	},
 	"tailwind": {
 		"base": {
-			"twClasses": "w-full mobile:max-w-80 rounded-2xl border bg-white shadow-md overflow-hidden"
+			"twClasses": "w-full sm:max-w-80 rounded-2xl border bg-white shadow-md overflow-hidden"
 		},
 		"parts": {
 			"image": {

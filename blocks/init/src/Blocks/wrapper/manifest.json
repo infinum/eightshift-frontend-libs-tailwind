@@ -37,10 +37,6 @@
 			"type": "boolean",
 			"default": false
 		},
-		"wrapperTag": {
-			"type": "string",
-			"default": "div"
-		},
 		"wrapperWidth": {
 			"type": "string",
 			"default": "contained"
@@ -60,35 +56,42 @@
 			"type": "object",
 			"default": {
 				"_default": false,
-				"_mobileFirst": true
+				"_desktopFirst": true
 			}
 		},
 		"wrapperMarginTop": {
 			"type": "object",
 			"default": {
-				"_default": "",
-				"_mobileFirst": true
+				"_default": "none",
+				"_desktopFirst": true
 			}
 		},
 		"wrapperMarginBottom": {
 			"type": "object",
 			"default": {
 				"_default": "sm",
-				"_mobileFirst": true
+				"_desktopFirst": true
 			}
 		},
 		"wrapperPaddingTop": {
 			"type": "object",
 			"default": {
-				"_default": "",
-				"_mobileFirst": true
+				"_default": "none",
+				"_desktopFirst": true
 			}
 		},
 		"wrapperPaddingBottom": {
 			"type": "object",
 			"default": {
-				"_default": "",
-				"_mobileFirst": true
+				"_default": "none",
+				"_desktopFirst": true
+			}
+		},
+		"wrapperContentWidth": {
+			"type": "object",
+			"default": {
+				"_default": "full",
+				"_desktopFirst": true
 			}
 		},
 		"wrapperId": {
@@ -96,36 +99,29 @@
 		}
 	},
 	"options": {
-		"wrapperTag": [
-			{
-				"value": "div",
-				"label": "div",
-				"subtitle": "Lorem ipsum"
-			},
-			{
-				"value": "section",
-				"label": "section",
-				"subtitle": "Dolor sit amet"
-			},
-			{
-				"value": "aside",
-				"label": "aside",
-				"subtitle": "No ideas for dummy text"
-			},
-			{
-				"value": "article",
-				"label": "article",
-				"subtitle": "Should be fine"
-			}
-		],
 		"wrapperWidth": [
 			{
+				"value": "off",
+				"label": "Off",
+				"endIcon": "none",
+				"separator": "below"
+			},
+			{
 				"value": "contained",
-				"label": "Contained"
+				"label": "Contained",
+				"endIcon": "wrapperSimple"
+			},
+			{
+				"value": "contained-wide-bg",
+				"label": "Contained",
+				"subtitle": "Full-width background",
+				"endIcon": "wrapper",
+				"separator": "below"
 			},
 			{
 				"value": "full",
-				"label": "Full-width"
+				"label": "Full-width",
+				"endIcon": "width"
 			}
 		],
 		"wrapperBackground": [
@@ -253,6 +249,10 @@
 				"value": "none"
 			},
 			{
+				"label": "8",
+				"value": "xs"
+			},
+			{
 				"label": "16",
 				"value": "sm"
 			},
@@ -283,6 +283,41 @@
 				"label": "Hidden",
 				"value": "true",
 				"icon": "hide"
+			}
+		],
+		"wrapperContentWidth": [
+			{
+				"label": "Full",
+				"value": "full",
+				"separator": "below"
+			},
+			{
+				"label": "1/2",
+				"value": "half",
+				"separator": "below"
+			},
+			{
+				"label": "1/3",
+				"value": "one-third"
+			},
+			{
+				"label": "2/3",
+				"value": "two-thirds",
+				"separator": "below"
+			},
+			{
+				"label": "1/4",
+				"value": "one-quarter"
+			},
+			{
+				"label": "3/4",
+				"value": "three-quarters",
+				"separator": "below"
+			},
+			{
+				"label": "Reading-optimized",
+				"value": "prose",
+				"subtitle": "65 characters per line"
 			}
 		]
 	},
@@ -328,6 +363,7 @@
 			"wrapperWidth": {
 				"twClasses": {
 					"contained": "wrapper-contained",
+					"contained-wide-bg": "wrapper-contained-wide",
 					"full": "wrapper-full"
 				}
 			},
@@ -353,6 +389,7 @@
 				"responsive": true,
 				"twClasses": {
 					"none": "mt-0",
+					"xs": "mt-2",
 					"sm": "mt-4",
 					"md": "mt-8",
 					"lg": "mt-12",
@@ -364,6 +401,7 @@
 				"responsive": true,
 				"twClasses": {
 					"none": "mb-0",
+					"xs": "mb-2",
 					"sm": "mb-4",
 					"md": "mb-8",
 					"lg": "mb-12",
@@ -375,6 +413,7 @@
 				"responsive": true,
 				"twClasses": {
 					"none": "pt-0",
+					"xs": "pt-2",
 					"sm": "pt-4",
 					"md": "pt-8",
 					"lg": "pt-12",
@@ -386,11 +425,24 @@
 				"responsive": true,
 				"twClasses": {
 					"none": "pb-0",
+					"xs": "pb-2",
 					"sm": "pb-4",
 					"md": "pb-8",
 					"lg": "pb-12",
 					"xl": "pb-16",
 					"2xl": "pb-20"
+				}
+			},
+			"wrapperContentWidth": {
+				"responsive": true,
+				"twClasses": {
+					"full": "w-full",
+					"half": "w-1/2",
+					"one-third": "w-1/3",
+					"two-thirds": "w-3/4",
+					"one-quarter": "w-1/4",
+					"three-quarters": "w-3/4",
+					"prose": "w-full max-w-4xl"
 				}
 			}
 		}

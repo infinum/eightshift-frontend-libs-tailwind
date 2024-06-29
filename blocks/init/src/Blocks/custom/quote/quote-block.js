@@ -1,4 +1,3 @@
-import React from 'react';
 import { QuoteEditor } from './components/quote-editor';
 import { QuoteOptions } from './components/quote-options';
 import { GutenbergBlock } from '@eightshift/frontend-libs-tailwind/scripts';

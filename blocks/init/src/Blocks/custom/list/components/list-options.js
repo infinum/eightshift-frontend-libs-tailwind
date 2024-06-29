@@ -1,4 +1,3 @@
-import React from 'react';
 import { __ } from '@wordpress/i18n';
 import { props, getOption, checkAttr, getAttrKey } from '@eightshift/frontend-libs-tailwind/scripts';
 import { ListOptions as OptionsComponent } from '../../../components/list/components/list-options';

@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Template for the Map Block view.
+ * Map block template.
  *
  * @package %g_namespace%
  */

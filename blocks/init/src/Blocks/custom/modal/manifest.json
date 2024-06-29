@@ -2,7 +2,7 @@
 	"$schema": "https://raw.githubusercontent.com/infinum/eightshift-frontend-libs-tailwind/main/schemas/block.json",
 	"blockName": "modal",
 	"title": "Modal",
-	"description": "Modal content.",
+	"description": "Show extra content that is initially hidden from users.",
 	"category": "eightshift",
 	"icon": {
 		"src": "es-modal"

@@ -1,4 +1,3 @@
-import React from 'react';
 import { props } from '@eightshift/frontend-libs-tailwind/scripts';
 import { ButtonEditor as EditorComponent } from '../../../components/button/components/button-editor';
 

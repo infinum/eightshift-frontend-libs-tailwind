@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Template for the Hero Component.
+ * Hero component template.
  *
  * @package %g_namespace%
  */

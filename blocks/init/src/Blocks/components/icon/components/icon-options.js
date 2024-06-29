@@ -1,4 +1,3 @@
-import React from 'react';
 import { __ } from '@wordpress/i18n';
 import { checkAttr, getAttrKey, getHiddenOptions, getOption } from '@eightshift/frontend-libs-tailwind/scripts';
 import { RSOption, RSSingleValue, ComponentToggle, Select, RichLabel } from '@eightshift/ui-components';
@@ -42,27 +41,25 @@ export const IconOptions = (attributes) => {
 			useComponent={iconUse}
 			{...rest}
 		>
-			{!hiddenOptions?.iconName && (
-				<Select
-					value={iconName}
-					options={getOption('iconName', attributes, manifest)}
-					placeholder={__('Select an icon', '%g_textdomain%')}
-					customMenuOption={IconPickerOption}
-					customValueDisplay={IconPickerValueDisplay}
-					onChange={(value) => setAttributes({ [getAttrKey('iconName', attributes, manifest)]: value })}
-					simpleValue
-				/>
-			)}
+			<Select
+				value={iconName}
+				options={getOption('iconName', attributes, manifest)}
+				placeholder={__('Select an icon', '%g_textdomain%')}
+				customMenuOption={IconPickerOption}
+				customValueDisplay={IconPickerValueDisplay}
+				onChange={(value) => setAttributes({ [getAttrKey('iconName', attributes, manifest)]: value })}
+				simpleValue
+				hidden={hiddenOptions?.iconName}
+			/>
 
-			{!hiddenOptions?.size && (
-				<Select
-					value={iconSize}
-					options={getOption('iconSize', attributes, manifest)}
-					onChange={(value) => setAttributes({ [getAttrKey('iconSize', attributes, manifest)]: value })}
-					simpleValue
-					noSearch
-				/>
-			)}
+			<Select
+				value={iconSize}
+				options={getOption('iconSize', attributes, manifest)}
+				onChange={(value) => setAttributes({ [getAttrKey('iconSize', attributes, manifest)]: value })}
+				simpleValue
+				noSearch
+				hidden={hiddenOptions?.size}
+			/>
 		</ComponentToggle>
 	);
 };

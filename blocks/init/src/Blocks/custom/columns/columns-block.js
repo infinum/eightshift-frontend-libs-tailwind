@@ -1,4 +1,3 @@
-import React from 'react';
 import { useSelect } from '@wordpress/data';
 import { ColumnsOptions } from './components/columns-options';
 import { ColumnsEditor } from './components/columns-editor';

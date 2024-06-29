@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Template for the Card Component.
+ * Card component template.
  *
  * @package %g_namespace%
  */

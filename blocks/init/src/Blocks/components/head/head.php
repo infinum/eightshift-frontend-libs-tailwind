@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Head section for meta data
+ * Template for the document head section.
  *
  * @package %g_namespace%
  */

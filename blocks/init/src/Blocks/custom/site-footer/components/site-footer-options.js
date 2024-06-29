@@ -1,4 +1,3 @@
-import React from 'react';
 import { __, sprintf, _n } from '@wordpress/i18n';
 import { props, checkAttr, getAttrKey, MediaPicker, wpSearchRoute } from '@eightshift/frontend-libs-tailwind/scripts';
 import { ShareOptions } from '../../../components/share/components/share-options';

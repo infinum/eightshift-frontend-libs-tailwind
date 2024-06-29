@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Template for the Heading Block view.
+ * Heading block template.
  *
  * @package %g_namespace%
  */

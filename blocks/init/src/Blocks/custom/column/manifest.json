@@ -47,77 +47,77 @@
 			"type": "object",
 			"default": {
 				"_default": "1",
-				"_mobileFirst": true
+				"_desktopFirst": true
 			}
 		},
 		"columnWidth": {
 			"type": "object",
 			"default": {
 				"_default": "1",
-				"_mobileFirst": true
+				"_desktopFirst": true
 			}
 		},
 		"columnRowSpan": {
 			"type": "object",
 			"default": {
 				"_default": "1",
-				"_mobileFirst": true
+				"_desktopFirst": true
+			}
+		},
+		"columnOverflow": {
+			"type": "object",
+			"default": {
+				"_default": "visible",
+				"_desktopFirst": true
 			}
 		},
 		"columnHide": {
 			"type": "object",
 			"default": {
 				"_default": false,
-				"_mobileFirst": true
+				"_desktopFirst": true
 			}
 		},
 		"columnVerticalAlign": {
 			"type": "object",
 			"default": {
 				"_default": "stretch",
-				"_mobileFirst": true
+				"_desktopFirst": true
 			}
 		},
 		"columnHorizontalAlign": {
 			"type": "object",
 			"default": {
 				"_default": "stretch",
-				"_mobileFirst": true
+				"_desktopFirst": true
 			}
 		},
 		"columnPaddingLeft": {
 			"type": "object",
 			"default": {
 				"_default": "none",
-				"_mobileFirst": true
+				"_desktopFirst": true
 			}
 		},
 		"columnPaddingRight": {
 			"type": "object",
 			"default": {
 				"_default": "none",
-				"_mobileFirst": true
+				"_desktopFirst": true
 			}
 		},
 		"columnPaddingTop": {
 			"type": "object",
 			"default": {
 				"_default": "none",
-				"_mobileFirst": true
+				"_desktopFirst": true
 			}
 		},
 		"columnPaddingBottom": {
 			"type": "object",
 			"default": {
 				"_default": "none",
-				"_mobileFirst": true
-			}
-		},
-		"columnGap": {
-			"type": "object",
-			"default": {
-				"_default": "none",
-				"_mobileFirst": true
+				"_desktopFirst": true
 			}
 		},
 		"columnBackground": {
@@ -226,28 +226,6 @@
 			{
 				"label": "56",
 				"value": "2xl"
-			}
-		],
-		"columnGap": [
-			{
-				"label": "0",
-				"value": "none"
-			},
-			{
-				"label": "8",
-				"value": "xs"
-			},
-			{
-				"label": "16",
-				"value": "sm"
-			},
-			{
-				"label": "20",
-				"value": "md"
-			},
-			{
-				"label": "40",
-				"value": "lg"
 			}
 		],
 		"columnBackground": [
@@ -410,6 +388,27 @@
 			"gray-900",
 			"black",
 			"white"
+		],
+		"columnOverflow": [
+			{
+				"label": "Visible",
+				"value": "visible",
+				"subtitle": "Default",
+				"separator": "below"
+			},
+			{
+				"label": "Scroll",
+				"value": "scroll",
+				"separator": "below"
+			},
+			{
+				"label": "Hidden",
+				"value": "hidden"
+			},
+			{
+				"label": "Clip",
+				"value": "clip"
+			}
 		]
 	},
 	"tailwind": {
@@ -472,16 +471,17 @@
 				"responsive": true,
 				"twClasses": {
 					"true": "hidden",
-					"false": "block"
+					"false": "flex"
 				},
 				"twClassesEditor": {
-					"true": "opacity-25"
+					"true": "opacity-25",
+					"false": "opacity-100"
 				}
 			},
 			"columnVerticalAlign": {
 				"responsive": true,
 				"twClasses": {
-					"stretch": "justify-stretch h-full",
+					"stretch": "justify-stretch h-full [&>*:only-child]:h-full",
 					"start": "justify-start",
 					"center": "justify-center",
 					"end": "justify-end"
@@ -490,7 +490,7 @@
 			"columnHorizontalAlign": {
 				"responsive": true,
 				"twClasses": {
-					"stretch": "items-stretch w-full",
+					"stretch": "items-stretch w-full [&>*:only-child]:w-full",
 					"start": "items-start",
 					"center": "items-center",
 					"end": "items-end"
@@ -542,16 +542,6 @@
 					"lg": "pb-8",
 					"xl": "pb-10",
 					"2xl": "pb-14"
-				}
-			},
-			"columnGap": {
-				"responsive": true,
-				"twClasses": {
-					"none": "gap-0",
-					"xs": "gap-2",
-					"sm": "gap-4",
-					"md": "gap-5",
-					"lg": "gap-10"
 				}
 			},
 			"columnBackground": {
@@ -619,6 +609,15 @@
 					"gray-900": "border border-gray-900",
 					"black": "border border-black",
 					"white": "border border-white"
+				}
+			},
+			"columnOverflow": {
+				"responsive": true,
+				"twClasses": {
+					"visible": "overflow-visible",
+					"hidden": "overflow-hidden",
+					"scroll": "overflow-scroll",
+					"clip": "overflow-clip"
 				}
 			}
 		}

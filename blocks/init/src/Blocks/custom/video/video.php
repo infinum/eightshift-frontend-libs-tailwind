@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Template for the Video Block view.
+ * Video block template.
  *
  * @package %g_namespace%
  */

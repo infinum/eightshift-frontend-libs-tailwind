@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Template for the Site navigation block.
+ * Site navigation block template.
  *
  * @package %g_namespace%
  */
@@ -54,7 +54,7 @@ $drawerId = 'navbar-mobile-flyout';
 			<?php } ?>
 		</div>
 
-		<button class="<?php echo esc_attr(Helpers::getTwPart('button', $manifest, 'tablet:hidden')); ?>" data-micromodal-trigger="<?php echo esc_attr($drawerId); ?>">
+		<button class="<?php echo esc_attr(Helpers::getTwPart('button', $manifest, 'sm:hidden')); ?>" data-micromodal-trigger="<?php echo esc_attr($drawerId); ?>">
 			<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
 				<path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
 			</svg>

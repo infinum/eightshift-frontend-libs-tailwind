@@ -2,7 +2,7 @@
 	"$schema": "https://raw.githubusercontent.com/infinum/eightshift-frontend-libs-tailwind/main/schemas/block.json",
 	"blockName": "heading",
 	"title": "Heading",
-	"description" : "Heading block with custom settings.",
+	"description" : "Establish a document structure by splitting it up into meaningful sections.",
 	"category": "eightshift",
 	"icon": {
 		"src": "es-heading"

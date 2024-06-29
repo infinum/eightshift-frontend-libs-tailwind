@@ -6,7 +6,7 @@
 	"example": {
 		"attributes": {
 			"imageData": {
-				"_mobileFirst": false,
+				"_desktopFirst": false,
 				"_default": {
 					"id": "1",
 					"url": "https://loremflickr.com/1000/800"
@@ -19,7 +19,7 @@
 		"imageData": {
 			"type": "object",
 			"default": {
-				"_mobileFirst": false,
+				"_desktopFirst": false,
 				"_default": {
 					"id": "",
 					"url": ""
@@ -33,40 +33,69 @@
 		"imageRoundedCorners": {
 			"type": "string",
 			"default": "none"
+		},
+		"imageAspectRatio": {
+			"type": "string",
+			"default": "auto"
+		},
+		"imageSize": {
+			"type": "string",
+			"default": "default"
 		}
 	},
 	"options": {
 		"imageRoundedCorners": [
 			{
-				"label": "None",
+				"label": "0",
 				"value": "none"
 			},
 			{
-				"label": "Small",
+				"label": "4",
 				"value": "small"
 			},
 			{
-				"label": "Medium",
+				"label": "8",
 				"value": "medium"
 			},
 			{
-				"label": "Large",
+				"label": "16",
 				"value": "large"
 			},
 			{
 				"label": "Full",
 				"value": "full"
 			}
+		],
+		"imageAspectRatio": [
+			{
+				"label": "Auto",
+				"value": "auto"
+			},
+			{
+				"label": "Square",
+				"value": "square"
+			},
+			{
+				"label": "3/2",
+				"value": "three-two"
+			},
+			{
+				"label": "5/4",
+				"value": "five-four"
+			},
+			{
+				"label": "16/9",
+				"value": "sixteen-nine"
+			},
+			{
+				"label": "21/9",
+				"value": "twentyone-nine"
+			}
 		]
 	},
 	"tailwind": {
 		"base": {
 			"twClasses": "object-cover"
-		},
-		"parts": {
-			"picture": {
-				"twClasses": "inline-block"
-			}
 		},
 		"options": {
 			"imageRoundedCorners": {
@@ -75,6 +104,20 @@
 					"medium": "rounded-lg",
 					"large": "rounded-2xl",
 					"full": "rounded-full"
+				}
+			},
+			"imageAspectRatio": {
+				"twClasses": {
+					"square": "aspect-square",
+					"three-two": "aspect-3/2",
+					"five-four": "aspect-5/4",
+					"sixteen-nine": "aspect-video",
+					"twentyone-nine": "aspect-21/9"
+				}
+			},
+			"imageSize": {
+				"twClasses": {
+					"stretch": "size-full"
 				}
 			}
 		}

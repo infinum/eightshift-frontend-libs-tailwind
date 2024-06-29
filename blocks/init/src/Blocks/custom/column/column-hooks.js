@@ -1,4 +1,3 @@
-import React from 'react';
 import { createHigherOrderComponent } from '@wordpress/compose';
 import { addFilter } from '@wordpress/hooks';
 import globalManifest from '../../manifest.json';

@@ -1,4 +1,3 @@
-import React from 'react';
 import { checkAttr } from '@eightshift/frontend-libs-tailwind/scripts';
 import {
 	Interactions,

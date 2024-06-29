@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Template for the Share block.
+ * Share block template.
  *
  * @package %g_namespace%
  */

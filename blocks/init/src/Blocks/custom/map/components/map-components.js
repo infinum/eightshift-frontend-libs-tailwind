@@ -2,7 +2,7 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 
 import React, { createContext, useRef, useState, useEffect, useContext } from 'react';
-import { Map as OLMap, View } from 'ol/index.js';
+import { Map as OLMap, View } from 'ol';
 import { OSM, Vector as VectorSource, VectorTile as VectorTileSource, XYZ, TileJSON } from 'ol/source';
 import { Tile as OLTileLayer, Vector as OLVectorLayer, VectorTile as OLVectorTile } from 'ol/layer';
 import { MapboxVectorLayer } from 'ol-mapbox-style';

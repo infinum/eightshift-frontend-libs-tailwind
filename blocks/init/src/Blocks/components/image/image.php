@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Template for the Image Component.
+ * Image component template.
  *
  * @package %g_namespace%
  */
@@ -22,13 +22,17 @@ if (!$imageUse || empty($imageData['_default']['url'])) {
 
 $imageAlt = get_post_meta($imageData['_default']['id'], '_wp_attachment_image_alt', true) ?? '';
 
-$isMobileFirst = $imageData['_mobileFirst'] ?? false;
+$isMobileFirst = $imageData['_desktopFirst'] ?? false;
 
 $breakpointData = Helpers::getSettingsGlobalVariablesBreakpoints();
 $breakpoints = Helpers::getTwBreakpoints($isMobileFirst);
 ?>
 
-<picture class="<?php echo esc_attr(Helpers::getTwPart('picture', $manifest, $additionalClass['picture'] ?? '')); ?>">
+<picture
+	<?php if (!empty($additionalClass['picture'])) { ?>
+		class="<?php echo esc_attr($additionalClass['picture']); ?>"
+	<?php } ?>
+>
 	<?php foreach ($breakpoints as $breakpoint) { ?>
 		<?php
 		if (!isset($imageData[$breakpoint])) {
@@ -43,7 +47,7 @@ $breakpoints = Helpers::getTwBreakpoints($isMobileFirst);
 
 		$breakpointWidth = $breakpointData[str_replace('max-', '', $breakpoint)];
 
-		$widthMode = $isMobileFirst ? 'max-width' : 'min-width';
+		$widthMode = $isMobileFirst ? 'min-width' : 'max-width';
 
 		// phpcs:ignore Eightshift.Security.HelpersEscape.OutputNotEscaped
 		echo '<source srcset="' . esc_url($value) . '" media="(' . $widthMode . ': ' . $breakpointWidth . 'rem)" />';

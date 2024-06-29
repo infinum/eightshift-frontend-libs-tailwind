@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Template for the Quote Block.
+ * Quote block template.
  *
  * @package %g_namespace%
  */

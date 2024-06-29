@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Template for the Accordion Block view.
+ * Accordion block template.
  *
  * @package %g_namespace%
  */

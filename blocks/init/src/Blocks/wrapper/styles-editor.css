@@ -1,0 +1,13 @@
+.is-root-container.wp-block-post-content.block-editor-block-list__layout {
+	@apply pt-10;
+}
+
+/* stylelint-disable-next-line selector-max-specificity */
+.is-root-container.wp-block-post-content.block-editor-block-list__layout > .block-editor-block-list__block.wp-block {
+	@apply !mx-0 !mt-0 [&:not(.is-selected)]:!mb-0 sm:grid sm:grid-cols-[minmax(0,_1fr)_minmax(0,_80rem)_minmax(0,_1fr)];
+
+	/* stylelint-disable-next-line selector-max-specificity */
+	& > *:not(.wrapper-contained, .wrapper-contained-wide, .wrapper-full) {
+		@apply sm:col-start-2 col-span-1;
+	}
+}

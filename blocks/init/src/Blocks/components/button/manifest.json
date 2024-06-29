@@ -152,7 +152,7 @@
 					],
 					"buttonSize": "square"
 				},
-				"twClasses": "size-14 mobile:size-9 rounded-full mobile:[&>svg]:size-5 justify-center"
+				"twClasses": "size-14 sm:size-9 rounded-full sm:[&>svg]:size-5 justify-center"
 			},
 			{
 				"attributes": {

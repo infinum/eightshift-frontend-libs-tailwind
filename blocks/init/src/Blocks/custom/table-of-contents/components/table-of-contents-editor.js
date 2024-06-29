@@ -1,4 +1,3 @@
-import React from 'react';
 import { __, sprintf } from '@wordpress/i18n';
 import { RichText } from '@wordpress/block-editor';
 import { checkAttr, getTwPart } from '@eightshift/frontend-libs-tailwind/scripts';

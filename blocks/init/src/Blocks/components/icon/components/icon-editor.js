@@ -1,4 +1,3 @@
-import React from 'react';
 import { checkAttr, getTwClasses } from '@eightshift/frontend-libs-tailwind/scripts';
 import { JsxSvg } from '@eightshift/ui-components/icons';
 import manifest from './../manifest.json';

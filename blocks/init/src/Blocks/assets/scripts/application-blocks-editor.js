@@ -1,12 +1,12 @@
 /**
- * Main entry point for scripts used in the Block editor.
+ * This is the main entry point for Block Editor blocks scripts used for the `WordPress admin editor`.
+ * This file registers blocks dynamically using `registerBlocks` helper method.
+ * File names must follow the naming convention to be able to run dynamically.
  *
- * Block registration occurs here, in the `registerBlocks` method.
+ * `src/blocks/custom/block_name/manifest.json`.
+ * `src/blocks/custom/block_name/block_name.js`.
  *
- * To make sure blocks get registered correctly, include the following files:
- * - `manifest.json`
- * - `<block-name>.js`
- * at `src/blocks/custom/<block-name>`
+ * Usage: `WordPress admin editor`.
  */
 
 import domReady from '@wordpress/dom-ready';

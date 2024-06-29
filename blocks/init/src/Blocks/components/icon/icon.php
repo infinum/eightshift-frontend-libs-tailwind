@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Template for the Icon Component.
+ * Icon component template.
  *
  * @package %g_namespace%
  */

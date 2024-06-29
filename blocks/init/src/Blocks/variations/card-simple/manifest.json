@@ -3,7 +3,7 @@
 	"parentName": "card",
 	"name": "card-simple",
 	"title": "Card: Simple",
-	"description" : "Card Block Variation for simple style.",
+	"description" : "A simplified version of the Card.",
 	"icon": {
 		"src": "es-card-simple"
 	},

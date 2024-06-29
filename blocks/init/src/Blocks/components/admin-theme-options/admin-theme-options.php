@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Template for the Admin header/footer picker settings screen.
+ * Theme options settings screen component template.
  *
  * @package %g_namespace%
  */

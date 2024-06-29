@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Template for the Paragraph Component.
+ * Paragraph component template.
  *
  * @package %g_namespace%
  */

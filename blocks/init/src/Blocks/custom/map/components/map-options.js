@@ -1,4 +1,3 @@
-import React from 'react';
 import { __ } from '@wordpress/i18n';
 import { checkAttr, getAttrKey, FileSelector } from '@eightshift/frontend-libs-tailwind/scripts';
 import {

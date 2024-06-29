@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Share component.
+ * Share component template.
  *
  * @package %g_namespace%
  */

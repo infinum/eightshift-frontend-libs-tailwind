@@ -2,7 +2,7 @@
 	"$schema": "https://raw.githubusercontent.com/infinum/eightshift-frontend-libs-tailwind/main/schemas/block.json",
 	"blockName": "columns",
 	"title": "Columns",
-	"description": "Display content across multiple columns with flexible sizing and alignment options.",
+	"description": "Expand your content into two dimensions.",
 	"category": "eightshift",
 	"icon": {
 		"src": "es-columns"
@@ -84,35 +84,35 @@
 			"type": "object",
 			"default": {
 				"_default": "12",
-				"_mobileFirst": true
+				"_desktopFirst": true
 			}
 		},
 		"columnsColumnGap": {
 			"type": "object",
 			"default": {
 				"_default": "m",
-				"_mobileFirst": true
+				"_desktopFirst": true
 			}
 		},
 		"columnsRowGap": {
 			"type": "object",
 			"default": {
 				"_default": "m",
-				"_mobileFirst": true
+				"_desktopFirst": true
 			}
 		},
 		"columnsRowHeight": {
 			"type": "object",
 			"default": {
 				"_default": "auto",
-				"_mobileFirst": true
+				"_desktopFirst": true
 			}
 		}
 	},
 	"options": {
 		"columnsGap": [
 			{
-				"label": "No gap",
+				"label": "0",
 				"value": "none"
 			},
 			{
@@ -153,8 +153,8 @@
 			"attributes": {
 				"columnsNumOfColumns": {
 					"_default": "2",
-					"_mobileFirst": true,
-					"max-mobile": "1"
+					"_desktopFirst": true,
+					"max-sm": "1"
 				}
 			},
 			"blocks": [
@@ -163,13 +163,13 @@
 					"attributes": {
 						"columnOffset": {
 							"_default": "1",
-							"_mobileFirst": true,
-							"max-mobile": "1"
+							"_desktopFirst": true,
+							"max-sm": "1"
 						},
 						"columnWidth": {
 							"_default": "1",
-							"_mobileFirst": true,
-							"max-mobile": "1"
+							"_desktopFirst": true,
+							"max-sm": "1"
 						}
 					}
 				},
@@ -178,13 +178,13 @@
 					"attributes": {
 						"columnOffset": {
 							"_default": "2",
-							"_mobileFirst": true,
-							"max-mobile": "1"
+							"_desktopFirst": true,
+							"max-sm": "1"
 						},
 						"columnWidth": {
 							"_default": "1",
-							"_mobileFirst": true,
-							"max-mobile": "1"
+							"_desktopFirst": true,
+							"max-sm": "1"
 						}
 					}
 				}
@@ -196,9 +196,9 @@
 			"attributes": {
 				"columnsNumOfColumns": {
 					"_default": "3",
-					"_mobileFirst": true,
-					"max-mobile": "1",
-					"max-tablet": "4"
+					"_desktopFirst": true,
+					"max-sm": "1",
+					"max-md": "4"
 				}
 			},
 			"blocks": [
@@ -207,15 +207,15 @@
 					"attributes": {
 						"columnOffset": {
 							"_default": "1",
-							"_mobileFirst": true,
-							"max-mobile": "1",
-							"max-tablet": "1"
+							"_desktopFirst": true,
+							"max-sm": "1",
+							"max-md": "1"
 						},
 						"columnWidth": {
 							"_default": "1",
-							"_mobileFirst": true,
-							"max-mobile": "1",
-							"max-tablet": "2"
+							"_desktopFirst": true,
+							"max-sm": "1",
+							"max-md": "2"
 						}
 					}
 				},
@@ -224,15 +224,15 @@
 					"attributes": {
 						"columnOffset": {
 							"_default": "2",
-							"_mobileFirst": true,
-							"max-mobile": "1",
-							"max-tablet": "3"
+							"_desktopFirst": true,
+							"max-sm": "1",
+							"max-md": "3"
 						},
 						"columnWidth": {
 							"_default": "1",
-							"_mobileFirst": true,
-							"max-mobile": "1",
-							"max-tablet": "2"
+							"_desktopFirst": true,
+							"max-sm": "1",
+							"max-md": "2"
 						}
 					}
 				},
@@ -241,15 +241,15 @@
 					"attributes": {
 						"columnOffset": {
 							"_default": "3",
-							"_mobileFirst": true,
-							"max-mobile": "1",
-							"max-tablet": "2"
+							"_desktopFirst": true,
+							"max-sm": "1",
+							"max-md": "2"
 						},
 						"columnWidth": {
 							"_default": "1",
-							"_mobileFirst": true,
-							"max-mobile": "1",
-							"max-tablet": "2"
+							"_desktopFirst": true,
+							"max-sm": "1",
+							"max-md": "2"
 						}
 					}
 				}
@@ -261,9 +261,9 @@
 			"attributes": {
 				"columnsNumOfColumns": {
 					"_default": "4",
-					"_mobileFirst": true,
-					"max-mobile": "1",
-					"max-tablet": "2"
+					"_desktopFirst": true,
+					"max-sm": "1",
+					"max-md": "2"
 				}
 			},
 			"blocks": [
@@ -272,15 +272,15 @@
 					"attributes": {
 						"columnOffset": {
 							"_default": "1",
-							"_mobileFirst": true,
-							"max-mobile": "1",
-							"max-tablet": "1"
+							"_desktopFirst": true,
+							"max-sm": "1",
+							"max-md": "1"
 						},
 						"columnWidth": {
 							"_default": "1",
-							"_mobileFirst": true,
-							"max-mobile": "1",
-							"max-tablet": "1"
+							"_desktopFirst": true,
+							"max-sm": "1",
+							"max-md": "1"
 						}
 					}
 				},
@@ -289,15 +289,15 @@
 					"attributes": {
 						"columnOffset": {
 							"_default": "2",
-							"_mobileFirst": true,
-							"max-mobile": "1",
-							"max-tablet": "2"
+							"_desktopFirst": true,
+							"max-sm": "1",
+							"max-md": "2"
 						},
 						"columnWidth": {
 							"_default": "1",
-							"_mobileFirst": true,
-							"max-mobile": "1",
-							"max-tablet": "1"
+							"_desktopFirst": true,
+							"max-sm": "1",
+							"max-md": "1"
 						}
 					}
 				},
@@ -306,15 +306,15 @@
 					"attributes": {
 						"columnOffset": {
 							"_default": "3",
-							"_mobileFirst": true,
-							"max-mobile": "1",
-							"max-tablet": "1"
+							"_desktopFirst": true,
+							"max-sm": "1",
+							"max-md": "1"
 						},
 						"columnWidth": {
 							"_default": "1",
-							"_mobileFirst": true,
-							"max-mobile": "1",
-							"max-tablet": "1"
+							"_desktopFirst": true,
+							"max-sm": "1",
+							"max-md": "1"
 						}
 					}
 				},
@@ -323,15 +323,15 @@
 					"attributes": {
 						"columnOffset": {
 							"_default": "4",
-							"_mobileFirst": true,
-							"max-mobile": "1",
-							"max-tablet": "2"
+							"_desktopFirst": true,
+							"max-sm": "1",
+							"max-md": "2"
 						},
 						"columnWidth": {
 							"_default": "1",
-							"_mobileFirst": true,
-							"max-mobile": "1",
-							"max-tablet": "1"
+							"_desktopFirst": true,
+							"max-sm": "1",
+							"max-md": "1"
 						}
 					}
 				}
@@ -343,9 +343,9 @@
 			"attributes": {
 				"columnsNumOfColumns": {
 					"_default": "3",
-					"_mobileFirst": true,
-					"max-mobile": "1",
-					"max-tablet": "2"
+					"_desktopFirst": true,
+					"max-sm": "1",
+					"max-md": "2"
 				}
 			},
 			"blocks": [
@@ -354,15 +354,15 @@
 					"attributes": {
 						"columnOffset": {
 							"_default": "1",
-							"_mobileFirst": true,
-							"max-mobile": "1",
-							"max-tablet": "1"
+							"_desktopFirst": true,
+							"max-sm": "1",
+							"max-md": "1"
 						},
 						"columnWidth": {
 							"_default": "1",
-							"_mobileFirst": true,
-							"max-mobile": "1",
-							"max-tablet": "1"
+							"_desktopFirst": true,
+							"max-sm": "1",
+							"max-md": "1"
 						}
 					}
 				},
@@ -371,15 +371,15 @@
 					"attributes": {
 						"columnOffset": {
 							"_default": "2",
-							"_mobileFirst": true,
-							"max-mobile": "1",
-							"max-tablet": "2"
+							"_desktopFirst": true,
+							"max-sm": "1",
+							"max-md": "2"
 						},
 						"columnWidth": {
 							"_default": "2",
-							"_mobileFirst": true,
-							"max-mobile": "1",
-							"max-tablet": "1"
+							"_desktopFirst": true,
+							"max-sm": "1",
+							"max-md": "1"
 						}
 					}
 				}
@@ -391,9 +391,9 @@
 			"attributes": {
 				"columnsNumOfColumns": {
 					"_default": "3",
-					"_mobileFirst": true,
-					"max-mobile": "1",
-					"max-tablet": "2"
+					"_desktopFirst": true,
+					"max-sm": "1",
+					"max-md": "2"
 				}
 			},
 			"blocks": [
@@ -402,15 +402,15 @@
 					"attributes": {
 						"columnOffset": {
 							"_default": "1",
-							"_mobileFirst": true,
-							"max-mobile": "1",
-							"max-tablet": "1"
+							"_desktopFirst": true,
+							"max-sm": "1",
+							"max-md": "1"
 						},
 						"columnWidth": {
 							"_default": "2",
-							"_mobileFirst": true,
-							"max-mobile": "1",
-							"max-tablet": "1"
+							"_desktopFirst": true,
+							"max-sm": "1",
+							"max-md": "1"
 						}
 					}
 				},
@@ -419,15 +419,15 @@
 					"attributes": {
 						"columnOffset": {
 							"_default": "3",
-							"_mobileFirst": true,
-							"max-mobile": "1",
-							"max-tablet": "2"
+							"_desktopFirst": true,
+							"max-sm": "1",
+							"max-md": "2"
 						},
 						"columnWidth": {
 							"_default": "1",
-							"_mobileFirst": true,
-							"max-mobile": "1",
-							"max-tablet": "1"
+							"_desktopFirst": true,
+							"max-sm": "1",
+							"max-md": "1"
 						}
 					}
 				}
@@ -439,13 +439,13 @@
 			"attributes": {
 				"columnsNumOfColumns": {
 					"_default": "2",
-					"_mobileFirst": true,
-					"max-mobile": "1"
+					"_desktopFirst": true,
+					"max-sm": "1"
 				},
 				"columnsRowHeight": {
 					"_default": "equal",
-					"_mobileFirst": true,
-					"max-mobile": "auto"
+					"_desktopFirst": true,
+					"max-sm": "auto"
 				}
 			},
 			"blocks": [
@@ -454,17 +454,17 @@
 					"attributes": {
 						"columnOffset": {
 							"_default": "1",
-							"_mobileFirst": true,
-							"max-mobile": "1"
+							"_desktopFirst": true,
+							"max-sm": "1"
 						},
 						"columnWidth": {
 							"_default": "1",
-							"_mobileFirst": true,
-							"max-mobile": "1"
+							"_desktopFirst": true,
+							"max-sm": "1"
 						},
 						"columnRowSpan": {
 							"_default": "2",
-							"_mobileFirst": true
+							"_desktopFirst": true
 						}
 					}
 				},
@@ -473,14 +473,14 @@
 					"attributes": {
 						"columnOffset": {
 							"_default": "2",
-							"_mobileFirst": true,
-							"max-mobile": "1"
+							"_desktopFirst": true,
+							"max-sm": "1"
 						},
 						"columnWidth": {
 							"_default": "1",
-							"_mobileFirst": true,
-							"max-mobile": "1",
-							"max-tablet": "2"
+							"_desktopFirst": true,
+							"max-sm": "1",
+							"max-md": "2"
 						}
 					}
 				},
@@ -489,13 +489,13 @@
 					"attributes": {
 						"columnOffset": {
 							"_default": "2",
-							"_mobileFirst": true,
-							"max-mobile": "1"
+							"_desktopFirst": true,
+							"max-sm": "1"
 						},
 						"columnWidth": {
 							"_default": "1",
-							"_mobileFirst": true,
-							"max-mobile": "1"
+							"_desktopFirst": true,
+							"max-sm": "1"
 						}
 					}
 				}

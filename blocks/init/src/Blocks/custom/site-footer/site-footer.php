@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Template for the Site footer block.
+ * Site footer block template.
  *
  * @package %g_namespace%
  */

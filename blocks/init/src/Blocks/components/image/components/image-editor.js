@@ -1,4 +1,3 @@
-import React from 'react';
 import {
 	checkAttr,
 	getBreakpointData,
@@ -19,7 +18,7 @@ export const ImageEditor = (attributes) => {
 		return null;
 	}
 
-	const isMobileFirst = imageData['_mobileFirst'] ?? false;
+	const isDesktopFirst = imageData['_desktopFirst'] ?? false;
 
 	const breakpointNames = getBreakpointNames();
 	const breakpointData = getBreakpointData();
@@ -27,7 +26,7 @@ export const ImageEditor = (attributes) => {
 	return (
 		<>
 			{imageData?.['_default']?.url && (
-				<picture className={getTwPart('picture', manifest, additionalClass?.picture)}>
+				<picture className={additionalClass?.picture ?? ''}>
 					{breakpointNames.map((breakpointName) => {
 						if (!imageData?.[breakpointName]?.url) {
 							return null;
@@ -43,7 +42,7 @@ export const ImageEditor = (attributes) => {
 							<source
 								key={breakpointName}
 								srcSet={imageData?.[breakpointName]?.url}
-								media={`(${isMobileFirst ? 'min-width' : 'max-width'}: ${breakpointWidth}em)`}
+								media={`(${isDesktopFirst ? 'max-width' : 'min-width'}: ${breakpointWidth}em)`}
 							/>
 						);
 					})}

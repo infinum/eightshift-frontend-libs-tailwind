@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Hero block view template.
+ * Hero block template.
  *
  * @package %g_namespace%
  */

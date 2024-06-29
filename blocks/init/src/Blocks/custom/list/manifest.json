@@ -2,7 +2,7 @@
 	"$schema": "https://raw.githubusercontent.com/infinum/eightshift-frontend-libs-tailwind/main/schemas/block.json",
 	"blockName": "list",
 	"title": "List",
-	"description" : "list block with custom settings.",
+	"description" : "Add a basic list of items.",
 	"category": "eightshift",
 	"icon": {
 		"src": "es-lists"

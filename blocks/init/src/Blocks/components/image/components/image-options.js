@@ -1,37 +1,31 @@
-import React from 'react';
 import { __ } from '@wordpress/i18n';
 import {
 	checkAttr,
 	getAttrKey,
 	MediaPicker,
-	getBreakpointNames,
-	getBreakpointData,
 	generateOptionsFromValue,
 	getOption,
 	getHiddenOptions,
+	getResponsiveData,
 } from '@eightshift/frontend-libs-tailwind/scripts';
 import manifest from './../manifest.json';
-import { ComponentToggle, OptionSelect, Responsive } from '@eightshift/ui-components';
+import { ComponentToggle, OptionSelect, Responsive, Spacer, Toggle } from '@eightshift/ui-components';
 import { icons } from '@eightshift/ui-components/icons';
 import { truncateMiddle } from '@eightshift/ui-components/utilities';
 
 export const ImageOptions = (attributes) => {
-	const {
-		setAttributes,
-		hideOptions,
-		additionalControls,
-		...rest
-	} = attributes;
+	const { setAttributes, hideOptions, additionalControls, ...rest } = attributes;
 
 	const hiddenOptions = getHiddenOptions(hideOptions);
 
 	const imageUse = checkAttr('imageUse', attributes, manifest);
 	const imageRoundedCorners = checkAttr('imageRoundedCorners', attributes, manifest);
+	const imageAspectRatio = checkAttr('imageAspectRatio', attributes, manifest);
+	const imageSize = checkAttr('imageSize', attributes, manifest);
 
 	const imageData = checkAttr('imageData', attributes, manifest);
 
-	const breakpointNames = getBreakpointNames();
-	const breakpointData = getBreakpointData(true);
+	const responsiveData = getResponsiveData(true);
 
 	return (
 		<ComponentToggle
@@ -46,8 +40,6 @@ export const ImageOptions = (attributes) => {
 				onChange={(value) => setAttributes({ [getAttrKey('imageData', attributes, manifest)]: value })}
 				icon={icons.imageFile}
 				label={__('Image', 'eightshift-ui-components')}
-				breakpoints={breakpointNames}
-				breakpointData={breakpointData}
 				options={generateOptionsFromValue(imageData, (v) =>
 					truncateMiddle(
 						v?.url?.replace(window.location.origin, '')?.replace(/\/wp-content\/uploads\/\d{4}\/\d{2}\//g, '') ??
@@ -56,6 +48,7 @@ export const ImageOptions = (attributes) => {
 					),
 				)}
 				hidden={hiddenOptions?.imagePicker}
+				{...responsiveData}
 			>
 				{({ breakpoint, currentValue, handleChange }) => (
 					<MediaPicker
@@ -67,14 +60,16 @@ export const ImageOptions = (attributes) => {
 				)}
 			</Responsive>
 
+			<Spacer hidden={hiddenOptions?.borderRadius} />
+
 			<OptionSelect
 				icon={icons.roundedCorners}
 				label={__('Rounded corners', '%g_textdomain%')}
 				options={getOption('imageRoundedCorners', attributes, manifest)}
 				value={imageRoundedCorners}
-				onChange={(v) =>
+				onChange={(value) =>
 					setAttributes({
-						[getAttrKey('imageRoundedCorners', attributes, manifest)]: v,
+						[getAttrKey('imageRoundedCorners', attributes, manifest)]: value,
 					})
 				}
 				type='menu'
@@ -82,6 +77,34 @@ export const ImageOptions = (attributes) => {
 				inline
 			/>
 
+			<Spacer hidden={hiddenOptions?.aspectRatio || hiddenOptions?.stretch} />
+
+			<OptionSelect
+				icon={icons.aspectRatio}
+				label={__('Aspect ratio', '%g_textdomain%')}
+				options={getOption('imageAspectRatio', attributes, manifest)}
+				value={imageAspectRatio}
+				onChange={(value) =>
+					setAttributes({
+						[getAttrKey('imageAspectRatio', attributes, manifest)]: value,
+					})
+				}
+				type='menu'
+				hidden={hiddenOptions?.aspectRatio}
+				inline
+			/>
+
+			<Toggle
+				icon={icons.expandXl}
+				label={__('Stretch', '%g_textdomain%')}
+				checked={imageSize === 'stretch'}
+				onChange={(value) =>
+					setAttributes({ [getAttrKey('imageSize', attributes, manifest)]: value ? 'stretch' : 'default' })
+				}
+				hidden={hiddenOptions?.stretch}
+			/>
+
+			<Spacer hidden={!additionalControls} />
 			{additionalControls}
 		</ComponentToggle>
 	);

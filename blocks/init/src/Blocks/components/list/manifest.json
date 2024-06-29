@@ -91,16 +91,16 @@
 	},
 	"tailwind": {
 		"base": {
-			"twClasses": "font-sans [&>a]:underline font-synthesis-none list-inside",
-			"twClassesEditor": "font-sans [&>a]:underline font-synthesis-none *:list-inside"
+			"twClasses": "font-sans [&>a]:underline font-synthesis-none",
+			"twClassesEditor": "font-sans [&>a]:underline font-synthesis-none"
 		},
 		"options": {
 			"listSize": {
 				"twClasses": {
 					"sm": "text-sm",
-					"base": "~mobile/desktop:~text-sm/base",
-					"md": "~mobile/desktop:~text-lg/2xl",
-					"lg": "~mobile/desktop:~text-xl/3xl"
+					"base": "~sm/md:~text-sm/base",
+					"md": "~sm/md:~text-lg/2xl",
+					"lg": "~sm/md:~text-xl/3xl"
 				}
 			},
 			"listFontWeight": {
@@ -111,15 +111,15 @@
 			"listStyle": {
 				"twClasses": {
 					"none": "list-none",
-					"disc": "list-disc",
-					"decimal": "list-decimal",
-					"checks": "list-['✓']"
+					"disc": "list-disc ml-[1.125em]",
+					"decimal": "list-decimal ml-[1.125em]",
+					"checks": "list-['✓_'] ml-[1em]"
 				},
 				"twClassesEditor": {
 					"none": "*:list-none",
-					"disc": "*:list-disc",
-					"decimal": "*:list-decimal",
-					"checks": "*:list-['✓']"
+					"disc": "*:list-disc *:ml-[1.125em]",
+					"decimal": "*:list-decimal *:ml-[1.125em]",
+					"checks": "*:list-['✓_'] *:ml-[1em]"
 				}
 			}
 		}

@@ -20,6 +20,10 @@
 		"loadMorePerPageOverride": {
 			"type": "integer"
 		},
+		"loadMorePage": {
+			"type": "integer",
+			"default": 1
+		},
 		"loadMoreUse": {
 			"type": "boolean",
 			"default": true

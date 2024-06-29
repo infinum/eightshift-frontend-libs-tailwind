@@ -1,4 +1,3 @@
-import React from 'react';
 import { __ } from '@wordpress/i18n';
 import { useBlockProps, useInnerBlocksProps } from '@wordpress/block-editor';
 import { BlockInserter, getTwClasses, getTwPart } from '@eightshift/frontend-libs-tailwind/scripts';

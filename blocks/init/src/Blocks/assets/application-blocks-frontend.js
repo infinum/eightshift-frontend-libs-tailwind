@@ -1,5 +1,8 @@
 /**
- * Main entry point for scripts used in the site frontend.
+ * This is the main entry point for Block Editor blocks used for the `WordPress frontend screen`.
+ * This file registers styles and scripts.
+ *
+ * Usage: `WordPress frontend screen`.
  */
 
 // Styles.

@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Template for the Button Component.
+ * Button component template.
  *
  * @package %g_namespace%
  */
@@ -17,7 +17,7 @@ if (!$buttonUse) {
 }
 
 $additionalClass = $attributes['additionalClass'] ?? '';
-$buttonAttrs = $attributes['additionalAttributes'] ?? [];
+$additionalAttributes = $attributes['additionalAttributes'] ?? [];
 $buttonId = Helpers::checkAttr('buttonId', $attributes, $manifest);
 
 $buttonUrl = Helpers::checkAttr('buttonUrl', $attributes, $manifest);
@@ -27,13 +27,19 @@ $buttonContent = Helpers::checkAttr('buttonContent', $attributes, $manifest);
 
 $buttonAriaLabel = Helpers::checkAttr('buttonAriaLabel', $attributes, $manifest);
 
+$buttonAttrs = [];
+
+if (!empty($additionalAttributes)) {
+	$buttonAttrs = $additionalAttributes;
+}
+
 if (!empty($buttonUrl)) {
 	$buttonAttrs['href'] = $buttonUrl;
 }
 
 if ($buttonIsNewTab) {
 	$buttonAttrs['target'] = '_blank';
-	$buttonAttrs['rel'] = '"noopener noreferrer"';
+	$buttonAttrs['rel'] = 'noopener noreferrer';
 }
 
 if (!empty($buttonId)) {
@@ -56,7 +62,8 @@ $buttonTag = !empty($buttonUrl) ? 'a' : 'button';
 			continue;
 		}
 
-		echo wp_kses_post("{$key}=\"$value\"");
+		// phpcs:ignore Eightshift.Security.HelpersEscape.OutputNotEscaped
+		echo "{$key}=" . '"' . esc_attr($value) . '"';
 	}
 	?>
 >

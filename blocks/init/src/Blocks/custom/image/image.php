@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Template for the Image Block view.
+ * Image block template.
  *
  * @package %g_namespace%
  */

@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Template for the Heading Component.
+ * Heading component template.
  *
  * @package %g_namespace%
  */
@@ -24,10 +24,18 @@ $headingTag = Helpers::checkAttr('headingTag', $attributes, $manifest);
 if (!$headingContent) {
 	return;
 }
+
+$sanitizedTitle = '';
+
+if (function_exists('idn_to_ascii') && function_exists('sanitize_title')) {
+	$sanitizedTitle = sanitize_title(idn_to_ascii($headingContent));
+} else {
+	$sanitizedTitle = sanitize_title($headingContent);
+}
 ?>
 
 <<?php echo esc_attr($headingTag); ?>
-	data-slug="<?php echo esc_attr(sanitize_title(idn_to_ascii($headingContent))) ?>"
+	data-slug="<?php echo esc_attr($sanitizedTitle) ?>"
 	class="<?php echo esc_attr(Helpers::getTwClasses($attributes, $manifest, $additionalClass)); ?>"
 >
 	<?php

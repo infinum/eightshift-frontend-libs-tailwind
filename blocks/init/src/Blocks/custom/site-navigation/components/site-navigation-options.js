@@ -1,4 +1,3 @@
-import React from 'react';
 import { __ } from '@wordpress/i18n';
 import { checkAttr, getAttrKey, MediaPicker, wpSearchRoute } from '@eightshift/frontend-libs-tailwind/scripts';
 import { BaseControl, Repeater, RepeaterItem, LinkInput, Toggle, Spacer } from '@eightshift/ui-components';

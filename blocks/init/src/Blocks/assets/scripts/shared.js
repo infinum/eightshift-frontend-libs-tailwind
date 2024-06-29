@@ -1,9 +1,3 @@
-/**
- * Helpers for shared functionality.
- *
- * **Note**: Cannot be in Frontend libs itself, because themeColors are project-specific.
- */
-
 import { getColorData } from '@eightshift/frontend-libs-tailwind/scripts';
 import { themeColors } from '../../../../assets/scripts/theme-colors';
 

@@ -3,7 +3,7 @@
 	"blockName": "accordion",
 	"blockJsClass": "js-block-accordion",
 	"title": "Accordion",
-	"description" : "Accordion block with custom settings.",
+	"description" : "Hide and show additional content.",
 	"category": "eightshift",
 	"icon": {
 		"src": "es-accordion"

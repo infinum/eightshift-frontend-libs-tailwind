@@ -1,4 +1,3 @@
-import React from 'react';
 import { props } from '@eightshift/frontend-libs-tailwind/scripts';
 import { ImageEditor as EditorComponent } from '../../../components/image/components/image-editor';
 

@@ -1,0 +1,131 @@
+{
+	"$schema": "https://raw.githubusercontent.com/infinum/eightshift-frontend-libs-tailwind/main/schemas/block.json",
+	"blockName": "featured-content",
+	"title": "Featured content",
+	"description": "Display posts with an option for dynamic loading and taxonomy filtering.",
+	"category": "eightshift",
+	"icon": {
+		"src": "es-featured-posts"
+	},
+	"keywords": [
+		"featured",
+		"posts",
+		"content"
+	],
+	"attributes": {
+		"featuredContentPostType": {
+			"type": "object",
+			"default": {
+				"label": "Post",
+				"value": "post",
+				"api": "posts",
+				"taxonomies": [
+					"category"
+				]
+			}
+		},
+		"featuredContentTaxonomy": {
+			"type": "object"
+		},
+		"featuredContentTerms": {
+			"type": "array"
+		},
+		"featuredContentPosts": {
+			"type": "array"
+		},
+		"featuredContentUseCurrentTerm": {
+			"type": "boolean",
+			"default": false
+		},
+		"featuredContentExcludeCurrentPost": {
+			"type": "boolean",
+			"default": false
+		},
+		"featuredContentServerSideRender": {
+			"type": "boolean",
+			"default": false
+		},
+		"featuredContentRandomOrder": {
+			"type": "boolean",
+			"default": false
+		},
+		"featuredContentLayout": {
+			"type": "string",
+			"default": "threeCols"
+		},
+		"featuredContentPerPage": {
+			"type": "integer",
+			"default": 6
+		}
+	},
+	"components": {
+		"loadMore": "loadMore"
+	},
+	"options": {
+		"featuredContentPostType": [
+			{
+				"label": "Post",
+				"value": "post",
+				"api": "posts",
+				"taxonomies": [
+					"category"
+				]
+			},
+			{
+				"label": "Page",
+				"value": "page",
+				"api": "pages"
+			}
+		],
+		"featuredContentTaxonomy": [
+			{
+				"label": "Category",
+				"value": "category",
+				"api": "categories"
+			}
+		],
+		"featuredContentLayout": [
+			{
+				"label": "2 columns",
+				"value": "twoCols",
+				"endIcon": "twoColumns"
+			},
+			{
+				"label": "3 columns",
+				"value": "threeCols",
+				"endIcon": "columns"
+			},
+			{
+				"label": "4 columns",
+				"value": "fourCols",
+				"endIcon": "fourColumns",
+				"separator": "below"
+			},
+			{
+				"label": "Auto columns",
+				"value": "auto",
+				"endIcon": "gridAutoCols"
+			}
+		]
+	},
+	"tailwind": {
+		"base": {
+			"twClasses": "grid gap-6"
+		},
+		"parts": {
+			"loadMoreContainer": {
+				"twClasses": "flex justify-center w-full mt-6"
+			}
+		},
+		"options": {
+			"featuredContentLayout": {
+				"twClasses": {
+					"twoCols": "grid-cols-1 sm:grid-cols-2",
+					"threeCols": "grid-cols-1 sm:grid-cols-2 md:grid-cols-3",
+					"fourCols": "grid-cols-1 sm:grid-cols-2 md:grid-cols-4",
+					"auto": "grid-cols-1 sm:grid-cols-[repeat(auto-fill,minmax(20rem,1fr))]"
+				}
+			}
+		}
+	}
+}

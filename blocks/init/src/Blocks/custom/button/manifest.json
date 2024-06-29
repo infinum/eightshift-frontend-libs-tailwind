@@ -2,7 +2,7 @@
 	"$schema": "https://raw.githubusercontent.com/infinum/eightshift-frontend-libs-tailwind/main/schemas/block.json",
 	"blockName": "button",
 	"title": "Button",
-	"description": "Button block with custom settings.",
+	"description": "The most common interactive element.",
 	"category": "eightshift",
 	"icon": {
 		"src": "es-button"

@@ -1,4 +1,3 @@
-import React from 'react';
 import { GutenbergBlock } from '@eightshift/frontend-libs-tailwind/scripts';
 import { HeadingEditor } from './components/heading-editor';
 import { HeadingOptions } from './components/heading-options';

@@ -2,7 +2,7 @@
 	"$schema": "https://raw.githubusercontent.com/infinum/eightshift-frontend-libs-tailwind/main/schemas/block.json",
 	"blockName": "quote",
 	"title": "Quote",
-	"description": "Quote block with custom settings.",
+	"description": "Showcase a quote.",
 	"category": "eightshift",
 	"icon": {
 		"src": "es-card-review"

@@ -2,7 +2,7 @@
 	"$schema": "https://raw.githubusercontent.com/infinum/eightshift-frontend-libs-tailwind/main/schemas/block.json",
 	"blockName": "table-of-contents",
 	"title": "Table of contents",
-	"description": "Shows ToC entries",
+	"description": "Display the structure of the current post.",
 	"category": "eightshift",
 	"icon": {
 		"src": "es-table-of-contents"

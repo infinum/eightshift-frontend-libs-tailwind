@@ -1,4 +1,4 @@
-import { Map, View } from 'ol/index.js';
+import { Map, View } from 'ol';
 import { useGeographic } from 'ol/proj';
 import { processMapInteraction, processMapLayer } from './utils';
 import { defaults as OLDefaultInteractions } from 'ol/interaction/defaults';

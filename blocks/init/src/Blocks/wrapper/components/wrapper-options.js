@@ -1,4 +1,3 @@
-import React from 'react';
 import { __ } from '@wordpress/i18n';
 import { checkAttr, getAttrKey, getOption } from '@eightshift/frontend-libs-tailwind/scripts';
 import {
@@ -13,7 +12,7 @@ import {
 } from '@eightshift/ui-components';
 import { icons } from '@eightshift/ui-components/icons';
 import { clsx } from '@eightshift/ui-components/utilities';
-import { getBreakpointData, getBreakpointNames } from '@eightshift/frontend-libs-tailwind/scripts/helpers/breakpoints';
+import { getResponsiveData } from '@eightshift/frontend-libs-tailwind/scripts/helpers/breakpoints';
 import { getColorOption, rotationClassName } from '../../assets/scripts/shared';
 import manifest from './../manifest.json';
 
@@ -23,6 +22,8 @@ export const WrapperOptions = ({ attributes, setAttributes }) => {
 	const wrapperNoWidthControls = checkAttr('wrapperNoWidthControls', attributes, manifest);
 
 	const wrapperWidth = checkAttr('wrapperWidth', attributes, manifest);
+	const wrapperContentWidth = checkAttr('wrapperContentWidth', attributes, manifest);
+
 	const wrapperBackground = checkAttr('wrapperBackground', attributes, manifest);
 	const wrapperGradientDirection = checkAttr('wrapperGradientDirection', attributes, manifest);
 
@@ -37,7 +38,6 @@ export const WrapperOptions = ({ attributes, setAttributes }) => {
 	const wrapperHide = checkAttr('wrapperHide', attributes, manifest);
 
 	const wrapperId = checkAttr('wrapperId', attributes, manifest);
-	const wrapperTag = checkAttr('wrapperTag', attributes, manifest);
 
 	if (wrapperNoControls) {
 		return null;
@@ -51,27 +51,57 @@ export const WrapperOptions = ({ attributes, setAttributes }) => {
 		backgroundType = 'gradient';
 	}
 
-	const breakpointNames = getBreakpointNames();
-	const breakpointData = getBreakpointData(true);
+	const responsiveData = getResponsiveData(true);
 
 	return (
 		<ContainerPanel
 			title={__('Wrapper', '%g_textdomain%')}
 			use={wrapperUse}
-			onUseChange={(value) => setAttributes({ [getAttrKey('wrapperUse', attributes, manifest)]: value })}
+			actions={
+				<OptionSelect
+					aria-label={__('Width', '%g_textdomain%')}
+					value={wrapperWidth}
+					onChange={(value) =>
+						setAttributes({
+							[getAttrKey('wrapperWidth', attributes, manifest)]: value,
+							[getAttrKey('wrapperUse', attributes, manifest)]: value !== 'off',
+						})
+					}
+					options={getOption('wrapperWidth', attributes, manifest)}
+					hidden={wrapperNoWidthControls}
+					type='menu'
+					wrapperProps={{
+						triggerProps: { size: 'small' },
+					}}
+					inline
+				/>
+			}
 			closable
 		>
-			<OptionSelect
-				icon={icons.ruler}
+			<Responsive
+				value={wrapperContentWidth}
+				onChange={(value) =>
+					setAttributes({
+						[getAttrKey('wrapperContentWidth', attributes, manifest)]: value,
+					})
+				}
+				icon={icons.containerWidth}
 				label={__('Width', '%g_textdomain%')}
-				value={wrapperWidth}
-				onChange={(value) => setAttributes({ wrapperWidth: value })}
-				options={getOption('wrapperWidth', attributes, manifest)}
-				inline
+				options={getOption('wrapperContentWidth', attributes, manifest)}
 				hidden={wrapperNoWidthControls}
-			/>
-
-			<Spacer hidden={wrapperNoWidthControls} />
+				noModeSelect
+				inline
+				{...responsiveData}
+			>
+				{({ currentValue, handleChange, options }) => (
+					<OptionSelect
+						options={options}
+						value={currentValue}
+						onChange={(value) => handleChange(value)}
+						type='menu'
+					/>
+				)}
+			</Responsive>
 
 			<BaseControl
 				icon={icons.backgroundType}
@@ -184,17 +214,16 @@ export const WrapperOptions = ({ attributes, setAttributes }) => {
 				icon={icons.spacingTop}
 				label={__('Top margin', '%g_textdomain%')}
 				options={getOption('wrapperSpacing', attributes, manifest)}
-				breakpoints={breakpointNames}
-				breakpointData={breakpointData}
 				noModeSelect
 				inline
+				{...responsiveData}
 			>
-				{({ currentValue, handleChange, options, isInlineCollapsedView }) => (
+				{({ currentValue, handleChange, options }) => (
 					<OptionSelect
 						options={options}
 						value={currentValue}
 						onChange={(value) => handleChange(value)}
-						type={isInlineCollapsedView ? 'menu' : 'toggleButtons'}
+						type='menu'
 					/>
 				)}
 			</Responsive>
@@ -209,17 +238,16 @@ export const WrapperOptions = ({ attributes, setAttributes }) => {
 				icon={icons.spacingBottom}
 				label={__('Bottom margin', '%g_textdomain%')}
 				options={getOption('wrapperSpacing', attributes, manifest)}
-				breakpoints={breakpointNames}
-				breakpointData={breakpointData}
 				noModeSelect
 				inline
+				{...responsiveData}
 			>
-				{({ currentValue, handleChange, options, isInlineCollapsedView }) => (
+				{({ currentValue, handleChange, options }) => (
 					<OptionSelect
 						options={options}
 						value={currentValue}
 						onChange={(value) => handleChange(value)}
-						type={isInlineCollapsedView ? 'menu' : 'toggleButtons'}
+						type='menu'
 					/>
 				)}
 			</Responsive>
@@ -236,17 +264,16 @@ export const WrapperOptions = ({ attributes, setAttributes }) => {
 				icon={icons.spacingTopIn}
 				label={__('Top padding', '%g_textdomain%')}
 				options={getOption('wrapperSpacing', attributes, manifest)}
-				breakpoints={breakpointNames}
-				breakpointData={breakpointData}
 				noModeSelect
 				inline
+				{...responsiveData}
 			>
-				{({ currentValue, handleChange, options, isInlineCollapsedView }) => (
+				{({ currentValue, handleChange, options }) => (
 					<OptionSelect
 						options={options}
 						value={currentValue}
 						onChange={(value) => handleChange(value)}
-						type={isInlineCollapsedView ? 'menu' : 'toggleButtons'}
+						type='menu'
 					/>
 				)}
 			</Responsive>
@@ -261,17 +288,16 @@ export const WrapperOptions = ({ attributes, setAttributes }) => {
 				icon={icons.spacingBottomIn}
 				label={__('Bottom padding', '%g_textdomain%')}
 				options={getOption('wrapperSpacing', attributes, manifest)}
-				breakpoints={breakpointNames}
-				breakpointData={breakpointData}
 				noModeSelect
 				inline
+				{...responsiveData}
 			>
-				{({ currentValue, handleChange, options, isInlineCollapsedView }) => (
+				{({ currentValue, handleChange, options }) => (
 					<OptionSelect
 						options={options}
 						value={currentValue}
 						onChange={(value) => handleChange(value)}
-						type={isInlineCollapsedView ? 'menu' : 'toggleButtons'}
+						type='menu'
 					/>
 				)}
 			</Responsive>
@@ -293,10 +319,9 @@ export const WrapperOptions = ({ attributes, setAttributes }) => {
 				icon={icons.visibility}
 				label={__('Visibility', '%g_textdomain%')}
 				options={getOption('wrapperHide', attributes, manifest)}
-				breakpoints={breakpointNames}
-				breakpointData={breakpointData}
 				noModeSelect
 				inline
+				{...responsiveData}
 			>
 				{({ currentValue, handleChange, options, isInlineCollapsedView }) => (
 					<OptionSelect
@@ -317,20 +342,6 @@ export const WrapperOptions = ({ attributes, setAttributes }) => {
 				value={wrapperId}
 				onChange={(value) => setAttributes({ [getAttrKey('wrapperId', attributes, manifest)]: value })}
 				className='es-uic-font-mono'
-			/>
-
-			<Spacer />
-
-			<OptionSelect
-				icon={icons.code}
-				label={__('Element tag', '%g_textdomain%')}
-				value={wrapperTag}
-				onChange={(value) => setAttributes({ wrapperTag: value })}
-				options={getOption('wrapperTag', attributes, manifest)}
-				itemClassName='es-uic-font-mono'
-				wrapperProps={{ triggerProps: { className: 'es-uic-font-mono' } }}
-				type='menu'
-				inline
 			/>
 		</ContainerPanel>
 	);

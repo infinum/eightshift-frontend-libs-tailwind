@@ -1,4 +1,3 @@
-import React from 'react';
 import { props, getTwClasses, getTwPart } from '@eightshift/frontend-libs-tailwind/scripts';
 import { ImageEditor } from '../../image/components/image-editor';
 import { HeadingEditor } from '../../heading/components/heading-editor';

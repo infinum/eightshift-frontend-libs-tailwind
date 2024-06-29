@@ -1,4 +1,3 @@
-import React from 'react';
 import { props } from '@eightshift/frontend-libs-tailwind/scripts';
 import { CardEditor as EditorComponent } from '../../../components/card/components/card-editor';
 

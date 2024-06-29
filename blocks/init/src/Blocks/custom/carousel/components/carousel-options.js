@@ -1,4 +1,3 @@
-import React from 'react';
 import { __ } from '@wordpress/i18n';
 import { checkAttr, getAttrKey, getOption } from '@eightshift/frontend-libs-tailwind/scripts';
 import { OptionSelect, Spacer, Toggle } from '@eightshift/ui-components';

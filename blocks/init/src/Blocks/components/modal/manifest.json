@@ -38,7 +38,7 @@
 				"twClasses": "fixed inset-0 wp-admin-bar-offset bg-black/50 z-30 duration-300 group-aria-hidden:animate-out group-aria-hidden:fade-out animate-in fade-in-0 flex"
 			},
 			"modalContent": {
-				"twClasses": "flex flex-col bg-white rounded-t-lg mobile:rounded-lg mx-auto mt-auto mobile:my-auto min-h-[40vh] w-[90vw] mobile:w-full mobile:max-w-[50vw] max-h-[80vh] p-6 mobile:p-4 mobile:pl-6 space-y-3 mobile:ml-auto shadow-md animate-in slide-in-from-top-4 group-aria-hidden:animate-out group-aria-hidden:slide-out-to-top-4"
+				"twClasses": "flex flex-col bg-white rounded-t-lg sm:rounded-lg mx-auto mt-auto sm:my-auto min-h-[40vh] w-[90vw] sm:w-full sm:max-w-[50vw] max-h-[80vh] p-6 sm:p-4 sm:pl-6 space-y-3 sm:ml-auto shadow-md animate-in slide-in-from-top-4 group-aria-hidden:animate-out group-aria-hidden:slide-out-to-top-4"
 			},
 			"modalHeader": {
 				"twClasses": "flex items-center justify-between gap-4"

@@ -1,9 +1,9 @@
 <?php
 
 /**
- * Tracking codes in Head
+ * Code added to the start of the head. Useful for things like tracking scripts.
  *
  * @package %g_namespace%
  */
 
- // Adding Code here.
+// Add your code here.

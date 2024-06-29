@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Template for the Paragraph Block view.
+ * Paragraph block template.
  *
  * @package %g_namespace%
  */

@@ -73,7 +73,7 @@
 	},
 	"tailwind": {
 		"base": {
-			"twClasses": "relative min-h-[40vh] mobile:min-h-[50vh] tablet:min-h-[60vh] isolate flex flex-col items-center justify-center bg-gradient-to-br text-center rounded-xl ~m-4/8 overflow-hidden shadow-lg p-4"
+			"twClasses": "relative min-h-[40vh] sm:min-h-[50vh] md:min-h-[60vh] isolate flex flex-col items-center justify-center bg-gradient-to-br text-center rounded-xl ~my-4/8 overflow-hidden shadow-lg p-4"
 		},
 		"parts": {
 			"imagePicture": {

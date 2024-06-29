@@ -11,6 +11,3 @@ import './scripts/application';
 
 // Images.
 import './images';
-
-// Fonts.
-import './fonts';

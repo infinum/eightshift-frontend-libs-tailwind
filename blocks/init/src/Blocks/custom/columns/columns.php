@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Template for the Columns Block.
+ * Columns block template..
  *
  * @package %g_namespace%
  */

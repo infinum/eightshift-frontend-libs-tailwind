@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Template for the Wrapper block.
+ * Wrapper block template.
  *
  * @package %g_namespace%
  */
@@ -18,11 +18,10 @@ if (!$wrapperUse) {
 	return;
 }
 
-$wrapperTag = Helpers::checkAttr('wrapperTag', $attributes, $manifest);
 $wrapperId = Helpers::checkAttr('wrapperId', $attributes, $manifest);
 ?>
 
-<<?php echo esc_attr($wrapperTag); ?>
+<div
 	class="<?php echo esc_attr(Helpers::getTwClasses($attributes, $manifest)); ?>"
 	<?php if (!empty($wrapperId)) { ?>
 		id="<?php echo esc_attr($wrapperId); ?>"
@@ -32,4 +31,4 @@ $wrapperId = Helpers::checkAttr('wrapperId', $attributes, $manifest);
 	// phpcs:ignore Eightshift.Security.HelpersEscape.OutputNotEscaped
 	echo $renderContent;
 	?>
-</<?php echo esc_attr($wrapperTag); ?>>
+</div>

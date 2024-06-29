@@ -1,12 +1,5 @@
-import React from 'react';
 import { __, _n, sprintf } from '@wordpress/i18n';
-import {
-	getAttrKey,
-	checkAttr,
-	getOption,
-	generateOptionsFromValue,
-	getColorData,
-} from '@eightshift/frontend-libs-tailwind/scripts';
+import { getAttrKey, checkAttr, getOption, generateOptionsFromValue } from '@eightshift/frontend-libs-tailwind/scripts';
 import {
 	Button,
 	ColumnConfigSlider,
@@ -18,11 +11,10 @@ import {
 	BaseControl,
 	ButtonGroup,
 	ColorPicker,
-	HStack,
 } from '@eightshift/ui-components';
 import { icons } from '@eightshift/ui-components/icons';
 import { clsx } from '@eightshift/ui-components/utilities';
-import { getBreakpointData, getBreakpointNames } from '@eightshift/frontend-libs-tailwind/scripts/helpers/breakpoints';
+import { getBreakpointNames, getResponsiveData } from '@eightshift/frontend-libs-tailwind/scripts/helpers/breakpoints';
 import { rotationClassName, getColorOption } from '../../../assets/scripts/shared';
 import manifest from './../manifest.json';
 
@@ -40,8 +32,6 @@ export const ColumnOptions = ({ attributes, setAttributes }) => {
 	const columnPaddingTop = checkAttr('columnPaddingTop', attributes, manifest);
 	const columnPaddingBottom = checkAttr('columnPaddingBottom', attributes, manifest);
 
-	const columnGap = checkAttr('columnGap', attributes, manifest);
-
 	const columnBackground = checkAttr('columnBackground', attributes, manifest);
 	const columnGradientDirection = checkAttr('columnGradientDirection', attributes, manifest);
 	const columnBorderRadius = checkAttr('columnBorderRadius', attributes, manifest);
@@ -49,8 +39,10 @@ export const ColumnOptions = ({ attributes, setAttributes }) => {
 	const columnShadow = checkAttr('columnShadow', attributes, manifest);
 	const columnBorder = checkAttr('columnBorder', attributes, manifest);
 
+	const columnOverflow = checkAttr('columnOverflow', attributes, manifest);
+
 	const breakpointNames = getBreakpointNames();
-	const breakpointData = getBreakpointData(true);
+	const responsiveData = getResponsiveData(true);
 
 	const allBreakpoints = [...breakpointNames.toReversed(), '_default'];
 
@@ -59,7 +51,7 @@ export const ColumnOptions = ({ attributes, setAttributes }) => {
 	const hasEqualColumnConfigs = Object.keys(columnsConfig ?? {}).length <= 2;
 
 	const widthOffsetValue = Object.keys(columnOffset)
-		.filter((breakpoint) => breakpoint !== '_mobileFirst')
+		.filter((breakpoint) => breakpoint !== '_desktopFirst')
 		.reduce(
 			(prev, breakpoint) => {
 				return {
@@ -67,7 +59,7 @@ export const ColumnOptions = ({ attributes, setAttributes }) => {
 					[breakpoint]: `${breakpoint},${columnOffset?.[breakpoint]},${columnWidth?.[breakpoint]}`,
 				};
 			},
-			{ _mobileFirst: true },
+			{ _desktopFirst: true },
 		);
 
 	const widthOffsetOptions = generateOptionsFromValue(widthOffsetValue, (value, breakpoint) => {
@@ -95,7 +87,7 @@ export const ColumnOptions = ({ attributes, setAttributes }) => {
 					let newColumnWidth = { ...columnWidth };
 
 					Object.keys(columnOffset).forEach((breakpoint) => {
-						if (breakpoint === '_default' || breakpoint === '_mobileFirst') {
+						if (breakpoint === '_default' || breakpoint === '_desktopFirst') {
 							return;
 						}
 
@@ -115,9 +107,9 @@ export const ColumnOptions = ({ attributes, setAttributes }) => {
 				icon={icons.positioningWidthGuide}
 				label={__('Placement', '%g_textdomain%')}
 				options={widthOffsetOptions}
-				breakpoints={breakpointNames}
-				breakpointData={breakpointData}
+				innerContentAlign='stretch'
 				noModeSelect
+				{...responsiveData}
 			>
 				{({ breakpoint }) => {
 					let localBreakpoints = [...allBreakpoints];
@@ -142,6 +134,19 @@ export const ColumnOptions = ({ attributes, setAttributes }) => {
 						width = columnWidth?.[localBreakpoints.find((breakpoint) => columnWidth?.[breakpoint])];
 					} else if (!width && breakpoint !== '_default' && !hasEqualColumnConfigs) {
 						width = columnsConfig?.[breakpoint] ?? '1';
+					}
+
+					if (numOfColumns === 1 && !(breakpoint in columnOffset) && !(breakpoint in columnWidth)) {
+						setAttributes({
+							[getAttrKey('columnOffset', attributes, manifest)]: {
+								...columnOffset,
+								[breakpoint]: '1',
+							},
+							[getAttrKey('columnWidth', attributes, manifest)]: {
+								...columnWidth,
+								[breakpoint]: '1',
+							},
+						});
 					}
 
 					if (isUnset && numOfColumns > 1) {
@@ -206,10 +211,9 @@ export const ColumnOptions = ({ attributes, setAttributes }) => {
 				options={generateOptionsFromValue(columnRowSpan, (v) =>
 					!v ? __('Not set', '%g_textdomain%') : sprintf(_n('1 row', '%d rows', v, '%g_textdomain%'), v),
 				)}
-				breakpoints={breakpointNames}
-				breakpointData={breakpointData}
 				noModeSelect
 				inline
+				{...responsiveData}
 			>
 				{({ currentValue, handleChange, breakpoint }) => (
 					<NumberPicker
@@ -243,10 +247,9 @@ export const ColumnOptions = ({ attributes, setAttributes }) => {
 				icon={icons.horizontalAlign}
 				label={__('Horizontal', '%g_textdomain%')}
 				options={getOption('columnHorizontalAlign', attributes, manifest)}
-				breakpoints={breakpointNames}
-				breakpointData={breakpointData}
 				noModeSelect
 				inline
+				{...responsiveData}
 			>
 				{({ currentValue, handleChange, options, isInlineCollapsedView, breakpoint }) => (
 					<OptionSelect
@@ -271,10 +274,9 @@ export const ColumnOptions = ({ attributes, setAttributes }) => {
 				icon={icons.verticalAlign}
 				label={__('Vertical', '%g_textdomain%')}
 				options={getOption('columnVerticalAlign', attributes, manifest)}
-				breakpoints={breakpointNames}
-				breakpointData={breakpointData}
 				noModeSelect
 				inline
+				{...responsiveData}
 			>
 				{({ currentValue, handleChange, options, isInlineCollapsedView, breakpoint }) => (
 					<OptionSelect
@@ -415,7 +417,7 @@ export const ColumnOptions = ({ attributes, setAttributes }) => {
 			<Spacer />
 			<Spacer
 				icon={icons.containerSpacingH}
-				text={__('Spacing', '%g_textdomain%')}
+				text={__('Padding', '%g_textdomain%')}
 				border
 			/>
 
@@ -427,12 +429,11 @@ export const ColumnOptions = ({ attributes, setAttributes }) => {
 					})
 				}
 				icon={icons.spacingTopIn}
-				label={__('Top padding', '%g_textdomain%')}
+				label={__('Top', '%g_textdomain%')}
 				options={getOption('columnSpacing', attributes, manifest)}
-				breakpoints={breakpointNames}
-				breakpointData={breakpointData}
 				noModeSelect
 				inline
+				{...responsiveData}
 			>
 				{({ currentValue, handleChange, options }) => (
 					<OptionSelect
@@ -452,12 +453,11 @@ export const ColumnOptions = ({ attributes, setAttributes }) => {
 					})
 				}
 				icon={icons.spacingRightIn}
-				label={__('Right padding', '%g_textdomain%')}
+				label={__('Right', '%g_textdomain%')}
 				options={getOption('columnSpacing', attributes, manifest)}
-				breakpoints={breakpointNames}
-				breakpointData={breakpointData}
 				noModeSelect
 				inline
+				{...responsiveData}
 			>
 				{({ currentValue, handleChange, options }) => (
 					<OptionSelect
@@ -477,12 +477,11 @@ export const ColumnOptions = ({ attributes, setAttributes }) => {
 					})
 				}
 				icon={icons.spacingBottomIn}
-				label={__('Bottom padding', '%g_textdomain%')}
+				label={__('Bottom', '%g_textdomain%')}
 				options={getOption('columnSpacing', attributes, manifest)}
-				breakpoints={breakpointNames}
-				breakpointData={breakpointData}
 				noModeSelect
 				inline
+				{...responsiveData}
 			>
 				{({ currentValue, handleChange, options }) => (
 					<OptionSelect
@@ -501,13 +500,12 @@ export const ColumnOptions = ({ attributes, setAttributes }) => {
 						[getAttrKey('columnPaddingLeft', attributes, manifest)]: value,
 					})
 				}
-				icon={icons.spacingBottomIn}
-				label={__('Left padding', '%g_textdomain%')}
+				icon={icons.spacingLeftIn}
+				label={__('Left', '%g_textdomain%')}
 				options={getOption('columnSpacing', attributes, manifest)}
-				breakpoints={breakpointNames}
-				breakpointData={breakpointData}
 				noModeSelect
 				inline
+				{...responsiveData}
 			>
 				{({ currentValue, handleChange, options }) => (
 					<OptionSelect
@@ -515,35 +513,6 @@ export const ColumnOptions = ({ attributes, setAttributes }) => {
 						value={currentValue}
 						onChange={(value) => handleChange(value)}
 						type='menu'
-					/>
-				)}
-			</Responsive>
-
-			<Spacer />
-
-			<Responsive
-				value={columnGap}
-				onChange={(value) =>
-					setAttributes({
-						[getAttrKey('columnGap', attributes, manifest)]: value,
-					})
-				}
-				icon={icons.verticalSpacing}
-				label={__('Item gap', '%g_textdomain%')}
-				options={getOption('columnGap', attributes, manifest)}
-				breakpoints={breakpointNames}
-				breakpointData={breakpointData}
-				noModeSelect
-				inline
-			>
-				{({ currentValue, handleChange, options, isInlineCollapsedView, breakpoint }) => (
-					<OptionSelect
-						options={options}
-						value={currentValue}
-						onChange={(value) => handleChange(value)}
-						type={isInlineCollapsedView ? 'menu' : 'toggleButtons'}
-						noItemIcon={!isInlineCollapsedView}
-						aria-label={sprintf(__('Column: content gap - %s', '%g_textdomain%'), breakpoint)}
 					/>
 				)}
 			</Responsive>
@@ -565,10 +534,9 @@ export const ColumnOptions = ({ attributes, setAttributes }) => {
 				icon={icons.visibility}
 				label={__('Visibility', '%g_textdomain%')}
 				options={getOption('columnHide', attributes, manifest)}
-				breakpoints={breakpointNames}
-				breakpointData={breakpointData}
 				noModeSelect
 				inline
+				{...responsiveData}
 			>
 				{({ currentValue, handleChange, options, isInlineCollapsedView, breakpoint }) => (
 					<OptionSelect
@@ -578,6 +546,31 @@ export const ColumnOptions = ({ attributes, setAttributes }) => {
 						noItemLabel={isInlineCollapsedView}
 						noItemIcon={!isInlineCollapsedView}
 						aria-label={sprintf(__('Column: visibility - %s', '%g_textdomain%'), breakpoint)}
+					/>
+				)}
+			</Responsive>
+
+			<Responsive
+				value={columnOverflow}
+				onChange={(value) =>
+					setAttributes({
+						[getAttrKey('columnOverflow', attributes, manifest)]: value,
+					})
+				}
+				icon={icons.wrapperOverflow}
+				label={__('Content overflow', '%g_textdomain%')}
+				options={getOption('columnOverflow', attributes, manifest)}
+				noModeSelect
+				inline
+				{...responsiveData}
+			>
+				{({ currentValue, handleChange, options, breakpoint }) => (
+					<OptionSelect
+						options={options}
+						value={String(currentValue)}
+						onChange={(value) => handleChange(value)}
+						aria-label={sprintf(__('Column: content overflow - %s', '%g_textdomain%'), breakpoint)}
+						type='menu'
 					/>
 				)}
 			</Responsive>

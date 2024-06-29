@@ -1,4 +1,3 @@
-import React from 'react';
 import { ListEditor } from './components/list-editor';
 import { ListOptions } from './components/list-options';
 import { GutenbergBlock } from '@eightshift/frontend-libs-tailwind/scripts';

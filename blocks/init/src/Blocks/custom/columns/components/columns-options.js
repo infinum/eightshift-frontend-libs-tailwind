@@ -1,8 +1,7 @@
-import React from 'react';
 import { __ } from '@wordpress/i18n';
 import { Responsive, Spacer, OptionSelect, NumberPicker } from '@eightshift/ui-components';
 import { icons } from '@eightshift/ui-components/icons';
-import { getBreakpointData, getBreakpointNames } from '@eightshift/frontend-libs-tailwind/scripts/helpers/breakpoints';
+import { getResponsiveData } from '@eightshift/frontend-libs-tailwind/scripts/helpers/breakpoints';
 import { checkAttr, getOption, getAttrKey, generateOptionsFromValue } from '@eightshift/frontend-libs-tailwind/scripts';
 import manifest from './../manifest.json';
 
@@ -12,8 +11,7 @@ export const ColumnsOptions = ({ attributes, setAttributes }) => {
 	const columnsRowGap = checkAttr('columnsRowGap', attributes, manifest);
 	const columnsRowHeight = checkAttr('columnsRowHeight', attributes, manifest);
 
-	const breakpointNames = getBreakpointNames();
-	const breakpointData = getBreakpointData(true);
+	const responsiveData = getResponsiveData(true);
 
 	return (
 		<>
@@ -23,10 +21,9 @@ export const ColumnsOptions = ({ attributes, setAttributes }) => {
 				icon={icons.gridAutoCols}
 				label={__('Number of columns', 'eightshift-ui-components')}
 				options={generateOptionsFromValue(columnsNumOfColumns)}
-				breakpoints={breakpointNames}
-				breakpointData={breakpointData}
 				noModeSelect
 				inline
+				{...responsiveData}
 			>
 				{({ currentValue, handleChange }) => (
 					<NumberPicker
@@ -48,10 +45,9 @@ export const ColumnsOptions = ({ attributes, setAttributes }) => {
 				icon={icons.gridRow}
 				label={__('Row height', 'eightshift-ui-components')}
 				options={getOption('columnsRowHeight', attributes, manifest)}
-				breakpoints={breakpointNames}
-				breakpointData={breakpointData}
 				noModeSelect
 				inline
+				{...responsiveData}
 			>
 				{({ currentValue, options, handleChange }) => (
 					<OptionSelect
@@ -70,10 +66,9 @@ export const ColumnsOptions = ({ attributes, setAttributes }) => {
 				icon={icons.gutter}
 				label={__('Column gap', 'eightshift-ui-components')}
 				options={getOption('columnsGap', attributes, manifest)}
-				breakpoints={breakpointNames}
-				breakpointData={breakpointData}
 				noModeSelect
 				inline
+				{...responsiveData}
 			>
 				{({ currentValue, options, handleChange, isInlineCollapsedView }) => (
 					<OptionSelect
@@ -91,10 +86,9 @@ export const ColumnsOptions = ({ attributes, setAttributes }) => {
 				icon={icons.verticalSpacing}
 				label={__('Row gap', 'eightshift-ui-components')}
 				options={getOption('columnsGap', attributes, manifest)}
-				breakpoints={breakpointNames}
-				breakpointData={breakpointData}
 				noModeSelect
 				inline
+				{...responsiveData}
 			>
 				{({ currentValue, options, handleChange, isInlineCollapsedView }) => (
 					<OptionSelect

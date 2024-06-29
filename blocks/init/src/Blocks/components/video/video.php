@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Template for the Video Component.
+ * Video component template.
  *
  * @package %g_namespace%
  */

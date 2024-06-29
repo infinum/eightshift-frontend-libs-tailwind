@@ -1,13 +1,15 @@
-/* Block editor-specific style overrides. */
-
 .editor-styles-wrapper .wp-block:not(.editor-post-title, .block-list-appender) {
 	@apply !max-w-full;
 }
 
 .editor-post-title {
-	@apply text-3xl p-2 rounded-xl border border-gray-100 border-dashed max-w-screen-tablet;
+	@apply text-3xl max-w-screen-md;
 }
 
 .edit-post-visual-editor__post-title-wrapper {
-	@apply !mx-0 !mb-0 !mt-4;
+	@apply !m-0 !px-4 !py-6 bg-gray-50;
+}
+
+.editor-styles-wrapper.block-editor-writing-flow {
+	@apply p-0;
 }

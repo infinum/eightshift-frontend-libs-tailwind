@@ -3,7 +3,7 @@
 	"blockName": "carousel",
 	"blockJsClass": "js-carousel",
 	"title": "Carousel",
-	"description" : "Carousel block with custom settings.",
+	"description" : "Display various kinds of content in a carousel.",
 	"category": "eightshift",
 	"icon": {
 		"src": "es-carousel"
@@ -106,7 +106,7 @@
 	],
 	"tailwind": {
 		"base": {
-			"twClasses": "grid grid-flow-col justify-items-center auto-cols-[85%] mobile:auto-cols-[minmax(20rem,_auto)] *:select-none",
+			"twClasses": "grid grid-flow-col justify-items-center auto-cols-[85%] sm:auto-cols-[minmax(20rem,_auto)] *:select-none",
 			"twClassesEditor": "grid grid-flow-col justify-items-center auto-cols-[minmax(20rem,_auto)]"
 		},
 		"parts": {

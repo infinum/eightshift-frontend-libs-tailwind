@@ -2,7 +2,7 @@
 	"$schema": "https://raw.githubusercontent.com/infinum/eightshift-frontend-libs-tailwind/main/schemas/block.json",
 	"blockName": "image",
 	"title": "Image",
-	"description" : "A simple image.",
+	"description" : "Worth a 1000 words.",
 	"category": "eightshift",
 	"icon": {
 		"src": "es-image"

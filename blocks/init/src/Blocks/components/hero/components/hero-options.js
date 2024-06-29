@@ -1,4 +1,3 @@
-import React from 'react';
 import { __ } from '@wordpress/i18n';
 import { checkAttr, getAttrKey, getOption, props } from '@eightshift/frontend-libs-tailwind/scripts';
 import { ImageOptions } from '../../image/components/image-options';

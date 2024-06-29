@@ -59,21 +59,23 @@
 		]
 	},
 	"tailwind": {
-		"base": {
-			"twClasses": "font-sans [&>a]:underline font-synthesis-none"
-		},
-		"options": {
-			"paragraphSize": {
-				"twClasses": {
-					"sm": "text-sm",
-					"base": "~mobile/desktop:~text-sm/base",
-					"md": "~mobile/desktop:~text-lg/2xl",
-					"lg": "~mobile/desktop:~text-xl/3xl"
-				}
+		"tailwind": {
+			"base": {
+				"twClasses": "font-sans [&>a]:underline font-synthesis-none"
 			},
-			"paragraphFontWeight": {
-				"twClasses": {
-					"700": "font-bold"
+			"options": {
+				"paragraphSize": {
+					"twClasses": {
+						"sm": "text-sm",
+						"base": "~sm/md:~text-sm/base",
+						"md": "~sm/md:~text-lg/2xl",
+						"lg": "~sm/md:~text-xl/3xl"
+					}
+				},
+				"paragraphFontWeight": {
+					"twClasses": {
+						"700": "font-bold"
+					}
 				}
 			}
 		}

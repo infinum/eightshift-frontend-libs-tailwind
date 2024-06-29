@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Template for the Card Block.
+ * Card block template.
  *
  * @package %g_namespace%
  */

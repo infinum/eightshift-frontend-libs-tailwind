@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Template for the Table of contents block.
+ * Table of contents block template.
  *
  * @package %g_namespace%
  */

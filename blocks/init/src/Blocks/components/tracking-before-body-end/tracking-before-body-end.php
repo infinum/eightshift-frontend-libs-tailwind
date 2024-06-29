@@ -1,9 +1,9 @@
 <?php
 
 /**
- * Tracking codes Before body end
+ * Code added to the end of the document body.
  *
  * @package %g_namespace%
  */
 
-// Add Before body end hooks here.
+// Add your code here.

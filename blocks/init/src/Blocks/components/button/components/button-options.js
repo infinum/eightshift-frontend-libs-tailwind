@@ -1,4 +1,3 @@
-import React from 'react';
 import { __ } from '@wordpress/i18n';
 import {
 	getOption,
@@ -15,6 +14,7 @@ import {
 	ButtonGroup,
 	ColorPicker,
 	ComponentToggle,
+	HStack,
 	InputField,
 	LinkInput,
 	OptionSelect,
@@ -47,6 +47,38 @@ export const ButtonOptions = (attributes) => {
 			useComponent={buttonUse}
 			{...rest}
 		>
+			<HStack hidden={hiddenOptions?.variant && hiddenOptions?.color && hiddenOptions?.icon}>
+				<ButtonGroup hidden={hiddenOptions?.variant && hiddenOptions?.color}>
+					<OptionSelect
+						aria-label={__('Style', '%g_textdomain%')}
+						value={buttonVariant}
+						onChange={(value) => setAttributes({ [getAttrKey('buttonVariant', attributes, manifest)]: value })}
+						options={getOption('buttonVariant', attributes, manifest)}
+						type='menu'
+						hidden={hiddenOptions?.variant}
+					/>
+
+					<ColorPicker
+						aria-label={__('Color', '%g_textdomain%')}
+						value={buttonColor}
+						onChange={(value) => setAttributes({ [getAttrKey('buttonColor', attributes, manifest)]: value })}
+						colors={getOption(`buttonColor${upperFirst(buttonVariant)}`, attributes, manifest, true)}
+						hidden={hiddenOptions?.color}
+					/>
+				</ButtonGroup>
+
+				<IconOptions
+					{...props('icon', attributes, {
+						options: getOptions(attributes, manifest),
+					})}
+					hidden={hiddenOptions?.icon}
+					hideOptions='size'
+					design='compactLabel'
+				/>
+			</HStack>
+
+			<Spacer hidden={hiddenOptions?.link} />
+
 			<LinkInput
 				icon={buttonIsAnchor ? icons.globeAnchor : icons.globe}
 				url={buttonUrl}
@@ -68,51 +100,7 @@ export const ButtonOptions = (attributes) => {
 				hidden={hiddenOptions?.link || hiddenOptions?.newTab}
 			/>
 
-			<Spacer hidden={hiddenOptions?.link} />
-
-			<BaseControl
-				icon={icons.genericShapesAlt}
-				label={__('Style', '%g_textdomain%')}
-				hidden={hiddenOptions?.variant && hiddenOptions?.color}
-				inline
-			>
-				<ButtonGroup>
-					<OptionSelect
-						value={buttonVariant}
-						onChange={(value) => setAttributes({ [getAttrKey('buttonVariant', attributes, manifest)]: value })}
-						options={getOption('buttonVariant', attributes, manifest)}
-						type='menu'
-						hidden={hiddenOptions?.variant}
-					/>
-
-					<ColorPicker
-						aria-label={__('Color', '%g_textdomain%')}
-						value={buttonColor}
-						onChange={(value) => setAttributes({ [getAttrKey('buttonColor', attributes, manifest)]: value })}
-						colors={getOption(`buttonColor${upperFirst(buttonVariant)}`, attributes, manifest, true)}
-						hidden={hiddenOptions?.color}
-					/>
-				</ButtonGroup>
-			</BaseControl>
-
-			<Spacer hidden={hiddenOptions?.variant || hiddenOptions?.color} />
-
-			<Spacer
-				icon={icons.componentGeneric}
-				text={__('Components', '%g_textdomain%')}
-				hidden={hiddenOptions?.icon}
-				border
-			/>
-			<IconOptions
-				{...props('icon', attributes, {
-					options: getOptions(attributes, manifest),
-				})}
-				hidden={hiddenOptions?.icon}
-				hideOptions='size'
-			/>
-
-			<Spacer hidden={hiddenOptions?.icon} />
-
+			<Spacer hidden={hiddenOptions?.ariaLabel} />
 			<Spacer
 				icon={icons.a11y}
 				text={__('Accessibility', '%g_textdomain%')}
@@ -128,8 +116,7 @@ export const ButtonOptions = (attributes) => {
 				hidden={hiddenOptions?.ariaLabel}
 			/>
 
-			<Spacer hidden={hiddenOptions?.ariaLabel} />
-
+			<Spacer hidden={hiddenOptions?.uniqueId} />
 			<Spacer
 				icon={icons.pointerHand}
 				text={__('Advanced', '%g_textdomain%')}

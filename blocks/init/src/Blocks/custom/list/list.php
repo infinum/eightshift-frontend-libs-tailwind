@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Template for the Lists Block view.
+ * List block template.
  *
  * @package %g_namespace%
  */

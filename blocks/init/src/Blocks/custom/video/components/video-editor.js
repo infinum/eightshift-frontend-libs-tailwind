@@ -1,4 +1,3 @@
-import React from 'react';
 import { props } from '@eightshift/frontend-libs-tailwind/scripts';
 import { VideoEditor as EditorComponent } from '../../../components/video/components/video-editor';
 

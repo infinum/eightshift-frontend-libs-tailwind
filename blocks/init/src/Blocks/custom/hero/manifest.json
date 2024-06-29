@@ -2,7 +2,7 @@
 	"$schema": "https://raw.githubusercontent.com/infinum/eightshift-frontend-libs-tailwind/main/schemas/block.json",
 	"blockName": "hero",
 	"title": "Hero",
-	"description" : "Hero block with custom settings.",
+	"description" : "Emphasize a section.",
 	"category": "eightshift",
 	"icon": {
 		"src": "es-jumbotron"

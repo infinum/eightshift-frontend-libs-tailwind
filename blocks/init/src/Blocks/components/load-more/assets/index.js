@@ -1,14 +1,8 @@
-// /* global esBlocksLocalization */
-
 import domReady from '@wordpress/dom-ready';
 import manifest from './../manifest.json';
 
 domReady(async () => {
-	const {
-		componentJsClass,
-	} = manifest;
-
-	const selectors = `.${componentJsClass}`;
+	const selectors = `.${manifest.componentJsClass}`;
 	const elements = document.querySelectorAll(selectors);
 
 	if (!elements.length) {
@@ -17,8 +11,9 @@ domReady(async () => {
 
 	const { LoadMore } = await import('./load-more');
 
-	new LoadMore({
-		triggerElements: elements,
-		// restUrl: esBlocksLocalization?.loadMoreRestUrl ?? '',
-	}).init();
+	elements.forEach((element) => {
+		new LoadMore({
+			element,
+		}).init();
+	});
 });

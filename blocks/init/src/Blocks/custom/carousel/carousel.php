@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Template for the Carousel Block.
+ * Carousel block template.
  *
  * @package %g_namespace%
  */
@@ -24,9 +24,9 @@ $carouselPagination = Helpers::checkAttr('carouselPagination', $attributes, $man
 	<?php } ?>
 >
 	<?php if ($carouselNavigation || $carouselPagination) { ?>
-		<div class="hidden mobile:flex items-center justify-center gap-2 mb-4">
+		<div class="hidden sm:flex items-center justify-center gap-2 mb-4">
 			<?php if ($carouselPagination) { ?>
-				<div class="<?php echo esc_attr(Helpers::classnames(["{$blockJsClass}-pagination", $carouselNavigation ? 'mr-auto' : '', 'max-mobile:hidden space-x-0.5'])); ?>"></div>
+				<div class="<?php echo esc_attr(Helpers::classnames(["{$blockJsClass}-pagination", $carouselNavigation ? 'mr-auto' : '', 'max-sm:hidden space-x-0.5'])); ?>"></div>
 			<?php } ?>
 
 			<?php

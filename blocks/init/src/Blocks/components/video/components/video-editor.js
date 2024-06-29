@@ -1,4 +1,3 @@
-import React from 'react';
 import { __ } from '@wordpress/i18n';
 import { ManageFileButton, checkAttr, getAttrKey, getTwPart } from '@eightshift/frontend-libs-tailwind/scripts';
 import { HStack, MediaPlaceholder, VStack } from '@eightshift/ui-components';

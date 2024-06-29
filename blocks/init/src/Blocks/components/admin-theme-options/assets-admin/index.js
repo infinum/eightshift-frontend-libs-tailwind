@@ -7,7 +7,13 @@ import { Tabs, TabList, Tab, TabPanel } from '@eightshift/ui-components';
 import { icons } from '@eightshift/ui-components/icons';
 
 domReady(() => {
-	const root = createRoot(document.getElementById('es-theme-options'));
+	const rootElement = document.getElementById('es-theme-options');
+
+	if (!rootElement) {
+		return;
+	}
+
+	const root = createRoot(rootElement);
 	const patterns = JSON.parse(document.getElementById('es-pattern-data')?.value ?? '[]');
 
 	root.render(

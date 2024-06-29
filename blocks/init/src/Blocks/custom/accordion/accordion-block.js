@@ -1,4 +1,3 @@
-import React from 'react';
 import { GutenbergBlock } from '@eightshift/frontend-libs-tailwind/scripts';
 import { AccordionEditor } from './components/accordion-editor';
 import { AccordionOptions } from './components/accordion-options';

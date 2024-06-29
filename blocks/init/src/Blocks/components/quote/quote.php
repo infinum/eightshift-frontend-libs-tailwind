@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Template for the Quote Component.
+ * Quote component template.
  *
  * @package %g_namespace%
  */
