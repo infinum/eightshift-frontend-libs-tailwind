@@ -1,4 +1,4 @@
-import { unescapeHTML } from '@eightshift/ui-components/utilities';
+import { truncate, unescapeHTML } from '@eightshift/ui-components/utilities';
 import { addQueryArgs } from '@wordpress/url';
 import apiFetch from '@wordpress/api-fetch';
 
@@ -9,12 +9,14 @@ import apiFetch from '@wordpress/api-fetch';
  * @param {Object} options - Additional options.
  * @param {Function} [options.processId] - Function to process the ID. `(itemData: Object) => id: string | Number`
  * @param {Function} [options.processLabel] - Function to process the label. `(itemData: Object) => label: string`
+ * @param {string} [options.labelProp='title'] - Property to use as a label. Overriden by `processLabel`.
  * @param {Function} [options.processMetadata] - Function to process the metadata. `(itemData: Object) => metadata: Object`
  * @param {number} [options.perPage=30] - Number of items to fetch per page.
  * @param {string} [options.routePrefix='wp/v2'] - Route prefix for the API.
  * @param {string} [options.fields='id,title'] - A comma-separated list of field names to fetch from the API. Good to include as it makes the query faster and the output terser.
  * @param {SearchColumnsConfig} [options.searchColumns] - Allows narrowing the search scope.
  * @param {boolean} [options.noUnescapeTitle] - If `true`, the post title will not unescape HTML entities.
+ * @param {Number?} [options.truncateTitle=32] - If set, the title will be truncated to this length.
  *
  * @returns {Function} The `(searchText, [abortSignal]) => Promise` function.
  *
@@ -38,13 +40,15 @@ import apiFetch from '@wordpress/api-fetch';
 export function fetchFromWpRest(endpoint, options = {}) {
 	const {
 		processId = ({ id }) => id,
-		processLabel = ({ title }) => unescapeHTML(title),
+		labelProp = 'title',
+		processLabel = (item) => item[labelProp],
 		processMetadata = () => null,
 		perPage = 30,
 		routePrefix = 'wp/v2',
 		fields = 'id,title',
 		searchColumns,
 		noUnescapeTitle = false,
+		truncateTitle = 32,
 		...additionalParams
 	} = options;
 
@@ -78,8 +82,11 @@ export function fetchFromWpRest(endpoint, options = {}) {
 		});
 
 		return newData.map((item) => {
+			const rawLabel = !noUnescapeTitle ? unescapeHTML(processLabel(item)) : processLabel(item);
+			const truncatedLabel = Number.isInteger(truncateTitle) && truncateTitle > 0 ? truncate(rawLabel, truncateTitle) : rawLabel;
+
 			return {
-				label: noUnescapeTitle ? unescapeHTML(processLabel(item)) : processLabel(item),
+				label: truncatedLabel,
 				value: processId(item),
 				metadata: processMetadata(item),
 			};
@@ -89,7 +96,7 @@ export function fetchFromWpRest(endpoint, options = {}) {
 
 export const wpSearchRoute = fetchFromWpRest('search', {
 	processId: ({ url }) => url,
-	processLabel: ({ title }) => title,
+	labelProp: 'title',
 	processMetadata: ({ type, subtype }) => ({ type, subtype }),
 	additionalParam: {
 		type: 'post',
