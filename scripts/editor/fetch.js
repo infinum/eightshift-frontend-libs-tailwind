@@ -1,4 +1,6 @@
 import { unescapeHTML } from '@eightshift/ui-components/utilities';
+import { addQueryArgs } from '@wordpress/url';
+import apiFetch from '@wordpress/api-fetch';
 
 /**
  * Returns a function that fetches data from WordPress REST API.
@@ -9,7 +11,6 @@ import { unescapeHTML } from '@eightshift/ui-components/utilities';
  * @param {Function} [options.processLabel] - Function to process the label. `(itemData: Object) => label: string`
  * @param {Function} [options.processMetadata] - Function to process the metadata. `(itemData: Object) => metadata: Object`
  * @param {number} [options.perPage=30] - Number of items to fetch per page.
- * @param {string} [options.urlBase='<origin>/wp-json'] - Base URL for the API.
  * @param {string} [options.routePrefix='wp/v2'] - Route prefix for the API.
  * @param {string} [options.fields='id,title'] - A comma-separated list of field names to fetch from the API. Good to include as it makes the query faster and the output terser.
  * @param {SearchColumnsConfig} [options.searchColumns] - Allows narrowing the search scope.
@@ -40,44 +41,43 @@ export function fetchFromWpRest(endpoint, options = {}) {
 		processLabel = ({ title }) => unescapeHTML(title),
 		processMetadata = () => null,
 		perPage = 30,
-		urlBase = `${window.location.origin}/wp-json`,
 		routePrefix = 'wp/v2',
 		fields = 'id,title',
 		searchColumns,
 		noUnescapeTitle = false,
-		...params
+		...additionalParams
 	} = options;
 
 	return async (searchText = '', abortSignal) => {
-		const url = new URL(`${urlBase}/${routePrefix}/${endpoint}/`);
-
-		url.searchParams.append('per_page', perPage);
+		let params = {
+			per_page: perPage,
+		};
 
 		if (fields?.length > 0) {
-			url.searchParams.append('_fields', fields);
+			params['_fields'] = fields;
 		}
 
 		if (searchColumns?.length > 0) {
-			url.searchParams.append('search_columns', Array.isArray(searchColumns) ? searchColumns.join(',') : searchColumns);
+			params.search_columns = Array.isArray(searchColumns) ? searchColumns.join(',') : searchColumns;
 		}
 
 		if (Object.keys(params).length > 0) {
-			for (const [key, value] of Object.entries(params)) {
-				url.searchParams.append(key, value);
-			}
+			params = {
+				...params,
+				...additionalParams,
+			};
 		}
 
 		if (searchText?.length > 0) {
-			url.searchParams.append('search', searchText);
+			params.search = searchText;
 		}
 
-		const newData = await fetch(url.toString(), {
+		const newData = await apiFetch({
+			path: addQueryArgs(`${routePrefix}/${endpoint}/`, params),
 			signal: abortSignal,
 		});
 
-		const newDataJson = await newData.json();
-
-		return [...newDataJson].map((item) => {
+		return newData.map((item) => {
 			return {
 				label: noUnescapeTitle ? unescapeHTML(processLabel(item)) : processLabel(item),
 				value: processId(item),
