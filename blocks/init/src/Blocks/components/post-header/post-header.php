@@ -17,7 +17,7 @@ $featuredImage = get_the_post_thumbnail_url(get_the_ID(), 'full') ?? '';
 	<?php if (!empty($featuredImage)) { ?>
 		<img class="w-full h-80 col-span-full -z-10 object-cover row-start-1" src="<?php echo esc_attr($featuredImage); ?>" alt="" role="presentation">
 	<?php } ?>
-	<div class="~sm/md:~mx-4/12 ~sm/md:~px-4/8 ~sm/md:~py-4/6 col-start-2 row-start-1 bg-black/75 text-white border border-b-0 border-black/25 backdrop-blur-2xl backdrop-brightness-200 backdrop-saturate-150 self-end">
+	<div class="~sm/md:~mx-4/12 ~sm/md:~px-4/8 ~sm/md:~py-4/6 col-start-2 row-start-1 bg-black/75 text-white border border-b-0 border-black/25 backdrop-blur-2xl backdrop-brightness-110 backdrop-saturate-150 self-end">
 		<h1 class="font-display text-balance font-synthesis-none ~text-5xl/6xl !leading-none font-soft-25 italic"><?php echo esc_html(get_the_title()); ?></h1>
 		<span class="opacity-75 text-sm"><?php echo esc_html(get_the_date()); ?></span>
 	</div>

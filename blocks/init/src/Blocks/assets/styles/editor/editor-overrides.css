@@ -11,5 +11,5 @@
 }
 
 .editor-styles-wrapper.block-editor-writing-flow {
-	@apply p-0;
+	@apply p-0 font-sans;
 }
