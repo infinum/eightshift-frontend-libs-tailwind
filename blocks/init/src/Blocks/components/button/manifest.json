@@ -222,49 +222,49 @@
 					"buttonColor": "navy-100",
 					"buttonVariant": "secondary"
 				},
-				"twClasses": "text-navy-100 border-navy-100 focus-visible:ring-navy-500/30 hover:bg-navy-50"
+				"twClasses": "text-navy-100 border-navy-100 focus-visible:ring-navy-500/30 hover:bg-navy-100 hover:text-navy-950"
 			},
 			{
 				"attributes": {
 					"buttonColor": "navy-800",
 					"buttonVariant": "secondary"
 				},
-				"twClasses": "text-navy-800 border-navy-800 focus-visible:ring-navy-500/30 hover:bg-navy-50"
+				"twClasses": "text-navy-800 border-navy-800 focus-visible:ring-navy-500/30 hover:bg-navy-800 hover:text-navy-50"
 			},
 			{
 				"attributes": {
 					"buttonColor": "red-100",
 					"buttonVariant": "secondary"
 				},
-				"twClasses": "text-red-100 border-red-100 focus-visible:ring-red-500/30 hover:bg-red-50"
+				"twClasses": "text-red-100 border-red-100 focus-visible:ring-red-500/30 hover:bg-red-100 hover:text-red-950"
 			},
 			{
 				"attributes": {
 					"buttonColor": "red-800",
 					"buttonVariant": "secondary"
 				},
-				"twClasses": "text-red-800 border-red-800 focus-visible:ring-red-500/30 hover:bg-red-50"
+				"twClasses": "text-red-800 border-red-800 focus-visible:ring-red-500/30 hover:bg-red-800 hover:text-red-50"
 			},
 			{
 				"attributes": {
 					"buttonColor": "gray-100",
 					"buttonVariant": "secondary"
 				},
-				"twClasses": "text-gray-100 border-gray-100 focus-visible:ring-gray-500/30 hover:bg-gray-50"
+				"twClasses": "text-gray-100 border-gray-100 focus-visible:ring-gray-500/30 hover:bg-gray-100 hover:text-gray-950"
 			},
 			{
 				"attributes": {
 					"buttonColor": "gray-500",
 					"buttonVariant": "secondary"
 				},
-				"twClasses": "text-gray-500 border-gray-500 focus-visible:ring-gray-500/30 hover:bg-gray-50"
+				"twClasses": "text-gray-500 border-gray-500 focus-visible:ring-gray-500/30 hover:bg-gray-500 hover:text-white"
 			},
 			{
 				"attributes": {
 					"buttonColor": "gray-800",
 					"buttonVariant": "secondary"
 				},
-				"twClasses": "text-gray-800 border-gray-800 focus-visible:ring-gray-500/30"
+				"twClasses": "text-gray-800 border-gray-800 focus-visible:ring-gray-500/30 hover:bg-gray-800 hover:text-gray-50"
 			},
 			{
 				"attributes": {
@@ -278,7 +278,7 @@
 					"buttonColor": "white",
 					"buttonVariant": "link"
 				},
-				"twClasses": "text-gray-50 decoration-gray-100 hover:bg-gray-100 focus-visible:ring-gray-500/30 hover:ring-gray-100"
+				"twClasses": "text-gray-50 decoration-gray-100 hover:bg-gray-100 focus-visible:ring-gray-500/30 hover:ring-gray-100 hover:text-gray-950 hover:decoration-gray-400"
 			},
 			{
 				"attributes": {

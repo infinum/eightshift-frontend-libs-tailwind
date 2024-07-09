@@ -4,6 +4,7 @@ import manifest from '../manifest.json';
 
 export const LoadMoreOptions = (attributes) => {
 	const { setAttributes, label, noUseToggle, controlOnly } = attributes;
+
 	return (
 		<ButtonOptions
 			label={label ?? manifest.title}

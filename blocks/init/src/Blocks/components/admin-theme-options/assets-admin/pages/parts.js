@@ -6,6 +6,7 @@ import { EsThemeOptionsContext } from '@eightshift/frontend-libs-tailwind/script
 
 export const Parts = ({ patterns }) => {
 	const { settings, updateSettings, isLoading } = useContext(EsThemeOptionsContext);
+
 	return (
 		<OptionsPanel>
 			<OptionsPanelSection>

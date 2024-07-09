@@ -10,6 +10,7 @@ export const transforms = {
 			blocks: [`${globalManifest.namespace}/${manifestHeading.blockName}`],
 			transform: (attributes) => {
 				let paragraphAttributes = {};
+
 				for (const attribute in attributes) {
 					if (attribute.startsWith('block')) {
 						continue;

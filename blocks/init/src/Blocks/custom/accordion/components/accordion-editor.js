@@ -13,5 +13,10 @@ export const AccordionEditor = ({ clientId }) => {
 		),
 	});
 
-	return <div {...innerBlocksProps} className='space-y-0 *:!m-0' />;
+	return (
+		<div
+			{...innerBlocksProps}
+			className='space-y-0 *:!m-0'
+		/>
+	);
 };

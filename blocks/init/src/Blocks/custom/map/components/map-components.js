@@ -1,6 +1,3 @@
-/* eslint-disable consistent-return */
-/* eslint-disable react-hooks/exhaustive-deps */
-
 import React, { createContext, useRef, useState, useEffect, useContext } from 'react';
 import { Map as OLMap, View } from 'ol';
 import { OSM, Vector as VectorSource, VectorTile as VectorTileSource, XYZ, TileJSON } from 'ol/source';
@@ -140,6 +137,7 @@ export const MapLayer = (props) => {
 			}
 		};
 	}, [map]);
+
 	return null;
 };
 
@@ -177,6 +175,7 @@ export const MapInteraction = (props) => {
 			}
 		};
 	}, [map]);
+
 	return null;
 };
 
@@ -251,6 +250,7 @@ export const MapControl = (props) => {
 			}
 		};
 	}, [map]);
+
 	return null;
 };
 

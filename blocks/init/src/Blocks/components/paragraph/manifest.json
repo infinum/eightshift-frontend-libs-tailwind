@@ -59,23 +59,21 @@
 		]
 	},
 	"tailwind": {
-		"tailwind": {
-			"base": {
-				"twClasses": "font-sans [&>a]:underline font-synthesis-none"
+		"base": {
+			"twClasses": "font-sans [&>a]:underline font-synthesis-none"
+		},
+		"options": {
+			"paragraphSize": {
+				"twClasses": {
+					"sm": "text-sm",
+					"base": "~sm/md:~text-sm/base",
+					"md": "~sm/md:~text-lg/2xl",
+					"lg": "~sm/md:~text-xl/3xl"
+				}
 			},
-			"options": {
-				"paragraphSize": {
-					"twClasses": {
-						"sm": "text-sm",
-						"base": "~sm/md:~text-sm/base",
-						"md": "~sm/md:~text-lg/2xl",
-						"lg": "~sm/md:~text-xl/3xl"
-					}
-				},
-				"paragraphFontWeight": {
-					"twClasses": {
-						"700": "font-bold"
-					}
+			"paragraphFontWeight": {
+				"twClasses": {
+					"700": "font-bold"
 				}
 			}
 		}

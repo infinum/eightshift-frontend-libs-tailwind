@@ -84,7 +84,7 @@
 			"npm run lintStyle"
 		],
 		"*.js": [
-			"npm run lintJs --ignore-pattern node_modules"
+			"npm run lintJs"
 		],
 		"*.php": [
 			"composer test"

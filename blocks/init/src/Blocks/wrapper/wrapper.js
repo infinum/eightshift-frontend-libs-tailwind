@@ -4,10 +4,7 @@ import { WrapperOptions } from './components/wrapper-options';
 
 export const Wrapper = (props) => {
 	const {
-		props: {
-			setAttributes,
-			attributes,
-		},
+		props: { setAttributes, attributes },
 		children,
 	} = props;
 

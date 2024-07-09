@@ -19,7 +19,6 @@ export const CardOptions = (attributes) => {
 				options={getOption('cardAlign', attributes, manifest)}
 				onChange={(value) => setAttributes({ [getAttrKey('cardAlign', attributes, manifest)]: value })}
 				aria-label={__('Card align', '%g_textdomain%')}
-				itemProps={{ size: 'large' }}
 				noItemLabel
 			/>
 

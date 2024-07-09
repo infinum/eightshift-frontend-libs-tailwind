@@ -59,6 +59,7 @@ export class LoadMore {
 			// Disable 'Load more' button if something went wrong.
 			if (!received || !received?.success) {
 				this.element.disabled = true;
+
 				return;
 			}
 
@@ -126,8 +127,6 @@ export class LoadMore {
 		if (isNaN(param) || param < 1) {
 			return;
 		}
-
-		console.log({ param });
 
 		this.page = param;
 		this.loadFromQueryParam = true;

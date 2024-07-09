@@ -28,7 +28,7 @@ domReady(async () => {
 					activeElement = trigger;
 				}
 
-				const expanded = trigger.getAttribute('aria-expanded') === 'true' ?? false;
+				const expanded = (trigger.getAttribute('aria-expanded') ?? 'false') === 'true';
 				trigger.setAttribute('aria-expanded', !expanded);
 				target.hidden = expanded;
 			});

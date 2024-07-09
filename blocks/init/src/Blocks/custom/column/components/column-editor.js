@@ -9,7 +9,10 @@ export const ColumnEditor = ({ clientId }) => {
 
 	return (
 		<>
-			<div {...innerBlocksProps} className='contents *:!m-0' />
+			<div
+				{...innerBlocksProps}
+				className='contents *:!m-0'
+			/>
 			<BlockInserter
 				small
 				clientId={clientId}

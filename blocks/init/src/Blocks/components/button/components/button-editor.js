@@ -7,11 +7,7 @@ import manifest from './../manifest.json';
 export const ButtonEditor = (attributes) => {
 	const { componentClass } = manifest;
 
-	const {
-		setAttributes,
-		additionalClass,
-		placeholder = __('Add content', '%g_textdomain%'),
-	} = attributes;
+	const { setAttributes, additionalClass, placeholder = __('Add content', '%g_textdomain%') } = attributes;
 
 	const buttonContent = checkAttr('buttonContent', attributes, manifest);
 	const buttonUse = checkAttr('buttonUse', attributes, manifest);
