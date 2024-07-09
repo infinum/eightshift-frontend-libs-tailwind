@@ -6,9 +6,9 @@ import { clsx } from '@eightshift/ui-components/utilities';
  *
  * The part needs to be defined within the manifest, in the `tailwind` object.
  *
- * @param {string} attributes - Part name.
+ * @param {string} part - Part name.
  * @param {Object<string, mixed>} manifest - Component/block manifest.
- * @param {...string?} custom - Custom classes to include in the ouptut.
+ * @param {...string?} custom - Custom classes to include in the output.
  *
  * @returns {string} Output classes.
  *
@@ -30,29 +30,36 @@ export const getTwPart = (part, manifest, ...custom) => {
 };
 
 /**
- * Get Tailwind classes from attributes and manifest.
+ * Gets Tailwind classes for the provided dynamic part.
  *
+ * The part needs to be defined within the manifest, in the `tailwind` object.
+ *
+ * @param {string} part - Part name.
  * @param {Object<string, mixed>} attributes - Current attribute value.
  * @param {Object<string, mixed>} manifest - Component/block manifest.
- * @param {...string?} custom - Custom classes to include in the ouptut.
+ * @param {...string?} custom - Custom classes to include in the output.
  *
- * @returns {string} Output classes
- *
- * @example
- * const classes = getTwClasses(attributes, manifest);
+ * @returns {string} Output classes.
  *
  * @example
- * const classes = getTwClasses(attributes, manifest, 'p-4 bg-gray-100');
+ * const classes = getTwPart('intro', manifest);
+ *
+ * @example
+ * const classes = getTwPart('intro', manifest, 'p-4 bg-gray-100');
  *
  */
-export const getTwClasses = (attributes, manifest, ...custom) => {
-	if (!attributes || !manifest || !manifest?.tailwind || Object.keys(manifest?.tailwind ?? {}).length === 0) {
+export const getTwDynamicPart = (part, attributes, manifest, ...custom) => {
+	if (!part || !manifest || !manifest?.tailwind || Object.keys(manifest?.tailwind ?? {}).length === 0) {
 		return '';
 	}
 
-	const baseClasses = manifest?.tailwind?.base?.twClassesEditor ?? manifest?.tailwind?.base?.twClasses ?? '';
+	const baseClasses = manifest?.tailwind?.parts?.[part]?.twClassesEditor ?? manifest?.tailwind?.parts?.[part]?.twClasses ?? '';
 
-	const mainClasses = Object.entries(manifest?.tailwind?.options ?? {}).reduce((current, [attributeName, { responsive, twClasses, twClassesEditor }]) => {
+	const mainClasses = Object.entries(manifest?.tailwind?.options ?? {}).reduce((current, [attributeName, { responsive, twClasses, twClassesEditor, part: partName }]) => {
+		if (partName !== part) {
+			return current;
+		}
+
 		const value = checkAttr(attributeName, attributes, manifest, true);
 
 		if (!value) {
@@ -84,25 +91,88 @@ export const getTwClasses = (attributes, manifest, ...custom) => {
 		return [...current, ...responsiveClasses];
 	}, []);
 
-	const combinationClasses = manifest?.tailwind?.combinations?.reduce((current, { attributes: conditions, twClasses, twClassesEditor }) => {
-		const conditionKeys = Object.keys(conditions);
+	return clsx(baseClasses, ...mainClasses, ...custom);
+};
 
-		for (const key of conditionKeys) {
-			const value = checkAttr(key, attributes, manifest, true);
+/**
+ * Get Tailwind classes from attributes and manifest.
+ *
+ * @param {Object<string, mixed>} attributes - Current attribute value.
+ * @param {Object<string, mixed>} manifest - Component/block manifest.
+ * @param {...string?} custom - Custom classes to include in the output.
+ *
+ * @returns {string} Output classes
+ *
+ * @example
+ * const classes = getTwClasses(attributes, manifest);
+ *
+ * @example
+ * const classes = getTwClasses(attributes, manifest, 'p-4 bg-gray-100');
+ *
+ */
+export const getTwClasses = (attributes, manifest, ...custom) => {
+	if (!attributes || !manifest || !manifest?.tailwind || Object.keys(manifest?.tailwind ?? {}).length === 0) {
+		return '';
+	}
 
-			const isArrayCondition = Array.isArray(conditions[key]);
+	const baseClasses = manifest?.tailwind?.base?.twClassesEditor ?? manifest?.tailwind?.base?.twClasses ?? '';
 
-			if (!value) {
-				return current;
-			} else if (isArrayCondition && !conditions[key].includes(value)) {
-				return current;
-			} else if (!isArrayCondition && value !== conditions[key]) {
-				return current;
-			}
+	const mainClasses = Object.entries(manifest?.tailwind?.options ?? {}).reduce((current, [attributeName, { responsive, twClasses, twClassesEditor, part: partName }]) => {
+		if (partName) {
+			return current;
 		}
 
-		return [...current, twClassesEditor ?? twClasses];
-	}, []) ?? [];
+		const value = checkAttr(attributeName, attributes, manifest, true);
+
+		if (!value) {
+			return current;
+		}
+
+		if (!responsive) {
+			return [...current, twClassesEditor?.[value] ?? twClasses?.[value]];
+		}
+
+		const responsiveClasses = Object.keys(value).reduce((curr, breakpoint) => {
+			if (breakpoint === '_desktopFirst') {
+				return curr;
+			}
+
+			const currentClasses = twClassesEditor?.[value[breakpoint]] ?? twClasses?.[value[breakpoint]];
+
+			if (breakpoint === '_default') {
+				return [...curr, currentClasses];
+			}
+
+			if (Array.isArray(currentClasses)) {
+				return [...curr, ...currentClasses.split(' ').map((currentClass) => `${breakpoint}:${currentClass}`)];
+			}
+
+			return [...curr, `${breakpoint}:${currentClasses}`];
+		}, []);
+
+		return [...current, ...responsiveClasses];
+	}, []);
+
+	const combinationClasses =
+		manifest?.tailwind?.combinations?.reduce((current, { attributes: conditions, twClasses, twClassesEditor }) => {
+			const conditionKeys = Object.keys(conditions);
+
+			for (const key of conditionKeys) {
+				const value = checkAttr(key, attributes, manifest, true);
+
+				const isArrayCondition = Array.isArray(conditions[key]);
+
+				if (!value) {
+					return current;
+				} else if (isArrayCondition && !conditions[key].includes(value)) {
+					return current;
+				} else if (!isArrayCondition && value !== conditions[key]) {
+					return current;
+				}
+			}
+
+			return [...current, twClassesEditor ?? twClasses];
+		}, []) ?? [];
 
 	return clsx(baseClasses, ...mainClasses, ...combinationClasses, ...custom);
 };
@@ -137,7 +207,7 @@ export const getTwClasses = (attributes, manifest, ...custom) => {
 export const processEightshiftClasses = (breakpoints) => ({
 	// Make sure to include all the custom ES classes from JSON manifests.
 	json: (rawContent) => {
-		if (!(rawContent.includes('tailwind'))) {
+		if (!rawContent.includes('tailwind')) {
 			return rawContent;
 		}
 
@@ -153,14 +223,18 @@ export const processEightshiftClasses = (breakpoints) => ({
 			combinedResults[key] = combined.join(' ');
 		}
 
-		const responsiveVars = combinedResults?.responsive?.split(' ')?.map((cls) => {
-			return breakpoints.reduce((curr, breakpoint) => `${curr} ${breakpoint}:${cls} max-${breakpoint}:${cls}`, cls)
-		})?.join(' ') ?? '';
+		const responsiveVars =
+			combinedResults?.responsive
+				?.split(' ')
+				?.map((cls) => {
+					return breakpoints.reduce((curr, breakpoint) => `${curr} ${breakpoint}:${cls} max-${breakpoint}:${cls}`, cls);
+				})
+				?.join(' ') ?? '';
 
 		const nonResponsiveVars = combinedResults?.regular ?? '';
 
 		return `${nonResponsiveVars} ${responsiveVars}`.trim();
-	}
+	},
 });
 
 /**
@@ -182,43 +256,50 @@ export const processEightshiftClasses = (breakpoints) => ({
  *
  */
 export const getScreens = (breakpointData, unit = 'rem') => {
-	return Object.entries(breakpointData ?? []).reduce((acc, [key, value]) => ({
-		...acc,
-		[key]: `${value}${unit}`,
-	}), {});
+	return Object.entries(breakpointData ?? []).reduce(
+		(acc, [key, value]) => ({
+			...acc,
+			[key]: `${value}${unit}`,
+		}),
+		{},
+	);
 };
 
 export const generateOptionsFromValue = (value, getLabel = (v) => v) => {
-	return Object.entries(value).filter(([breakpoint]) => breakpoint !== '_desktopFirst').map(([breakpoint, innerValue]) => ({
-		value: innerValue,
-		label: getLabel(innerValue, breakpoint),
-	}));
-}
+	return Object.entries(value)
+		.filter(([breakpoint]) => breakpoint !== '_desktopFirst')
+		.map(([breakpoint, innerValue]) => ({
+			value: innerValue,
+			label: getLabel(innerValue, breakpoint),
+		}));
+};
 
 // Utilities
 function* extractKeys(obj, parentKey = '', isResponsive = false) {
 	isResponsive = obj['responsive'] === true ? true : isResponsive;
-	let resultKey = isResponsive ? "responsive" : "regular";
+	let resultKey = isResponsive ? 'responsive' : 'regular';
 
 	for (let key in obj) {
 		let newKey = parentKey ? `${parentKey}.${key}` : key;
+
 		if (typeof obj[key] === 'object' && obj[key] !== null) {
 			yield* extractKeys(obj[key], newKey, isResponsive);
 		} else if (newKey.includes('twClasses')) {
 			if (typeof obj[key] === 'object') {
 				for (let subKey in obj[key]) {
-					yield {key: `${newKey}.${subKey}`, value: obj[key][subKey], responsive: resultKey};
+					yield { key: `${newKey}.${subKey}`, value: obj[key][subKey], responsive: resultKey };
 				}
 			} else {
-				yield {key: newKey, value: obj[key], responsive: resultKey};
+				yield { key: newKey, value: obj[key], responsive: resultKey };
 			}
 		}
 	}
 }
 
 const combineAndRemoveDuplicates = (results) => {
-	return results.reduce((acc, {key, value, responsive}) => {
+	return results.reduce((acc, { key, value, responsive }) => {
 		acc[responsive] = acc[responsive] ? `${acc[responsive]} ${value}` : value;
+
 		return acc;
 	}, {});
-}
+};

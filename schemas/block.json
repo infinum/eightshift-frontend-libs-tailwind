@@ -295,6 +295,10 @@
 					"additionalProperties": {
 						"type": "string"
 					}
+				},
+				"part": {
+					"type": "string",
+					"description": "Part to assign the class output to. If not specified, the classes are added to the base class."
 				}
 			}
 		}
