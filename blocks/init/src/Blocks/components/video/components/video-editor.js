@@ -34,8 +34,7 @@ export const VideoEditor = (attributes) => {
 										setAttributes({
 											[getAttrKey('videoId', attributes, manifest)]: id,
 											[getAttrKey('videoUrl', attributes, manifest)]: url,
-											[getAttrKey('videoMimeType', attributes, manifest)]:
-												typeof mime === 'undefined' ? mime_type : mime,
+											[getAttrKey('videoMimeType', attributes, manifest)]: typeof mime === 'undefined' ? mime_type : mime,
 										})
 									}
 									allowedTypes={['video/mp4', 'video/webm']}
@@ -48,8 +47,7 @@ export const VideoEditor = (attributes) => {
 										setAttributes({
 											[getAttrKey('videoId', attributes, manifest)]: id,
 											[getAttrKey('videoUrl', attributes, manifest)]: url,
-											[getAttrKey('videoMimeType', attributes, manifest)]:
-												typeof mime === 'undefined' ? mime_type : mime,
+											[getAttrKey('videoMimeType', attributes, manifest)]: typeof mime === 'undefined' ? mime_type : mime,
 										})
 									}
 									allowedTypes={['video/mp4', 'video/webm']}

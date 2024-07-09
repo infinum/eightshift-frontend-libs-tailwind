@@ -1,4 +1,3 @@
-/* eslint-disable react-hooks/exhaustive-deps */
 import { useCallback } from 'react';
 import { __ } from '@wordpress/i18n';
 import { RichText } from '@wordpress/block-editor';
@@ -78,6 +77,7 @@ export const LinkSectionEditor = (props) => {
 		(index = -1) => {
 			if (index < 0) {
 				onChange([...links, defaultSection]);
+
 				return;
 			}
 
@@ -95,6 +95,7 @@ export const LinkSectionEditor = (props) => {
 				updateItem(itemIndex, {
 					items: [defaultLink, ...items],
 				});
+
 				return;
 			}
 			const before = items.slice(0, index + 1);
@@ -254,7 +255,10 @@ export const LinkSectionEditor = (props) => {
 		<>
 			{links.map(({ items, header }, index) => {
 				return (
-					<div className={classNames?.sectionContainer} key={index}>
+					<div
+						className={classNames?.sectionContainer}
+						key={index}
+					>
 						<RichText
 							placeholder={__('Section', 'eightshift-frontend-libs')}
 							value={header}

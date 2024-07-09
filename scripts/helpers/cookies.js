@@ -21,7 +21,7 @@ export const cookies = {
 	 */
 	setCookie(key, value, time, path) {
 		const expires = new Date();
-		expires.setTime(expires.getTime() + (time));
+		expires.setTime(expires.getTime() + time);
 		let pathValue = '';
 
 		if (typeof path !== 'undefined') {
@@ -45,6 +45,7 @@ export const cookies = {
 	 */
 	getCookie(key) {
 		const keyValue = document.cookie.match(`(^|;) ?${key}=([^;]*)(;|$)`);
+
 		return keyValue ? keyValue[2] : null;
 	},
 	setHalfDay() {

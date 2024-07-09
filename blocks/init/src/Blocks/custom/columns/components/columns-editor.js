@@ -10,9 +10,7 @@ import manifest from './../manifest.json';
 export const ColumnsEditor = ({ attributes, setAttributes, clientId }) => {
 	const { title, layoutPresets } = manifest;
 
-	const innerBlockCount = useSelect(
-		(select) => select('core/block-editor').getBlock(clientId).innerBlocks?.length ?? 0,
-	);
+	const innerBlockCount = useSelect((select) => select('core/block-editor').getBlock(clientId).innerBlocks?.length ?? 0);
 
 	const blockProps = useBlockProps();
 	const innerBlocksProps = useInnerBlocksProps(blockProps, {
@@ -38,9 +36,7 @@ export const ColumnsEditor = ({ attributes, setAttributes, clientId }) => {
 							<Button
 								key={index}
 								onPress={async () => {
-									const blocksToInsert = blockData.map(({ name: blockName, attributes: blockAttrs }) =>
-										createBlock(blockName, blockAttrs),
-									);
+									const blocksToInsert = blockData.map(({ name: blockName, attributes: blockAttrs }) => createBlock(blockName, blockAttrs));
 
 									setAttributes(attrsToSet);
 

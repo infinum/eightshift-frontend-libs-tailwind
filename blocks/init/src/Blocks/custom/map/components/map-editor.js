@@ -1,13 +1,5 @@
 import { checkAttr } from '@eightshift/frontend-libs-tailwind/scripts';
-import {
-	Interactions,
-	Layers,
-	MapInteraction,
-	OpenLayersMap,
-	Controls,
-	MapControl,
-	processMapLayer,
-} from './map-components';
+import { Interactions, Layers, MapInteraction, OpenLayersMap, Controls, MapControl, processMapLayer } from './map-components';
 import manifest from '../manifest.json';
 
 export const MapEditor = ({ attributes }) => {
@@ -25,9 +17,7 @@ export const MapEditor = ({ attributes }) => {
 			center={[mapCenterLon ?? 16.352532, mapCenterLat ?? 46.314045]}
 			zoom={mapZoom}
 		>
-			<Layers key={mapLayers.map(({ id, type }) => `${id}-${type}`).join(',')}>
-				{[...mapLayers].reverse().map((layer) => processMapLayer(layer))}
-			</Layers>
+			<Layers key={mapLayers.map(({ id, type }) => `${id}-${type}`).join(',')}>{[...mapLayers].reverse().map((layer) => processMapLayer(layer))}</Layers>
 
 			<Interactions>
 				<MapInteraction

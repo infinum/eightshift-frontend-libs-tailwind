@@ -63,8 +63,7 @@ export const yoastSeo = () => {
 					// Refreshing Yoast input.
 					YoastSEO.app.pluggable.refresh();
 				});
-			}, 50)
+			}, 50),
 		);
-	}
-	);
+	});
 };

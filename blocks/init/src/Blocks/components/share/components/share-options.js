@@ -1,14 +1,7 @@
 import { __ } from '@wordpress/i18n';
 import { checkAttr, getAttrKey, getHiddenOptions } from '@eightshift/frontend-libs-tailwind/scripts';
 import manifest from '../manifest.json';
-import {
-	ComponentToggle,
-	OptionSelect,
-	DraggableList,
-	DraggableListItem,
-	Spacer,
-	Switch,
-} from '@eightshift/ui-components';
+import { ComponentToggle, OptionSelect, DraggableList, DraggableListItem, Spacer, Switch } from '@eightshift/ui-components';
 import { icons, JsxSvg } from '@eightshift/ui-components/icons';
 
 export const ShareOptions = (attributes) => {
@@ -43,9 +36,7 @@ export const ShareOptions = (attributes) => {
 		},
 	];
 
-	const pickerSectionTitle = shareMode
-		? __('Share targets', '%g_textdomain%')
-		: __('Social networks', '%g_textdomain%');
+	const pickerSectionTitle = shareMode ? __('Share targets', '%g_textdomain%') : __('Social networks', '%g_textdomain%');
 
 	return (
 		<ComponentToggle

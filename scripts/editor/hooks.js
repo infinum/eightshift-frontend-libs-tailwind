@@ -39,6 +39,7 @@ export const blocksFilterHook = createHigherOrderComponent((BlockListBlock) => {
 				},
 			};
 		}
+
 		return <BlockListBlock {...updatedProps} />;
 	};
 }, 'blocksFilterHook');

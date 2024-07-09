@@ -23,15 +23,13 @@ import { clsx } from '@eightshift/ui-components/utilities';
  */
 export const ServerSideRender = (props) => {
 	const { block, attributes, className, ...rest } = props;
+
 	return (
 		<GutenbergSsr
 			{...rest}
 			block={block}
 			attributes={attributes}
-			className={clsx(
-				'es-uic-pointer-events-none es-uic-rounded-lg es-uic-border es-uic-border-dotted es-uic-border-gray-300 es-uic-p-2 es-uic-flow-root',
-				className,
-			)}
+			className={clsx('es-uic-pointer-events-none es-uic-rounded-lg es-uic-border es-uic-border-dotted es-uic-border-gray-300 es-uic-p-2 es-uic-flow-root', className)}
 		/>
 	);
 };

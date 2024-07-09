@@ -74,6 +74,7 @@ export const unlockPostEditing = (blockClientId, attributeKey) => {
 export const lockIfUndefined = (blockClientId, attributeKey, value) => {
 	if (typeof value === 'undefined' || value === null || value === '') {
 		lockPostEditing(blockClientId, attributeKey);
+
 		return;
 	}
 	unlockPostEditing(blockClientId, attributeKey);
@@ -104,36 +105,28 @@ export const lockIfUndefined = (blockClientId, attributeKey, value) => {
  *
  */
 export const GutenbergBlock = (props) => {
-	const {
-		options: OptionsComponent,
-		toolbar: ToolbarComponent,
-		editor: EditorComponent,
-		noOptionsContainer = false,
-		title,
-	} = props;
+	const { options: OptionsComponent, toolbar: ToolbarComponent, editor: EditorComponent, noOptionsContainer = false, title } = props;
 
 	return (
 		<>
-			{OptionsComponent &&
+			{OptionsComponent && (
 				<InspectorControls>
-					{!noOptionsContainer &&
+					{!noOptionsContainer && (
 						<ContainerPanel title={title ?? upperFirst(props?.attributes?.blockName)}>
 							<OptionsComponent {...props} />
 						</ContainerPanel>
-					}
+					)}
 					{noOptionsContainer && <OptionsComponent {...props} />}
 				</InspectorControls>
-			}
+			)}
 
-			{ToolbarComponent &&
+			{ToolbarComponent && (
 				<BlockControls>
 					<ToolbarComponent {...props} />
 				</BlockControls>
-			}
+			)}
 
-			{EditorComponent &&
-				<EditorComponent {...props} />
-			}
+			{EditorComponent && <EditorComponent {...props} />}
 		</>
 	);
 };

@@ -34,10 +34,7 @@ export const overrideInnerBlockAttributes = (select, clientId, attributesObject 
 	const block = getBlock(clientId);
 
 	block.innerBlocks.map((item) => {
-		const {
-			attributes,
-			name,
-		} = item;
+		const { attributes, name } = item;
 
 		if (!exclude.includes(name)) {
 			for (const attribute in attributesObject) {
@@ -78,7 +75,7 @@ export const overrideInnerBlockAttributes = (select, clientId, attributesObject 
  *       "type": "boolean"
  *     },
  *   },
-*    "buttonContent": {
+ *    "buttonContent": {
  *       "type": "string"
  *     },
  *   }
@@ -226,7 +223,6 @@ export const getAttrKey = (key, attributes, manifest) => {
  * Additional keys that are passed are defined in the includes array.
  */
 export const props = (newName, attributes, manual = {}) => {
-
 	const output = {};
 
 	// Check which attributes we need to include.
@@ -250,7 +246,7 @@ export const props = (newName, attributes, manual = {}) => {
 	const blockName = process.env.NODE_ENV === 'test' ? attributes.blockName.default : attributes.blockName;
 
 	// Populate prefix key for recursive checks of attribute names.
-	const prefix = (typeof attributes.prefix === 'undefined') ? camelCase(blockName) : attributes['prefix'];
+	const prefix = typeof attributes.prefix === 'undefined' ? camelCase(blockName) : attributes['prefix'];
 
 	// Set component prefix.
 	if (prefix === '') {
@@ -261,7 +257,6 @@ export const props = (newName, attributes, manual = {}) => {
 
 	// Iterate over attributes.
 	for (const [key, value] of Object.entries(attributes)) {
-
 		// Includes attributes from iteration.
 		if (includes.includes(key)) {
 			Object.assign(output, { [key]: value });
@@ -278,7 +273,6 @@ export const props = (newName, attributes, manual = {}) => {
 	if (!isEmpty(manual)) {
 		// Iterate manual attributes.
 		for (let [key, value] of Object.entries(manual)) {
-
 			// Includes attributes from iteration.
 			if (includes.includes(key)) {
 				Object.assign(output, { [key]: value });

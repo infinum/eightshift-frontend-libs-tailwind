@@ -15,8 +15,7 @@ export const CardEditor = (attributes) => {
 					additionalClass: {
 						image: getTwPart('image', manifest),
 						picture: getTwPart('imagePicture', manifest),
-						imagePlaceholder:
-							'!border-x-0 !border-t-0 !border-solid !w-full !h-auto aspect-3/2 [&_svg]:!size-12 border-b !rounded-none bg-gray-100 !border-b-gray-200',
+						imagePlaceholder: '!border-x-0 !border-t-0 !border-solid !w-full !h-auto aspect-3/2 [&_svg]:!size-12 border-b !rounded-none bg-gray-100 !border-b-gray-200',
 					},
 				})}
 			/>

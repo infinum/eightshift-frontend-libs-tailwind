@@ -1,10 +1,6 @@
 module.exports = {
-	plugins: [
-		'@stylistic/stylelint-plugin'
-	],
-	extends: [
-		'stylelint-config-standard',
-	],
+	plugins: ['@stylistic/stylelint-plugin'],
+	extends: ['stylelint-config-standard'],
 	rules: {
 		// Stylistic rules.
 		'@stylistic/indentation': 'tab',
@@ -69,13 +65,15 @@ module.exports = {
 
 		// Standard rules.
 		'comment-empty-line-before': [
-			'always', {
+			'always',
+			{
 				ignore: ['stylelint-commands', 'after-comment'],
 			},
 		],
 
 		'rule-empty-line-before': [
-			'always', {
+			'always',
+			{
 				except: ['first-nested'],
 				ignore: ['after-comment'],
 			},
@@ -112,13 +110,11 @@ module.exports = {
 		'declaration-block-no-duplicate-properties': true,
 		'declaration-block-no-shorthand-property-overrides': true,
 		'declaration-block-single-line-max-declarations': 1,
-		"declaration-block-no-redundant-longhand-properties": [
+		'declaration-block-no-redundant-longhand-properties': [
 			true,
 			{
-				"ignoreShorthands": [
-					"grid-template"
-				]
-			}
+				ignoreShorthands: ['grid-template'],
+			},
 		],
 
 		'block-no-empty': true,

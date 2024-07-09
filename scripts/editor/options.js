@@ -36,7 +36,6 @@ import { lowerFirst, camelCase } from '@eightshift/ui-components/utilities';
  * ```
  */
 export const getOption = (key, attributes, manifest, isColor = false) => {
-
 	// Check if there is prefix in the attributes object.
 	const options = attributes?.['options'] || {};
 
@@ -61,7 +60,6 @@ export const getOption = (key, attributes, manifest, isColor = false) => {
 
 	// Check the provided options overrides.
 	if (Object.prototype.hasOwnProperty.call(options, newKey)) {
-
 		// If color type use color output.
 		if (isColor) {
 			return getOptionColors(options[newKey]);
@@ -69,7 +67,7 @@ export const getOption = (key, attributes, manifest, isColor = false) => {
 
 		// Used for array of objects (selectControl options). If so check override by value key.
 		if (typeof componentOptions[key][0] === 'object') {
-			return componentOptions[key].filter((item) => options[newKey].includes((item.value)));
+			return componentOptions[key].filter((item) => options[newKey].includes(item.value));
 		}
 
 		// If array only user array value for check.
@@ -140,7 +138,7 @@ export const getOptions = (attributes = {}, manifest = {}) => {
 	const componentName = manifest['componentName'];
 
 	const output = {};
-	const prefix = (typeof attributes['prefix'] === 'undefined') ? '' : attributes['prefix'];
+	const prefix = typeof attributes['prefix'] === 'undefined' ? '' : attributes['prefix'];
 
 	for (const [key, value] of Object.entries(optionsManifest)) {
 		const newKey = key.replace(`${lowerFirst(camelCase(componentName))}`, '');
