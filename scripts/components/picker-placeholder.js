@@ -20,7 +20,7 @@ import { BlockInserter } from '@eightshift/frontend-libs-tailwind/scripts';
  * @param {string} props.clientId - Client ID of the block.
  * @param {object} [props.manifest] - Block/component manifest (if you don't want to provide title, presets, and block icon manually).
  * @param {boolean|JSX.Element} [props.inserter] - `true` if you want to show the default inserter, or a custom element.
- * @param {string} [props.presetsHeading='Common layouts'] - Heading for the presets section.
+ * @param {string} [props.presetsHeading] - Heading for the presets section.
  * @param {boolean} [props.hidden] - If `true`, the component is not rendered.
  *
  * @returns {JSX.Element} The PickerPlaceholder component.
