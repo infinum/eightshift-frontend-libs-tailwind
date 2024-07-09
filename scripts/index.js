@@ -1,8 +1,10 @@
 // Components.
 export { BlockInserter } from './components/block-inserter';
+export { LinkSectionEditor } from './components/link-section-editor';
 export { ManageFileButton, FileSelector } from './components/file-picker';
 export { MediaPicker } from './components/media-picker';
 export { ServerSideRender } from './components/server-side-render';
+export { PickerPlaceholder } from './components/picker-placeholder';
 export { ThemeOptionsPage, EsThemeOptionsContext } from './components/settings/settings';
 
 // Editor.
