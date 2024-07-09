@@ -34,7 +34,7 @@
 	"homepage": "https://github.com/infinum/eightshift-frontend-libs-tailwind#readme",
 	"license": "MIT",
 	"dependencies": {
-		"@eightshift/ui-components": "^1.2.1",
+		"@eightshift/ui-components": "^1.2.2",
 		"@stylistic/eslint-plugin-js": "^2.3.0",
 		"@stylistic/stylelint-plugin": "^2.1.2",
 		"@swc/core": "^1.6.13",
