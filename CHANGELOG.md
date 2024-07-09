@@ -14,6 +14,8 @@ This projects adheres to [Semantic Versioning](https://semver.org/) and [Keep a 
 - Removed `.gitignore` ESLint ignore.
 - Tweaked ESLint config.
 - Updated base blocks.
+- Added `hidden` prop to `BlockInserter`.
+- Added `PickerPlaceholder` component.
 
 ## [1.0.0] - 2024-06
 - Initial release.
