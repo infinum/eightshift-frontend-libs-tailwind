@@ -25,9 +25,9 @@ export const useThemeOptions = (settingName) => {
 				},
 			});
 
-			toast.success(__('Saved successfully', '%g_textdomain%'));
+			toast.success(__('Saved successfully', 'eightshift-frontend-libs-tailwind'));
 		} catch (error) {
-			toast.error(__('Something went wrong while saving', '%g_textdomain%'), {
+			toast.error(__('Something went wrong while saving', 'eightshift-frontend-libs-tailwind'), {
 				description: error.message,
 			});
 		} finally {

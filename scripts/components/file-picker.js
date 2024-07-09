@@ -43,19 +43,19 @@ export const ManageFileButton = (props) => {
 	const strings = {
 		file: {
 			buttonTooltip: {
-				browse: __('Select a file from Media library', '%g_textdomain%'),
-				upload: __('Upload a file', '%g_textdomain%'),
-				replace: __('Replace file', '%g_textdomain%'),
+				browse: __('Select a file from Media library', 'eightshift-frontend-libs-tailwind'),
+				upload: __('Upload a file', 'eightshift-frontend-libs-tailwind'),
+				replace: __('Replace file', 'eightshift-frontend-libs-tailwind'),
 			},
 			buttonLabel: {
-				browse: __('Select', '%g_textdomain%'),
-				upload: __('Upload', '%g_textdomain%'),
-				replace: __('Replace', '%g_textdomain%'),
+				browse: __('Select', 'eightshift-frontend-libs-tailwind'),
+				upload: __('Upload', 'eightshift-frontend-libs-tailwind'),
+				replace: __('Replace', 'eightshift-frontend-libs-tailwind'),
 			},
 			modalTitle: {
-				browse: __('Select a file', '%g_textdomain%'),
-				upload: __('Upload a file', '%g_textdomain%'),
-				replace: __('Select a new file', '%g_textdomain%'),
+				browse: __('Select a file', 'eightshift-frontend-libs-tailwind'),
+				upload: __('Upload a file', 'eightshift-frontend-libs-tailwind'),
+				replace: __('Select a new file', 'eightshift-frontend-libs-tailwind'),
 			},
 			buttonIcon: {
 				browse: icons.itemSelect,
@@ -65,50 +65,50 @@ export const ManageFileButton = (props) => {
 		},
 		video: {
 			buttonTooltip: {
-				browse: __('Select a video from Media library', '%g_textdomain%'),
-				upload: __('Upload a video', '%g_textdomain%'),
-				replace: __('Replace video', '%g_textdomain%'),
+				browse: __('Select a video from Media library', 'eightshift-frontend-libs-tailwind'),
+				upload: __('Upload a video', 'eightshift-frontend-libs-tailwind'),
+				replace: __('Replace video', 'eightshift-frontend-libs-tailwind'),
 			},
 			modalTitle: {
-				browse: __('Select a video', '%g_textdomain%'),
-				upload: __('Upload a video', '%g_textdomain%'),
-				replace: __('Select a new video', '%g_textdomain%'),
+				browse: __('Select a video', 'eightshift-frontend-libs-tailwind'),
+				upload: __('Upload a video', 'eightshift-frontend-libs-tailwind'),
+				replace: __('Select a new video', 'eightshift-frontend-libs-tailwind'),
 			},
 		},
 		image: {
 			buttonTooltip: {
-				browse: __('Select an image from Media library', '%g_textdomain%'),
-				upload: __('Upload an image', '%g_textdomain%'),
-				replace: __('Replace image', '%g_textdomain%'),
+				browse: __('Select an image from Media library', 'eightshift-frontend-libs-tailwind'),
+				upload: __('Upload an image', 'eightshift-frontend-libs-tailwind'),
+				replace: __('Replace image', 'eightshift-frontend-libs-tailwind'),
 			},
 			modalTitle: {
-				browse: __('Select an image', '%g_textdomain%'),
-				upload: __('Upload an image', '%g_textdomain%'),
-				replace: __('Select a new image', '%g_textdomain%'),
+				browse: __('Select an image', 'eightshift-frontend-libs-tailwind'),
+				upload: __('Upload an image', 'eightshift-frontend-libs-tailwind'),
+				replace: __('Select a new image', 'eightshift-frontend-libs-tailwind'),
 			},
 		},
 		subtitle: {
 			buttonTooltip: {
-				browse: __('Select a subtitle file', '%g_textdomain%'),
-				upload: __('Upload a subtitle file', '%g_textdomain%'),
-				replace: __('Replace subtitle file', '%g_textdomain%'),
+				browse: __('Select a subtitle file', 'eightshift-frontend-libs-tailwind'),
+				upload: __('Upload a subtitle file', 'eightshift-frontend-libs-tailwind'),
+				replace: __('Replace subtitle file', 'eightshift-frontend-libs-tailwind'),
 			},
 			modalTitle: {
-				browse: __('Select a subtitle file', '%g_textdomain%'),
-				upload: __('Upload a subtitle file', '%g_textdomain%'),
-				replace: __('Select a new subtitle file', '%g_textdomain%'),
+				browse: __('Select a subtitle file', 'eightshift-frontend-libs-tailwind'),
+				upload: __('Upload a subtitle file', 'eightshift-frontend-libs-tailwind'),
+				replace: __('Select a new subtitle file', 'eightshift-frontend-libs-tailwind'),
 			},
 		},
 		geoJson: {
 			buttonTooltip: {
-				browse: __('Select a GeoJSON file', '%g_textdomain%'),
-				upload: __('Upload a GeoJSON file', '%g_textdomain%'),
-				replace: __('Replace GeoJSON file', '%g_textdomain%'),
+				browse: __('Select a GeoJSON file', 'eightshift-frontend-libs-tailwind'),
+				upload: __('Upload a GeoJSON file', 'eightshift-frontend-libs-tailwind'),
+				replace: __('Replace GeoJSON file', 'eightshift-frontend-libs-tailwind'),
 			},
 			modalTitle: {
-				browse: __('Select a GeoJSON file', '%g_textdomain%'),
-				upload: __('Upload a GeoJSON file', '%g_textdomain%'),
-				replace: __('Select a new GeoJSON file', '%g_textdomain%'),
+				browse: __('Select a GeoJSON file', 'eightshift-frontend-libs-tailwind'),
+				upload: __('Upload a GeoJSON file', 'eightshift-frontend-libs-tailwind'),
+				replace: __('Select a new GeoJSON file', 'eightshift-frontend-libs-tailwind'),
 			},
 		},
 		custom: {
@@ -184,11 +184,11 @@ export const FileSelector = (props) => {
 	};
 
 	const removeTooltips = {
-		file: __('Remove file', '%g_textdomain%'),
-		image: __('Remove image', '%g_textdomain%'),
-		video: __('Remove video', '%g_textdomain%'),
-		subtitle: __('Remove subtitle file', '%g_textdomain%'),
-		geoJson: __('Remove GeoJSON file', '%g_textdomain%'),
+		file: __('Remove file', 'eightshift-frontend-libs-tailwind'),
+		image: __('Remove image', 'eightshift-frontend-libs-tailwind'),
+		video: __('Remove video', 'eightshift-frontend-libs-tailwind'),
+		subtitle: __('Remove subtitle file', 'eightshift-frontend-libs-tailwind'),
+		geoJson: __('Remove GeoJSON file', 'eightshift-frontend-libs-tailwind'),
 		custom: labels?.removeTooltip,
 	};
 
@@ -206,7 +206,10 @@ export const FileSelector = (props) => {
 				icon={fileIcons[kind] ?? icons.file}
 				fileName={fileName}
 			>
-				<HStack noWrap className='es-uic-pl-1'>
+				<HStack
+					noWrap
+					className='es-uic-pl-1'
+				>
 					<ManageFileButton {...commonManageFileButtonProps} />
 					{!noUpload && (
 						<ManageFileButton

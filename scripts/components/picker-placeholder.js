@@ -20,6 +20,7 @@ import { BlockInserter } from '@eightshift/frontend-libs-tailwind/scripts';
  * @param {string} props.clientId - Client ID of the block.
  * @param {object} [props.manifest] - Block/component manifest (if you don't want to provide title, presets, and block icon manually).
  * @param {boolean|JSX.Element} [props.inserter] - `true` if you want to show the default inserter, or a custom element.
+ * @param {string} [props.presetsHeading='Common layouts'] - Heading for the presets section.
  * @param {boolean} [props.hidden] - If `true`, the component is not rendered.
  *
  * @returns {JSX.Element} The PickerPlaceholder component.
@@ -30,7 +31,17 @@ import { BlockInserter } from '@eightshift/frontend-libs-tailwind/scripts';
  * @preserve
  */
 export const PickerPlaceholder = (props) => {
-	const { title: rawTitle, presets: rawPresets, blockIcon: rawBlockIcon, onChange, clientId, manifest, inserter, hidden } = props;
+	const {
+		title: rawTitle,
+		presets: rawPresets,
+		blockIcon: rawBlockIcon,
+		onChange,
+		clientId,
+		manifest,
+		inserter,
+		presetsHeading = __('Select a preset', 'eightshift-frontend-libs-tailwind'),
+		hidden,
+	} = props;
 
 	const title = rawTitle ?? manifest?.title;
 	const blockIcon = rawBlockIcon ?? manifest?.icon?.src;
@@ -56,7 +67,7 @@ export const PickerPlaceholder = (props) => {
 				className='col-span-2 mb-2 select-none font-medium !text-gray-400'
 			/>
 
-			<span className='es-uic-col-span-2 es-uic-select-none es-uic-justify-self-center'>{__('Common layouts', 'fe-libs-tailwind')}</span>
+			<span className='es-uic-col-span-2 es-uic-select-none es-uic-justify-self-center'>{presetsHeading}</span>
 
 			{presets.map(({ name, icon, blocks: blockData, attributes: attrsToSet }, index) => {
 				return (
