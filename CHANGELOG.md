@@ -16,6 +16,7 @@ This projects adheres to [Semantic Versioning](https://semver.org/) and [Keep a 
 - Updated base blocks.
 - Added `hidden` prop to `BlockInserter`.
 - Added `PickerPlaceholder` component.
+- Added option for dynamic parts and the `getTwDynamicPart` helper.
 
 ## [1.0.0] - 2024-06
 - Initial release.
