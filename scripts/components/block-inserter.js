@@ -15,6 +15,7 @@ import { clsx } from '@eightshift/ui-components/utilities';
  * @param {boolean} [props.small] - If `true`, the button's size is reduced, perfect for added visual separation in hierarchical InnerBlocks.
  * @param {string} [props.className] - Additional classes to add to the control base.
  * @param {boolean} [props.prioritizePatterns] - Whether to show patterns before blocks in the inserter.
+ * @param {boolean} [props.hidden] - If `true`, the component is not rendered.
  *
  * @returns {JSX.Element} The BlockInserter component.
  *
@@ -24,13 +25,11 @@ import { clsx } from '@eightshift/ui-components/utilities';
  * @preserve
  */
 export const BlockInserter = (props) => {
-	const {
-		clientId,
-		label,
-		small = false,
-		className,
-		prioritizePatterns = false,
-	} = props;
+	const { clientId, label, small = false, className, prioritizePatterns = false, hidden } = props;
+
+	if (hidden) {
+		return null;
+	}
 
 	return (
 		<Inserter
@@ -40,12 +39,7 @@ export const BlockInserter = (props) => {
 			isAppender
 			isQuick
 			renderToggle={(appenderProps) => {
-				const {
-					onToggle,
-					disabled,
-					hasSingleBlockType,
-					blockTitle,
-				} = appenderProps;
+				const { onToggle, disabled, hasSingleBlockType, blockTitle } = appenderProps;
 
 				let labelText = label;
 
@@ -63,7 +57,7 @@ export const BlockInserter = (props) => {
 					>
 						{labelText}
 					</Button>
-				)
+				);
 			}}
 		/>
 	);
