@@ -5,10 +5,28 @@
 	"foreground": "#0F766E",
 	"globalVariables": {
 		"breakpoints": {
-			"mobile": 27,
-			"tablet": 80,
-			"desktop": 90,
-			"large": 120
+			"sm": 40,
+			"md": 80,
+			"lg": 90,
+			"xl": 120
+		},
+		"breakpointData": {
+			"sm": {
+				"icon": "screenMobile",
+				"label": "Mobile"
+			},
+			"md": {
+				"icon": "screenTablet",
+				"label": "Tablet"
+			},
+			"lg": {
+				"icon": "screenDesktop",
+				"label": "Desktop"
+			},
+			"xl": {
+				"icon": "screenLarge",
+				"label": "Large"
+			}
 		}
 	}
 }
