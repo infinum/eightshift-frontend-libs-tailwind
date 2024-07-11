@@ -16,7 +16,7 @@ import apiFetch from '@wordpress/api-fetch';
  * @param {string} [options.fields='id,title'] - A comma-separated list of field names to fetch from the API. Good to include as it makes the query faster and the output terser.
  * @param {SearchColumnsConfig} [options.searchColumns] - Allows narrowing the search scope.
  * @param {boolean} [options.noUnescapeTitle] - If `true`, the post title will not unescape HTML entities.
- * @param {Number?} [options.truncateTitle=26] - If set, the title will be truncated to this length.
+ * @param {Number?} [options.truncateTitle=32] - If set, the title will be truncated to this length.
  *
  * @returns {Function} The `(searchText, [abortSignal]) => Promise` function.
  *
