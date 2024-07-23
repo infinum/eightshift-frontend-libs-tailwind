@@ -350,7 +350,7 @@
 			},
 			"wrapperGradientDirection": {
 				"twClasses": {
-					"to-t": "bg-gradient-to-r",
+					"to-t": "bg-gradient-to-t",
 					"to-tr": "bg-gradient-to-tr",
 					"to-r": "bg-gradient-to-r",
 					"to-br": "bg-gradient-to-br",
