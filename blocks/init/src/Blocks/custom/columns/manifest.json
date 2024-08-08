@@ -12,26 +12,57 @@
 	],
 	"example": {
 		"attributes": {
-			"columnsColumnGapLarge": 30,
-			"columnsRowGapLarge": 30
+			"columnsNumOfColumns": {
+				"_default": "2",
+				"_desktopFirst": true,
+				"max-sm": "1"
+			},
+			"wrapperBackground": "solid-gray-50",
+			"wrapperBorderRadius": "lg",
+			"wrapperPaddingTop": {
+				"_default": "md",
+				"_desktopFirst": true
+			},
+			"wrapperPaddingBottom": {
+				"_default": "md",
+				"_desktopFirst": true
+			}
 		},
 		"innerBlocks": [
 			{
 				"name": "eightshift-boilerplate/column",
 				"attributes": {
-					"columnWidthLarge": 4
+					"columnOffset": {
+						"_default": "1",
+						"_desktopFirst": true,
+						"max-sm": "1"
+					},
+					"columnWidth": {
+						"_default": "1",
+						"_desktopFirst": true,
+						"max-sm": "1"
+					},
+					"columnVerticalAlign": {
+						"_default": "center",
+						"_desktopFirst": true
+					}
 				},
 				"innerBlocks": [
 					{
-						"name": "eightshift-boilerplate/card",
+						"name": "eightshift-boilerplate/heading",
 						"attributes": {
-							"cardCardImageUrl": "https://picsum.photos/400/400",
-							"cardCardIntroContent": "Intro",
-							"cardCardIntroSize": "small",
-							"cardCardIntroColor": "light",
-							"cardCardHeadingContent": "Heading",
-							"cardCardParagraphContent": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nam aliquam est id semper aliquet.",
-							"cardCardButtonUse": false
+							"wrapperNoWidthControls": true,
+							"wrapperWidth": "none",
+							"headingHeadingContent": "Lorem ipsum",
+							"headingHeadingSize": "xl"
+						}
+					},
+					{
+						"name": "eightshift-boilerplate/paragraph",
+						"attributes": {
+							"wrapperNoWidthControls": true,
+							"wrapperWidth": "none",
+							"paragraphParagraphContent": "Dolor sit amet"
 						}
 					}
 				]
@@ -39,39 +70,34 @@
 			{
 				"name": "eightshift-boilerplate/column",
 				"attributes": {
-					"columnWidthLarge": 4
-				},
-				"innerBlocks": [
-					{
-						"name": "eightshift-boilerplate/card",
-						"attributes": {
-							"cardCardImageUrl": "https://picsum.photos/400/400",
-							"cardCardIntroContent": "Intro",
-							"cardCardIntroSize": "small",
-							"cardCardIntroColor": "light",
-							"cardCardHeadingContent": "Heading",
-							"cardCardParagraphContent": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nam aliquam est id semper aliquet.",
-							"cardCardButtonUse": false
-						}
+					"columnOffset": {
+						"_default": "2",
+						"_desktopFirst": true,
+						"max-sm": "1"
+					},
+					"columnWidth": {
+						"_default": "1",
+						"_desktopFirst": true,
+						"max-sm": "1"
+					},
+					"columnHorizontalAlign": {
+						"_default": "end",
+						"_desktopFirst": true
 					}
-				]
-			},
-			{
-				"name": "eightshift-boilerplate/column",
-				"attributes": {
-					"columnWidthLarge": 4
 				},
 				"innerBlocks": [
 					{
-						"name": "eightshift-boilerplate/card",
+						"name": "eightshift-boilerplate/image",
 						"attributes": {
-							"cardCardImageUrl": "https://picsum.photos/400/400",
-							"cardCardIntroContent": "Intro",
-							"cardCardIntroSize": "small",
-							"cardCardIntroColor": "light",
-							"cardCardHeadingContent": "Heading",
-							"cardCardParagraphContent": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nam aliquam est id semper aliquet.",
-							"cardCardButtonUse": false
+							"wrapperNoWidthControls": true,
+							"wrapperWidth": "none",
+							"imageImageData": {
+								"_desktopFirst": false,
+								"_default": {
+									"id": 245,
+									"url": "https://picsum.photos/id/17/400/400"
+								}
+							}
 						}
 					}
 				]
