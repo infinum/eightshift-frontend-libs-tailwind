@@ -2,7 +2,7 @@ import domReady from '@wordpress/dom-ready';
 import manifest from '../manifest.json';
 
 domReady(async () => {
-	const shareTargets = document.querySelectorAll(`.${manifest.componentJsClass}`);
+	const shareTargets = document.querySelectorAll(`.${manifest.componentJsClass}[data-mode='share']`);
 
 	if (shareTargets.length < 1) {
 		return;

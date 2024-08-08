@@ -22,9 +22,12 @@ $shareMode = Helpers::checkAttr('shareMode', $attributes, $manifest);
 $additionalClass = $attributes['additionalClass'] ?? '';
 
 ?>
-<div class="<?php echo esc_attr(Helpers::getTwPart('container', $manifest, $additionalClass)); ?>">
+<div
+	class="<?php echo esc_attr(Helpers::getTwPart('container', $manifest, $additionalClass, $manifest['componentJsClass'])); ?>"
+	data-mode="<?php echo esc_attr($shareMode); ?>"
+>
 	<?php
-	if ($shareMode) {
+	if ($shareMode === 'share') {
 		foreach ($shareTargets as $networkName) {
 			$shareUrl = $manifest['networks'][$networkName]['shareUrl'] ?? '';
 			$shareUrl = str_replace('POST_TITLE', get_the_title(), $shareUrl);
@@ -32,7 +35,7 @@ $additionalClass = $attributes['additionalClass'] ?? '';
 			$shareUrl = str_replace('POST_FEATURED_IMAGE', get_the_post_thumbnail_url(get_the_ID(), 'large'), $shareUrl);
 			?>
 			<button
-				class="<?php echo esc_attr(Helpers::getTwPart('icon', $manifest)); ?>"
+				class="<?php echo esc_attr(Helpers::getTwPart('icon', $manifest, "{$manifest['componentJsClass']}-link")); ?>"
 				data-network="<?php echo esc_attr($networkName); ?>"
 				data-share-url="<?php echo esc_url($shareUrl); ?>"
 				data-page-title="<?php echo esc_attr(get_the_title()); ?>"
@@ -44,7 +47,7 @@ $additionalClass = $attributes['additionalClass'] ?? '';
 				?>
 			</button>
 		<?php }
-	} else {
+	} elseif ($shareMode === 'links') {
 		foreach ($shareTargets as $networkName) {
 			?>
 			<a
