@@ -1,5 +1,5 @@
 import { __ } from '@wordpress/i18n';
-import { checkAttr, getAttrKey, getOption } from '@eightshift/frontend-libs-tailwind/scripts';
+import { checkAttr, getAttrKey, getHiddenOptions, getOption } from '@eightshift/frontend-libs-tailwind/scripts';
 import { BaseControl, ButtonGroup, ColorPicker, ContainerPanel, OptionSelect, Spacer, Responsive, InputField } from '@eightshift/ui-components';
 import { icons } from '@eightshift/ui-components/icons';
 import { clsx } from '@eightshift/ui-components/utilities';
@@ -30,7 +30,11 @@ export const WrapperOptions = ({ attributes, setAttributes }) => {
 
 	const wrapperId = checkAttr('wrapperId', attributes, manifest);
 
-	if (wrapperNoControls) {
+	const wrapperDisabledOptions = checkAttr('wrapperDisabledOptions', attributes, manifest);
+
+	const hiddenOptions = getHiddenOptions(wrapperDisabledOptions);
+
+	if (wrapperNoControls || wrapperDisabledOptions === 'all') {
 		return null;
 	}
 
@@ -79,7 +83,7 @@ export const WrapperOptions = ({ attributes, setAttributes }) => {
 				icon={icons.containerWidth}
 				label={__('Width', '%g_textdomain%')}
 				options={getOption('wrapperContentWidth', attributes, manifest)}
-				hidden={wrapperNoWidthControls}
+				hidden={wrapperNoWidthControls || hiddenOptions?.width}
 				noModeSelect
 				inline
 				{...responsiveData}
@@ -97,6 +101,7 @@ export const WrapperOptions = ({ attributes, setAttributes }) => {
 			<BaseControl
 				icon={icons.backgroundType}
 				label={__('Background', '%g_textdomain%')}
+				hidden={hiddenOptions?.background}
 				inline
 			>
 				<ButtonGroup>
@@ -114,6 +119,7 @@ export const WrapperOptions = ({ attributes, setAttributes }) => {
 						}}
 						aria-label={__('Background type', '%g_textdomain%')}
 						type='menu'
+						hidden={hiddenOptions?.backgroundType}
 						noItemIcon
 					/>
 
@@ -123,6 +129,7 @@ export const WrapperOptions = ({ attributes, setAttributes }) => {
 							onChange={(value) => setAttributes({ [getAttrKey('wrapperBackground', attributes, manifest)]: `solid-${value}` })}
 							value={wrapperBackground?.replace('solid-', '')}
 							aria-label={__('Background color', '%g_textdomain%')}
+							hidden={hiddenOptions?.backgroundType}
 						/>
 					)}
 					{backgroundType === 'gradient' && (
@@ -152,6 +159,7 @@ export const WrapperOptions = ({ attributes, setAttributes }) => {
 									),
 								}}
 								aria-label={__('Gradient style', '%g_textdomain%')}
+								hidden={hiddenOptions?.backgroundType}
 								noTriggerLabel
 								type='menu'
 							/>
@@ -163,6 +171,7 @@ export const WrapperOptions = ({ attributes, setAttributes }) => {
 									triggerIcon: <div className={rotationClassName[wrapperGradientDirection]}>{icons.arrowUpCircle}</div>,
 								}}
 								aria-label={__('Gradient angle', '%g_textdomain%')}
+								hidden={hiddenOptions?.backgroundType}
 								noTriggerLabel
 								type='menu'
 							/>
@@ -179,6 +188,7 @@ export const WrapperOptions = ({ attributes, setAttributes }) => {
 				options={getOption('wrapperBorderRadius', attributes, manifest)}
 				aria-label={__('Rounded corners', '%g_textdomain%')}
 				type='menu'
+				hidden={hiddenOptions?.roundedCorners}
 				inline
 			/>
 
@@ -199,6 +209,7 @@ export const WrapperOptions = ({ attributes, setAttributes }) => {
 				icon={icons.spacingTop}
 				label={__('Top margin', '%g_textdomain%')}
 				options={getOption('wrapperSpacing', attributes, manifest)}
+				hidden={hiddenOptions?.marginTop}
 				noModeSelect
 				inline
 				{...responsiveData}
@@ -223,6 +234,7 @@ export const WrapperOptions = ({ attributes, setAttributes }) => {
 				icon={icons.spacingBottom}
 				label={__('Bottom margin', '%g_textdomain%')}
 				options={getOption('wrapperSpacing', attributes, manifest)}
+				hidden={hiddenOptions?.marginBottom}
 				noModeSelect
 				inline
 				{...responsiveData}
@@ -249,6 +261,7 @@ export const WrapperOptions = ({ attributes, setAttributes }) => {
 				icon={icons.spacingTopIn}
 				label={__('Top padding', '%g_textdomain%')}
 				options={getOption('wrapperSpacing', attributes, manifest)}
+				hidden={hiddenOptions?.paddingTop}
 				noModeSelect
 				inline
 				{...responsiveData}
@@ -273,6 +286,7 @@ export const WrapperOptions = ({ attributes, setAttributes }) => {
 				icon={icons.spacingBottomIn}
 				label={__('Bottom padding', '%g_textdomain%')}
 				options={getOption('wrapperSpacing', attributes, manifest)}
+				hidden={hiddenOptions?.paddingBottom}
 				noModeSelect
 				inline
 				{...responsiveData}
@@ -304,6 +318,7 @@ export const WrapperOptions = ({ attributes, setAttributes }) => {
 				icon={icons.visibility}
 				label={__('Visibility', '%g_textdomain%')}
 				options={getOption('wrapperHide', attributes, manifest)}
+				hidden={hiddenOptions?.hide}
 				noModeSelect
 				inline
 				{...responsiveData}
@@ -327,6 +342,7 @@ export const WrapperOptions = ({ attributes, setAttributes }) => {
 				value={wrapperId}
 				onChange={(value) => setAttributes({ [getAttrKey('wrapperId', attributes, manifest)]: value })}
 				className='es-uic-font-mono'
+				hidden={hiddenOptions?.id}
 			/>
 		</ContainerPanel>
 	);
