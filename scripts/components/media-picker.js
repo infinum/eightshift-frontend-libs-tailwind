@@ -2,14 +2,13 @@ import React from 'react';
 import { __ } from '@wordpress/i18n';
 import { Button, HStack, ImagePlaceholder } from '@eightshift/ui-components';
 import { icons } from '@eightshift/ui-components/icons';
-import { ManageFileButton } from '@eightshift/frontend-libs-tailwind/scripts/components/file-picker';
+import { ManageFileButton } from './file-picker';
 
 const MediaButton = (props) => {
 	return (
 		<ManageFileButton
 			{...props}
 			kind='image'
-			allowedTypes={['image']}
 		/>
 	);
 };
@@ -19,13 +18,16 @@ const MediaButton = (props) => {
  *
  * @component
  * @param {Object} props - Component props.
- * @property {Function} props.onChange - The function that handles the change event.
- * @property {string} props.imageId - ID of the currently selected image. Used to mark the currently selected item when replacing the image.
- * @property {string} props.imageAlt - Alt text of the currently selected image.
- * @property {string} props.imageUrl - URL of the currently selected image.
- * @property {boolean} [props.noDelete] - If `true`, the delete button will be hidden.
- * @property {boolean} [props.noUpload] - If `true`, the upload button will be hidden.
+ * @param {Function} props.onChange - The function that handles the change event.
+ * @param {string} props.imageId - ID of the currently selected image. Used to mark the currently selected item when replacing the image.
+ * @param {string} props.imageAlt - Alt text of the currently selected image.
+ * @param {string} props.imageUrl - URL of the currently selected image.
+ * @param {boolean} [props.noDelete] - If `true`, the delete button will be hidden.
+ * @param {boolean} [props.noUpload] - If `true`, the upload button will be hidden.
  * @param {ImagePlaceholderImageMode} [props.imageMode='cover'] - Determines inner image display mode.
+ * @param {boolean} [props.hidden] - If `true`, the component will be hidden.
+ * @param {string[]} [props.allowedTypes=['image']] - Determines types of files which are allowed to be uploaded.
+ * @param {string} [props.className] - Classes to add to the button wrapper.
  *
  * @returns {JSX.Element} The MediaPicker component.
  *
@@ -41,10 +43,17 @@ const MediaButton = (props) => {
  *
  */
 export const MediaPicker = (props) => {
-	const { onChange, imageId, imageAlt, imageUrl, noDelete, noUpload, imageMode } = props;
+	const { onChange, imageId, imageAlt, imageUrl, noDelete, noUpload, imageMode, hidden, allowedTypes = ['image'], className } = props;
+
+	if (hidden) {
+		return null;
+	}
 
 	return (
-		<HStack noWrap>
+		<HStack
+			className={className}
+			noWrap
+		>
 			<ImagePlaceholder
 				url={imageUrl}
 				alt={imageAlt}
@@ -53,11 +62,15 @@ export const MediaPicker = (props) => {
 
 			{!imageUrl && (
 				<>
-					<MediaButton onChange={onChange} />
+					<MediaButton
+						onChange={onChange}
+						allowedTypes={allowedTypes}
+					/>
 					{!noUpload && (
 						<MediaButton
 							onChange={onChange}
 							type='upload'
+							allowedTypes={allowedTypes}
 							compact
 						/>
 					)}
@@ -70,6 +83,7 @@ export const MediaPicker = (props) => {
 						type='replace'
 						onChange={onChange}
 						imageId={imageId}
+						allowedTypes={allowedTypes}
 					/>
 					{!noDelete && (
 						<Button
