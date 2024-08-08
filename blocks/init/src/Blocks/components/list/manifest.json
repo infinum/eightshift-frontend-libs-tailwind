@@ -91,7 +91,7 @@
 	},
 	"tailwind": {
 		"base": {
-			"twClasses": "font-sans [&>a]:underline font-synthesis-none",
+			"twClasses": "font-sans [&_a]:underline font-synthesis-none",
 			"twClassesEditor": "font-sans [&>a]:underline font-synthesis-none"
 		},
 		"options": {
