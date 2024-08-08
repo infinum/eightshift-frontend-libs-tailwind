@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 This projects adheres to [Semantic Versioning](https://semver.org/) and [Keep a CHANGELOG](https://keepachangelog.com/).
 
+## [1.2.0] - 2024-08-08
+- Fixed default `perPage` param in `wpSearchRoute`.
+- Updated image and file pickers with support for `hidden` prop and accepted types passthrough.
+- Fixed some reported bugs in a couple of built-in blocks.
+- Updated dependencies.
+
 ## [1.1.1] - 2024-07-11
 - Fixed default global manifest.
 - Removed erroneous styles.
@@ -22,11 +28,12 @@ This projects adheres to [Semantic Versioning](https://semver.org/) and [Keep a 
 - Added `PickerPlaceholder` component.
 - Added option for dynamic parts and the `getTwDynamicPart` helper.
 
-## [1.0.0] - 2024-06
+## [1.0.0] - 2024-06-17
 - Initial release.
 
 [Unreleased]: https://github.com/infinum/eightshift-frontend-libs-tailwind/compare/master...HEAD
 
+[1.2.0]: https://github.com/infinum/eightshift-frontend-libs-tailwind/compare/1.1.1...1.2.0
 [1.1.1]: https://github.com/infinum/eightshift-frontend-libs-tailwind/compare/1.1.0...1.1.1
 [1.1.0]: https://github.com/infinum/eightshift-frontend-libs-tailwind/compare/1.0.0...1.1.0
 [1.0.0]: https://github.com/infinum/eightshift-frontend-libs-tailwind/compare/0.0.1...1.0.0
