@@ -58,7 +58,7 @@ export const VideoOptions = (attributes) => {
 				}
 				fileId={videoId}
 				fileName={videoUrl?.slice(videoUrl?.lastIndexOf('/') + 1)}
-				allowedTypes={['video/mp4', 'video/webm']}
+				allowedTypes={manifest.allowedTypes}
 				kind='video'
 			/>
 

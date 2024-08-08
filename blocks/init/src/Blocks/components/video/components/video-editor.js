@@ -37,7 +37,7 @@ export const VideoEditor = (attributes) => {
 											[getAttrKey('videoMimeType', attributes, manifest)]: typeof mime === 'undefined' ? mime_type : mime,
 										})
 									}
-									allowedTypes={['video/mp4', 'video/webm']}
+									allowedTypes={manifest.allowedTypes}
 									kind='video'
 								/>
 

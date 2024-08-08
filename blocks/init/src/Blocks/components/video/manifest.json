@@ -112,5 +112,9 @@
 				"twClasses": "aspect-video w-full rounded-xl border border-gray-800 bg-gradient-to-br from-gray-800 to-black shadow-md"
 			}
 		}
-	}
+	},
+	"allowedTypes": [
+		"video/mp4",
+		"video/webm"
+	]
 }
