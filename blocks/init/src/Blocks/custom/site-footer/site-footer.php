@@ -61,9 +61,11 @@ $logoAlt = get_post_meta($siteFooterLogoId, '_wp_attachment_image_alt', true) ??
 	</div>
 
 	<div class="<?php echo esc_attr(Helpers::getTwPart('bottomContainer', $manifest)); ?>">
-		<span class="<?php echo esc_attr(Helpers::getTwPart('copyright', $manifest)); ?>">
-			&copy; <?php echo esc_attr($siteFooterCopyright); ?>
-		</span>
+		<?php if (!empty($siteFooterCopyright)) { ?>
+			<span class="<?php echo esc_attr(Helpers::getTwPart('copyright', $manifest)); ?>">
+				&copy; <?php echo esc_attr($siteFooterCopyright); ?>
+			</span>
+		<?php } ?>
 
 		<?php
 		echo Helpers::render('share', Helpers::props('share', $attributes));
