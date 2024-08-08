@@ -27,7 +27,13 @@ $buttonContent = Helpers::checkAttr('buttonContent', $attributes, $manifest);
 
 $buttonAriaLabel = Helpers::checkAttr('buttonAriaLabel', $attributes, $manifest);
 
+$buttonIconUse = Helpers::checkAttr('buttonIconUse', $attributes, $manifest);
+
 $buttonAttrs = [];
+
+if (!$buttonIconUse && empty($buttonContent)) {
+	return;
+}
 
 if (!empty($additionalAttributes)) {
 	$buttonAttrs = $additionalAttributes;
