@@ -34,7 +34,7 @@ export const ParagraphEditor = (attributes) => {
 			onMerge={mergeBlocks}
 			onReplace={onReplace}
 			onRemove={onRemove}
-			deleteEnter={true}
+			deleteEnter
 		/>
 	);
 };
