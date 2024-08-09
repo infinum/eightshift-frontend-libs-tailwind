@@ -1,7 +1,25 @@
 import { __ } from '@wordpress/i18n';
-import { getOption, checkAttr, getAttrKey, props, getOptions, wpSearchRoute, getHiddenOptions } from '@eightshift/frontend-libs-tailwind/scripts';
+import {
+	getOption,
+	checkAttr,
+	getAttrKey,
+	props,
+	getOptions,
+	wpSearchRoute,
+	getHiddenOptions,
+} from '@eightshift/frontend-libs-tailwind/scripts';
 import { IconOptions } from '../../icon/components/icon-options';
-import { ButtonGroup, ColorPicker, ComponentToggle, HStack, InputField, LinkInput, OptionSelect, Spacer, Toggle } from '@eightshift/ui-components';
+import {
+	ButtonGroup,
+	ColorPicker,
+	ComponentToggle,
+	HStack,
+	InputField,
+	LinkInput,
+	OptionSelect,
+	Spacer,
+	Toggle,
+} from '@eightshift/ui-components';
 import { icons } from '@eightshift/ui-components/icons';
 import { upperFirst } from '@eightshift/ui-components/utilities';
 import manifest from './../manifest.json';
@@ -31,7 +49,7 @@ export const ButtonOptions = (attributes) => {
 			<HStack hidden={hiddenOptions?.variant && hiddenOptions?.color && hiddenOptions?.icon}>
 				<ButtonGroup hidden={hiddenOptions?.variant && hiddenOptions?.color}>
 					<OptionSelect
-						aria-label={__('Style', '%g_textdomain%')}
+						aria-label={__('Style', 'ericsson')}
 						value={buttonVariant}
 						onChange={(value) => setAttributes({ [getAttrKey('buttonVariant', attributes, manifest)]: value })}
 						options={getOption('buttonVariant', attributes, manifest)}
@@ -40,7 +58,7 @@ export const ButtonOptions = (attributes) => {
 					/>
 
 					<ColorPicker
-						aria-label={__('Color', '%g_textdomain%')}
+						aria-label={__('Color', 'ericsson')}
 						value={buttonColor}
 						onChange={(value) => setAttributes({ [getAttrKey('buttonColor', attributes, manifest)]: value })}
 						colors={getOption(`buttonColor${upperFirst(buttonVariant)}`, attributes, manifest, true)}
@@ -75,7 +93,7 @@ export const ButtonOptions = (attributes) => {
 
 			<Toggle
 				icon={icons.newTab}
-				label={__('Open in new tab', '%g_textdomain%')}
+				label={__('Open in new tab', 'ericsson')}
 				checked={buttonIsNewTab}
 				onChange={(value) => setAttributes({ [getAttrKey('buttonIsNewTab', attributes, manifest)]: value })}
 				hidden={hiddenOptions?.link || hiddenOptions?.newTab}
@@ -84,29 +102,29 @@ export const ButtonOptions = (attributes) => {
 			<Spacer hidden={hiddenOptions?.ariaLabel} />
 			<Spacer
 				icon={icons.a11y}
-				text={__('Accessibility', '%g_textdomain%')}
+				text={__('Accessibility', 'ericsson')}
 				border
 				hidden={hiddenOptions?.ariaLabel}
 			/>
 			<InputField
 				icon={icons.ariaLabel}
-				label={__('ARIA label', '%g_textdomain%')}
+				label={__('ARIA label', 'ericsson')}
 				value={buttonAriaLabel}
 				onChange={(value) => setAttributes({ [getAttrKey('buttonAriaLabel', attributes, manifest)]: value })}
-				help={__('Description of the button.', '%g_textdomain%')}
+				help={__('Description of the button.', 'ericsson')}
 				hidden={hiddenOptions?.ariaLabel}
 			/>
 
 			<Spacer hidden={hiddenOptions?.uniqueId} />
 			<Spacer
 				icon={icons.pointerHand}
-				text={__('Advanced', '%g_textdomain%')}
+				text={__('Advanced', 'ericsson')}
 				border
 				hidden={hiddenOptions?.uniqueId}
 			/>
 			<InputField
 				icon={icons.id}
-				label={__('Unique identifier', '%g_textdomain%')}
+				label={__('Unique identifier', 'ericsson')}
 				value={buttonId}
 				onChange={(value) => setAttributes({ [getAttrKey('buttonId', attributes, manifest)]: value })}
 				hidden={hiddenOptions?.uniqueId}
