@@ -4,4 +4,4 @@
 
 import { dynamicImport } from '@eightshift/frontend-libs-tailwind/scripts/helpers';
 
-dynamicImport(require.context('./../../src/blocks/components', true, /assets-admin\/index\.js$/));
+dynamicImport(require.context('./../../src/Blocks/components', true, /assets-admin\/index\.js$/));
