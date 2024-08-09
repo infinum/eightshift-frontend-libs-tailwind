@@ -43,7 +43,7 @@ export const ImageOptions = (attributes) => {
 				options={generateOptionsFromValue(imageData, (v) =>
 					truncateMiddle(
 						v?.url?.replace(window.location.origin, '')?.replace(/\/wp-content\/uploads\/\d{4}\/\d{2}\//g, '') ??
-							__('Not set', 'ericsson'),
+							__('Not set', '%g_textdomain%'),
 						15,
 					),
 				)}
@@ -64,7 +64,7 @@ export const ImageOptions = (attributes) => {
 
 			<OptionSelect
 				icon={icons.roundedCorners}
-				label={__('Rounded corners', 'ericsson')}
+				label={__('Rounded corners', '%g_textdomain%')}
 				options={getOption('imageRoundedCorners', attributes, manifest)}
 				value={imageRoundedCorners}
 				onChange={(value) =>
@@ -81,7 +81,7 @@ export const ImageOptions = (attributes) => {
 
 			<OptionSelect
 				icon={icons.aspectRatio}
-				label={__('Aspect ratio', 'ericsson')}
+				label={__('Aspect ratio', '%g_textdomain%')}
 				options={getOption('imageAspectRatio', attributes, manifest)}
 				value={imageAspectRatio}
 				onChange={(value) =>
@@ -96,7 +96,7 @@ export const ImageOptions = (attributes) => {
 
 			<Toggle
 				icon={icons.expandXl}
-				label={__('Stretch', 'ericsson')}
+				label={__('Stretch', '%g_textdomain%')}
 				checked={imageSize === 'stretch'}
 				onChange={(value) =>
 					setAttributes({ [getAttrKey('imageSize', attributes, manifest)]: value ? 'stretch' : 'default' })

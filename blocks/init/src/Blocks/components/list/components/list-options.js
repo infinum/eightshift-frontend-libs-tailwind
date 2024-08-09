@@ -27,7 +27,7 @@ export const ListOptions = (attributes) => {
 					options={getOption('listSize', attributes, manifest)}
 					onChange={(value) => setAttributes({ [getAttrKey('listSize', attributes, manifest)]: value })}
 					value={listSize}
-					aria-label={__('Font size', 'ericsson')}
+					aria-label={__('Font size', '%g_textdomain%')}
 					hidden={hiddenOptions.size}
 					type='menu'
 				/>
@@ -38,7 +38,7 @@ export const ListOptions = (attributes) => {
 					onChange={(value) =>
 						setAttributes({ [getAttrKey('listFontWeight', attributes, manifest)]: value ? '700' : '400' })
 					}
-					tooltip={__('Bold', 'ericsson')}
+					tooltip={__('Bold', '%g_textdomain%')}
 					hidden={hiddenOptions.weight}
 				/>
 
@@ -50,7 +50,7 @@ export const ListOptions = (attributes) => {
 							[getAttrKey('listType', attributes, manifest)]: value === 'decimal' ? 'ol' : 'ul',
 						})
 					}
-					aria-label={__('List style', 'ericsson')}
+					aria-label={__('List style', '%g_textdomain%')}
 					options={getOption('listStyle', attributes, manifest)}
 					noItemLabel
 				/>

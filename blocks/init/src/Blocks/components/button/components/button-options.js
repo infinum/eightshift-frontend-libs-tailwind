@@ -49,7 +49,7 @@ export const ButtonOptions = (attributes) => {
 			<HStack hidden={hiddenOptions?.variant && hiddenOptions?.color && hiddenOptions?.icon}>
 				<ButtonGroup hidden={hiddenOptions?.variant && hiddenOptions?.color}>
 					<OptionSelect
-						aria-label={__('Style', 'ericsson')}
+						aria-label={__('Style', '%g_textdomain%')}
 						value={buttonVariant}
 						onChange={(value) => setAttributes({ [getAttrKey('buttonVariant', attributes, manifest)]: value })}
 						options={getOption('buttonVariant', attributes, manifest)}
@@ -58,7 +58,7 @@ export const ButtonOptions = (attributes) => {
 					/>
 
 					<ColorPicker
-						aria-label={__('Color', 'ericsson')}
+						aria-label={__('Color', '%g_textdomain%')}
 						value={buttonColor}
 						onChange={(value) => setAttributes({ [getAttrKey('buttonColor', attributes, manifest)]: value })}
 						colors={getOption(`buttonColor${upperFirst(buttonVariant)}`, attributes, manifest, true)}
@@ -93,7 +93,7 @@ export const ButtonOptions = (attributes) => {
 
 			<Toggle
 				icon={icons.newTab}
-				label={__('Open in new tab', 'ericsson')}
+				label={__('Open in new tab', '%g_textdomain%')}
 				checked={buttonIsNewTab}
 				onChange={(value) => setAttributes({ [getAttrKey('buttonIsNewTab', attributes, manifest)]: value })}
 				hidden={hiddenOptions?.link || hiddenOptions?.newTab}
@@ -102,29 +102,29 @@ export const ButtonOptions = (attributes) => {
 			<Spacer hidden={hiddenOptions?.ariaLabel} />
 			<Spacer
 				icon={icons.a11y}
-				text={__('Accessibility', 'ericsson')}
+				text={__('Accessibility', '%g_textdomain%')}
 				border
 				hidden={hiddenOptions?.ariaLabel}
 			/>
 			<InputField
 				icon={icons.ariaLabel}
-				label={__('ARIA label', 'ericsson')}
+				label={__('ARIA label', '%g_textdomain%')}
 				value={buttonAriaLabel}
 				onChange={(value) => setAttributes({ [getAttrKey('buttonAriaLabel', attributes, manifest)]: value })}
-				help={__('Description of the button.', 'ericsson')}
+				help={__('Description of the button.', '%g_textdomain%')}
 				hidden={hiddenOptions?.ariaLabel}
 			/>
 
 			<Spacer hidden={hiddenOptions?.uniqueId} />
 			<Spacer
 				icon={icons.pointerHand}
-				text={__('Advanced', 'ericsson')}
+				text={__('Advanced', '%g_textdomain%')}
 				border
 				hidden={hiddenOptions?.uniqueId}
 			/>
 			<InputField
 				icon={icons.id}
-				label={__('Unique identifier', 'ericsson')}
+				label={__('Unique identifier', '%g_textdomain%')}
 				value={buttonId}
 				onChange={(value) => setAttributes({ [getAttrKey('buttonId', attributes, manifest)]: value })}
 				hidden={hiddenOptions?.uniqueId}

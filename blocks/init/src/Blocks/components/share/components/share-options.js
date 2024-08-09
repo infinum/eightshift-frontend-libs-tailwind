@@ -31,19 +31,19 @@ export const ShareOptions = (attributes) => {
 
 	const modeOptions = [
 		{
-			label: __('Link to social networks', 'ericsson'),
+			label: __('Link to social networks', '%g_textdomain%'),
 			icon: icons.link,
 			value: 'links',
 		},
 		{
-			label: __('Share the current URL', 'ericsson'),
-			subtitle: __('Unavailable for some networks', 'ericsson'),
+			label: __('Share the current URL', '%g_textdomain%'),
+			subtitle: __('Unavailable for some networks', '%g_textdomain%'),
 			icon: icons.share,
 			value: 'share',
 		},
 	];
 
-	const pickerSectionTitle = shareMode ? __('Share targets', 'ericsson') : __('Social networks', 'ericsson');
+	const pickerSectionTitle = shareMode ? __('Share targets', '%g_textdomain%') : __('Social networks', '%g_textdomain%');
 
 	return (
 		<ComponentToggle
@@ -54,7 +54,7 @@ export const ShareOptions = (attributes) => {
 			{...rest}
 		>
 			<OptionSelect
-				aria-label={__('Share mode', 'ericsson')}
+				aria-label={__('Share mode', '%g_textdomain%')}
 				value={shareMode}
 				options={modeOptions}
 				onChange={(value) =>
