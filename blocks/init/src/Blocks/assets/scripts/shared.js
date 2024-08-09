@@ -5,7 +5,9 @@ const colorData = getColorData(themeColors);
 
 export const getColorOption = (key, manifest) => {
 	if (!manifest?.options?.[key]) {
-		throw new Error(`The key ${key} is not defined in the manifest options for ${manifest?.componentName ?? manifest?.title}.`);
+		throw new Error(
+			`The key ${key} is not defined in the manifest options for ${manifest?.componentName ?? manifest?.title}.`,
+		);
 	}
 
 	return colorData?.filter(({ slug }) => manifest?.options?.[key]?.includes(slug)) ?? [];

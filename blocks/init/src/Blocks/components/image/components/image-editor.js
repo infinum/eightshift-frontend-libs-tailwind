@@ -1,4 +1,9 @@
-import { checkAttr, getBreakpointData, getBreakpointNames, getTwClasses, getTwPart } from '@eightshift/frontend-libs-tailwind/scripts';
+import {
+	checkAttr,
+	getBreakpointData,
+	getBreakpointNames,
+	getTwClasses,
+} from '@eightshift/frontend-libs-tailwind/scripts';
 import { ImagePlaceholder } from '@eightshift/ui-components';
 import manifest from './../manifest.json';
 
