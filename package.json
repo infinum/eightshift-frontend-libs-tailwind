@@ -46,7 +46,6 @@
 		"browserslist": "^4.23.3",
 		"css-loader": "^7.1.2",
 		"css-minimizer-webpack-plugin": "^7.0.0",
-		"eslint": "^9.8.0",
 		"eslint-config-prettier": "^9.1.0",
 		"eslint-plugin-prettier": "^5.2.1",
 		"file-loader": "^6.2.0",
@@ -70,6 +69,7 @@
 	},
 	"devDependencies": {
 		"embla-carousel": "^8.1.8",
+		"eslint": "^9.9.0",
 		"fluid-tailwind": "^1.0.3",
 		"lint-staged": "^15.2.8",
 		"micromodal": "^0.4.10",

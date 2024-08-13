@@ -1,13 +1,5 @@
 import { __ } from '@wordpress/i18n';
-import {
-	checkAttr,
-	getAttrKey,
-	MediaPicker,
-	generateOptionsFromValue,
-	getOption,
-	getHiddenOptions,
-	getResponsiveData,
-} from '@eightshift/frontend-libs-tailwind/scripts';
+import { checkAttr, getAttrKey, MediaPicker, generateOptionsFromValue, getOption, getHiddenOptions, getResponsiveData } from '@eightshift/frontend-libs-tailwind/scripts';
 import manifest from './../manifest.json';
 import { ComponentToggle, OptionSelect, Responsive, Spacer, Toggle } from '@eightshift/ui-components';
 import { icons } from '@eightshift/ui-components/icons';
@@ -41,11 +33,7 @@ export const ImageOptions = (attributes) => {
 				icon={icons.imageFile}
 				label={__('Image', 'eightshift-ui-components')}
 				options={generateOptionsFromValue(imageData, (v) =>
-					truncateMiddle(
-						v?.url?.replace(window.location.origin, '')?.replace(/\/wp-content\/uploads\/\d{4}\/\d{2}\//g, '') ??
-							__('Not set', '%g_textdomain%'),
-						15,
-					),
+					truncateMiddle(v?.url?.replace(window.location.origin, '')?.replace(/\/wp-content\/uploads\/\d{4}\/\d{2}\//g, '') ?? __('Not set', '%g_textdomain%'), 15),
 				)}
 				hidden={hiddenOptions?.imagePicker}
 				{...responsiveData}
@@ -98,9 +86,7 @@ export const ImageOptions = (attributes) => {
 				icon={icons.expandXl}
 				label={__('Stretch', '%g_textdomain%')}
 				checked={imageSize === 'stretch'}
-				onChange={(value) =>
-					setAttributes({ [getAttrKey('imageSize', attributes, manifest)]: value ? 'stretch' : 'default' })
-				}
+				onChange={(value) => setAttributes({ [getAttrKey('imageSize', attributes, manifest)]: value ? 'stretch' : 'default' })}
 				hidden={hiddenOptions?.stretch}
 			/>
 

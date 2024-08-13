@@ -117,7 +117,7 @@ export const MapOptions = ({ attributes, setAttributes }) => {
 
 					return (
 						<RepeaterItem
-							icon={layer?.type ? layerTypes?.[layer?.type]?.icon ?? icons.mapLayer : icons.layerOff}
+							icon={layer?.type ? (layerTypes?.[layer?.type]?.icon ?? icons.mapLayer) : icons.layerOff}
 							label={layerTypes?.[type]?.title ?? __('New layer', '%g_textdomain%')}
 							subtitle={type === 'geoJson' ? truncateMiddle(geoJsonUrl?.slice(geoJsonUrl?.lastIndexOf('/') + 1) ?? '', 20) : layerTypes?.[type]?.subtitle}
 							actions={

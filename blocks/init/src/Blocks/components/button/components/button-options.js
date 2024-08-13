@@ -1,25 +1,7 @@
 import { __ } from '@wordpress/i18n';
-import {
-	getOption,
-	checkAttr,
-	getAttrKey,
-	props,
-	getOptions,
-	wpSearchRoute,
-	getHiddenOptions,
-} from '@eightshift/frontend-libs-tailwind/scripts';
+import { getOption, checkAttr, getAttrKey, props, getOptions, wpSearchRoute, getHiddenOptions } from '@eightshift/frontend-libs-tailwind/scripts';
 import { IconOptions } from '../../icon/components/icon-options';
-import {
-	ButtonGroup,
-	ColorPicker,
-	ComponentToggle,
-	HStack,
-	InputField,
-	LinkInput,
-	OptionSelect,
-	Spacer,
-	Toggle,
-} from '@eightshift/ui-components';
+import { ButtonGroup, ColorPicker, ComponentToggle, HStack, InputField, LinkInput, OptionSelect, Spacer, Toggle } from '@eightshift/ui-components';
 import { icons } from '@eightshift/ui-components/icons';
 import { upperFirst } from '@eightshift/ui-components/utilities';
 import manifest from './../manifest.json';
