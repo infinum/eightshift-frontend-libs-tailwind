@@ -24,7 +24,11 @@ export const getTwPart = (part, manifest, ...custom) => {
 		return '';
 	}
 
-	const partClasses = manifest?.tailwind?.parts?.[part]?.twClassesEditor ?? manifest?.tailwind?.parts?.[part]?.twClasses ?? '';
+	let partClasses = manifest?.tailwind?.parts?.[part]?.twClassesEditor ?? manifest?.tailwind?.parts?.[part]?.twClasses ?? '';
+
+	if (Array.isArray(partClasses)) {
+		partClasses = partClasses.join(' ');
+	}
 
 	return clsx(partClasses, ...custom);
 };
@@ -67,7 +71,13 @@ export const getTwDynamicPart = (part, attributes, manifest, ...custom) => {
 		}
 
 		if (!responsive) {
-			return [...current, twClassesEditor?.[value] ?? twClasses?.[value]];
+			const currentClasses = twClassesEditor?.[value] ?? twClasses?.[value];
+
+			if (Array.isArray(currentClasses)) {
+				return [...current, ...currentClasses];
+			}
+
+			return [...current, currentClasses];
 		}
 
 		const responsiveClasses = Object.keys(value).reduce((curr, breakpoint) => {
@@ -75,17 +85,17 @@ export const getTwDynamicPart = (part, attributes, manifest, ...custom) => {
 				return curr;
 			}
 
-			const currentClasses = twClassesEditor?.[value[breakpoint]] ?? twClasses?.[value[breakpoint]];
+			let currentClasses = twClassesEditor?.[value[breakpoint]] ?? twClasses?.[value[breakpoint]];
+
+			if (!Array.isArray(currentClasses)) {
+				currentClasses = [currentClasses];
+			}
 
 			if (breakpoint === '_default') {
-				return [...curr, currentClasses];
+				return [...curr, ...currentClasses];
 			}
 
-			if (Array.isArray(currentClasses)) {
-				return [...curr, ...currentClasses.split(' ').map((currentClass) => `${breakpoint}:${currentClass}`)];
-			}
-
-			return [...curr, `${breakpoint}:${currentClasses}`];
+			return [...curr, ...currentClasses.split(' ').map((currentClass) => `${breakpoint}:${currentClass}`)];
 		}, []);
 
 		return [...current, ...responsiveClasses];
@@ -115,7 +125,11 @@ export const getTwClasses = (attributes, manifest, ...custom) => {
 		return '';
 	}
 
-	const baseClasses = manifest?.tailwind?.base?.twClassesEditor ?? manifest?.tailwind?.base?.twClasses ?? '';
+	let baseClasses = manifest?.tailwind?.base?.twClassesEditor ?? manifest?.tailwind?.base?.twClasses ?? '';
+
+	if (Array.isArray(baseClasses)) {
+		baseClasses = baseClasses.join(' ');
+	}
 
 	const mainClasses = Object.entries(manifest?.tailwind?.options ?? {}).reduce((current, [attributeName, { responsive, twClasses, twClassesEditor, part: partName }]) => {
 		if (partName) {
@@ -129,7 +143,13 @@ export const getTwClasses = (attributes, manifest, ...custom) => {
 		}
 
 		if (!responsive) {
-			return [...current, twClassesEditor?.[value] ?? twClasses?.[value]];
+			let currentClasses = twClassesEditor?.[value] ?? twClasses?.[value];
+
+			if (Array.isArray(currentClasses)) {
+				currentClasses = currentClasses.join(' ');
+			}
+
+			return [...current, currentClasses];
 		}
 
 		const responsiveClasses = Object.keys(value).reduce((curr, breakpoint) => {
@@ -137,17 +157,17 @@ export const getTwClasses = (attributes, manifest, ...custom) => {
 				return curr;
 			}
 
-			const currentClasses = twClassesEditor?.[value[breakpoint]] ?? twClasses?.[value[breakpoint]];
+			let currentClasses = twClassesEditor?.[value[breakpoint]] ?? twClasses?.[value[breakpoint]];
+
+			if (!Array.isArray(currentClasses)) {
+				currentClasses = [currentClasses];
+			}
 
 			if (breakpoint === '_default') {
-				return [...curr, currentClasses];
+				return [...curr, ...currentClasses];
 			}
 
-			if (Array.isArray(currentClasses)) {
-				return [...curr, ...currentClasses.split(' ').map((currentClass) => `${breakpoint}:${currentClass}`)];
-			}
-
-			return [...curr, `${breakpoint}:${currentClasses}`];
+			return [...curr, ...currentClasses.map((currentClass) => `${breakpoint}:${currentClass}`)];
 		}, []);
 
 		return [...current, ...responsiveClasses];
@@ -171,7 +191,13 @@ export const getTwClasses = (attributes, manifest, ...custom) => {
 				}
 			}
 
-			return [...current, twClassesEditor ?? twClasses];
+			let currentClasses = twClassesEditor ?? twClasses;
+
+			if (!Array.isArray(currentClasses)) {
+				currentClasses = [currentClasses];
+			}
+
+			return [...current, ...currentClasses];
 		}, []) ?? [];
 
 	return clsx(baseClasses, ...mainClasses, ...combinationClasses, ...custom);
@@ -297,8 +323,12 @@ function* extractKeys(obj, parentKey = '', isResponsive = false) {
 }
 
 const combineAndRemoveDuplicates = (results) => {
-	return results.reduce((acc, { key, value, responsive }) => {
+	return results.reduce((acc, { value, responsive }) => {
 		acc[responsive] = acc[responsive] ? `${acc[responsive]} ${value}` : value;
+
+		if (Array.isArray(acc[responsive])) {
+			acc[responsive] = acc[responsive].join(' ');
+		}
 
 		return acc;
 	}, {});
