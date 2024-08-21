@@ -8,6 +8,7 @@ This projects adheres to [Semantic Versioning](https://semver.org/) and [Keep a 
 - `twClasses` and `twClassesEditor` can now be passed as an array
 - Updated schemas to account for the `twClasses`/`twClassesEditor` changes.
 - Tailwind output functions will now output the custom classes if no Tailwind classes are in the output.
+- Tweaked Prettier config.
 - Updated dependencies.
 
 ## [1.2.0] - 2024-08-08
