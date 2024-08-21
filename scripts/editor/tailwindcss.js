@@ -21,7 +21,7 @@ import { clsx } from '@eightshift/ui-components/utilities';
  */
 export const getTwPart = (part, manifest, ...custom) => {
 	if (!part || !manifest || !manifest?.tailwind || Object.keys(manifest?.tailwind ?? {}).length === 0) {
-		return '';
+		return clsx(...custom);
 	}
 
 	let partClasses = manifest?.tailwind?.parts?.[part]?.twClassesEditor ?? manifest?.tailwind?.parts?.[part]?.twClasses ?? '';
@@ -54,7 +54,7 @@ export const getTwPart = (part, manifest, ...custom) => {
  */
 export const getTwDynamicPart = (part, attributes, manifest, ...custom) => {
 	if (!part || !manifest || !manifest?.tailwind || Object.keys(manifest?.tailwind ?? {}).length === 0) {
-		return '';
+		return clsx(...custom);
 	}
 
 	const baseClasses = manifest?.tailwind?.parts?.[part]?.twClassesEditor ?? manifest?.tailwind?.parts?.[part]?.twClasses ?? '';
@@ -122,7 +122,7 @@ export const getTwDynamicPart = (part, attributes, manifest, ...custom) => {
  */
 export const getTwClasses = (attributes, manifest, ...custom) => {
 	if (!attributes || !manifest || !manifest?.tailwind || Object.keys(manifest?.tailwind ?? {}).length === 0) {
-		return '';
+		return clsx(...custom);
 	}
 
 	let baseClasses = manifest?.tailwind?.base?.twClassesEditor ?? manifest?.tailwind?.base?.twClasses ?? '';
