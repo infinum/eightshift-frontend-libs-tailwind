@@ -11,15 +11,17 @@ domReady(() => {
 	}
 
 	elements.forEach((element) => {
-		document.querySelectorAll(`[href=":open-modal-${element.id}:"],[data-micromodal-trigger="${element.id}"]`).forEach((trigger) => {
-			trigger.addEventListener('click', (event) => {
-				event.preventDefault();
+		document
+			.querySelectorAll(`[href=":open-modal-${element.id}:"],[data-micromodal-trigger="${element.id}"]`)
+			.forEach((trigger) => {
+				trigger.addEventListener('click', (event) => {
+					event.preventDefault();
 
-				MicroModal.show(element.id, {
-					disableScroll: true,
-					awaitCloseAnimation: true,
+					MicroModal.show(element.id, {
+						disableScroll: true,
+						awaitCloseAnimation: true,
+					});
 				});
 			});
-		});
 	});
 });

@@ -1,6 +1,15 @@
 import { __ } from '@wordpress/i18n';
 import { checkAttr, getAttrKey, getHiddenOptions, getOption } from '@eightshift/frontend-libs-tailwind/scripts';
-import { BaseControl, ButtonGroup, ColorPicker, ContainerPanel, OptionSelect, Spacer, Responsive, InputField } from '@eightshift/ui-components';
+import {
+	BaseControl,
+	ButtonGroup,
+	ColorPicker,
+	ContainerPanel,
+	OptionSelect,
+	Spacer,
+	Responsive,
+	InputField,
+} from '@eightshift/ui-components';
 import { icons } from '@eightshift/ui-components/icons';
 import { clsx } from '@eightshift/ui-components/utilities';
 import { getResponsiveData } from '@eightshift/frontend-libs-tailwind/scripts/helpers/breakpoints';
@@ -113,7 +122,9 @@ export const WrapperOptions = ({ attributes, setAttributes }) => {
 								setAttributes({ [getAttrKey('wrapperBackground', attributes, manifest)]: undefined });
 							} else {
 								setAttributes({
-									[getAttrKey('wrapperBackground', attributes, manifest)]: Object.keys(manifest.tailwind.options.wrapperBackground.twClasses).find((key) => key.startsWith(value)),
+									[getAttrKey('wrapperBackground', attributes, manifest)]: Object.keys(
+										manifest.tailwind.options.wrapperBackground.twClasses,
+									).find((key) => key.startsWith(value)),
 								});
 							}
 						}}
@@ -126,7 +137,9 @@ export const WrapperOptions = ({ attributes, setAttributes }) => {
 					{backgroundType === 'solid' && (
 						<ColorPicker
 							colors={getColorOption('wrapperBackgroundSolid', manifest)}
-							onChange={(value) => setAttributes({ [getAttrKey('wrapperBackground', attributes, manifest)]: `solid-${value}` })}
+							onChange={(value) =>
+								setAttributes({ [getAttrKey('wrapperBackground', attributes, manifest)]: `solid-${value}` })
+							}
 							value={wrapperBackground?.replace('solid-', '')}
 							aria-label={__('Background color', '%g_textdomain%')}
 							hidden={hiddenOptions?.backgroundType}
@@ -165,7 +178,9 @@ export const WrapperOptions = ({ attributes, setAttributes }) => {
 							/>
 							<OptionSelect
 								value={wrapperGradientDirection}
-								onChange={(value) => setAttributes({ [getAttrKey('wrapperGradientDirection', attributes, manifest)]: value })}
+								onChange={(value) =>
+									setAttributes({ [getAttrKey('wrapperGradientDirection', attributes, manifest)]: value })
+								}
 								options={getOption('wrapperGradientDirection', attributes, manifest)}
 								wrapperProps={{
 									triggerIcon: <div className={rotationClassName[wrapperGradientDirection]}>{icons.arrowUpCircle}</div>,

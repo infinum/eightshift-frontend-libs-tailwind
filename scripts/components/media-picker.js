@@ -43,7 +43,18 @@ const MediaButton = (props) => {
  *
  */
 export const MediaPicker = (props) => {
-	const { onChange, imageId, imageAlt, imageUrl, noDelete, noUpload, imageMode, hidden, allowedTypes = ['image'], className } = props;
+	const {
+		onChange,
+		imageId,
+		imageAlt,
+		imageUrl,
+		noDelete,
+		noUpload,
+		imageMode,
+		hidden,
+		allowedTypes = ['image'],
+		className,
+	} = props;
 
 	if (hidden) {
 		return null;

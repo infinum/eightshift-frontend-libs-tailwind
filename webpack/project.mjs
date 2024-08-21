@@ -34,12 +34,18 @@ export default (options) => {
 	}
 
 	// Load ApplicationBlocksEditor Entrypoint.
-	if (!options.overrides.includes('applicationBlocksEditor') && fs.existsSync(options.config.applicationBlocksEditorEntry)) {
+	if (
+		!options.overrides.includes('applicationBlocksEditor') &&
+		fs.existsSync(options.config.applicationBlocksEditorEntry)
+	) {
 		entry.applicationBlocksEditor = options.config.applicationBlocksEditorEntry;
 	}
 
 	// Load applicationBlocksFrontend Entrypoint.
-	if (!options.overrides.includes('applicationBlocksFrontend') && fs.existsSync(options.config.applicationBlocksFrontendEntry)) {
+	if (
+		!options.overrides.includes('applicationBlocksFrontend') &&
+		fs.existsSync(options.config.applicationBlocksFrontendEntry)
+	) {
 		entry.applicationBlocksFrontend = options.config.applicationBlocksFrontendEntry;
 	}
 

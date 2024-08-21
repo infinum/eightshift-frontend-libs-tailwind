@@ -34,7 +34,9 @@ export const ParagraphOptions = (attributes) => {
 				<ToggleButton
 					selected={paragraphFontWeight === '700'}
 					icon={icons.bold}
-					onChange={(value) => setAttributes({ [getAttrKey('paragraphFontWeight', attributes, manifest)]: value ? '700' : '400' })}
+					onChange={(value) =>
+						setAttributes({ [getAttrKey('paragraphFontWeight', attributes, manifest)]: value ? '700' : '400' })
+					}
 					tooltip={__('Bold', '%g_textdomain%')}
 					hidden={hiddenOptions.weight}
 				/>

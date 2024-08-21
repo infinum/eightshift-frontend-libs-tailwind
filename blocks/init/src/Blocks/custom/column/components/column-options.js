@@ -209,7 +209,9 @@ export const ColumnOptions = ({ attributes, setAttributes }) => {
 				}
 				icon={icons.gridAutoRows}
 				label={__('Row span', '%g_textdomain%')}
-				options={generateOptionsFromValue(columnRowSpan, (v) => (!v ? __('Not set', '%g_textdomain%') : sprintf(_n('1 row', '%d rows', v, '%g_textdomain%'), v)))}
+				options={generateOptionsFromValue(columnRowSpan, (v) =>
+					!v ? __('Not set', '%g_textdomain%') : sprintf(_n('1 row', '%d rows', v, '%g_textdomain%'), v),
+				)}
 				noModeSelect
 				inline
 				{...responsiveData}
@@ -311,7 +313,9 @@ export const ColumnOptions = ({ attributes, setAttributes }) => {
 								setAttributes({ [getAttrKey('columnBackground', attributes, manifest)]: undefined });
 							} else {
 								setAttributes({
-									[getAttrKey('columnBackground', attributes, manifest)]: Object.keys(manifest.tailwind.options.columnBackground.twClasses).find((key) => key.startsWith(value)),
+									[getAttrKey('columnBackground', attributes, manifest)]: Object.keys(
+										manifest.tailwind.options.columnBackground.twClasses,
+									).find((key) => key.startsWith(value)),
 								});
 							}
 						}}
@@ -323,7 +327,9 @@ export const ColumnOptions = ({ attributes, setAttributes }) => {
 					{backgroundType === 'solid' && (
 						<ColorPicker
 							colors={getColorOption('columnBackgroundSolid', manifest)}
-							onChange={(value) => setAttributes({ [getAttrKey('columnBackground', attributes, manifest)]: `solid-${value}` })}
+							onChange={(value) =>
+								setAttributes({ [getAttrKey('columnBackground', attributes, manifest)]: `solid-${value}` })
+							}
 							value={columnBackground?.replace('solid-', '')}
 							aria-label={__('Background color', '%g_textdomain%')}
 						/>
@@ -360,7 +366,9 @@ export const ColumnOptions = ({ attributes, setAttributes }) => {
 							/>
 							<OptionSelect
 								value={columnGradientDirection}
-								onChange={(value) => setAttributes({ [getAttrKey('columnGradientDirection', attributes, manifest)]: value })}
+								onChange={(value) =>
+									setAttributes({ [getAttrKey('columnGradientDirection', attributes, manifest)]: value })
+								}
 								options={getOption('columnGradientDirection', attributes, manifest)}
 								wrapperProps={{
 									triggerIcon: <div className={rotationClassName[columnGradientDirection]}>{icons.arrowUpCircle}</div>,

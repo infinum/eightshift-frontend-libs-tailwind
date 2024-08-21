@@ -44,7 +44,10 @@ export const BlockInserter = (props) => {
 				let labelText = label;
 
 				if (label === true) {
-					labelText = sprintf(__('Add %s', 'eightshift-frontend-libs'), hasSingleBlockType ? blockTitle : __('a block', 'eightshift-frontend-libs'));
+					labelText = sprintf(
+						__('Add %s', 'eightshift-frontend-libs'),
+						hasSingleBlockType ? blockTitle : __('a block', 'eightshift-frontend-libs'),
+					);
 				}
 
 				return (

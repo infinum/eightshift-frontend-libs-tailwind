@@ -105,7 +105,13 @@ export const lockIfUndefined = (blockClientId, attributeKey, value) => {
  *
  */
 export const GutenbergBlock = (props) => {
-	const { options: OptionsComponent, toolbar: ToolbarComponent, editor: EditorComponent, noOptionsContainer = false, title } = props;
+	const {
+		options: OptionsComponent,
+		toolbar: ToolbarComponent,
+		editor: EditorComponent,
+		noOptionsContainer = false,
+		title,
+	} = props;
 
 	return (
 		<>

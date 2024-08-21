@@ -46,7 +46,9 @@ export const getOption = (key, attributes, manifest, isColor = false) => {
 	const componentOptions = manifest?.options;
 
 	// Determine if this is component or block and provide the name, not used for anything important but only to output the error msg.
-	const name = Object.prototype.hasOwnProperty.call(manifest, 'blockName') ? manifest.blockName : manifest.componentName;
+	const name = Object.prototype.hasOwnProperty.call(manifest, 'blockName')
+		? manifest.blockName
+		: manifest.componentName;
 
 	// Bailout if componentOptions is missing.
 	if (typeof componentOptions === 'undefined') {
