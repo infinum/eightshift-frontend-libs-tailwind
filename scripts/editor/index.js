@@ -7,5 +7,12 @@ export * from './fetch';
 export * from './options';
 export * from './utility';
 export * from './tailwindcss';
-export { getAttributes, getExample, getFullBlockName, getFullBlockNameVariation, registerBlocks, registerVariations } from './registration';
+export {
+	getAttributes,
+	getExample,
+	getFullBlockName,
+	getFullBlockNameVariation,
+	registerBlocks,
+	registerVariations,
+} from './registration';
 export { STORE_NAME, BUILD_VERSION, setStore, setStoreGlobalWindow, setConfigFlags } from './store';

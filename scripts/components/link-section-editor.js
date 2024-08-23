@@ -236,7 +236,11 @@ export const LinkSectionEditor = (props) => {
 				setTimeout(() => {
 					target.parentElement.nextElementSibling?.querySelector('[contenteditable="true"]')?.focus();
 				}, 25);
-			} else if (code === 'Backspace' && header === '' && (items?.length < 1 || items?.every(({ text }) => text === ''))) {
+			} else if (
+				code === 'Backspace' &&
+				header === '' &&
+				(items?.length < 1 || items?.every(({ text }) => text === ''))
+			) {
 				event.preventDefault();
 
 				// Jump to end of previous input.

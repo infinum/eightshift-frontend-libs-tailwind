@@ -2,7 +2,14 @@ import { useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { getAttrKey, checkAttr, getOption, props, fetchFromWpRest } from '@eightshift/frontend-libs-tailwind/scripts';
 import { LoadMoreOptions } from '../../../components/load-more/components/load-more-options';
-import { AnimatedVisibility, AsyncMultiSelect, NumberPicker, OptionSelect, Spacer, Toggle } from '@eightshift/ui-components';
+import {
+	AnimatedVisibility,
+	AsyncMultiSelect,
+	NumberPicker,
+	OptionSelect,
+	Spacer,
+	Toggle,
+} from '@eightshift/ui-components';
 import { icons } from '@eightshift/ui-components/icons';
 import manifest from '../manifest.json';
 
@@ -96,7 +103,9 @@ export const FeaturedContentOptions = ({ attributes, setAttributes }) => {
 						label: __('Select posts to show', '%g_textdomain%'),
 						value: true,
 						disabled: featuredContentExcludeCurrentPost || featuredContentTaxonomy,
-						subtitle: (featuredContentExcludeCurrentPost || featuredContentTaxonomy) && __('Unavailable when a taxonomy filter is set', '%g_textdomain%'),
+						subtitle:
+							(featuredContentExcludeCurrentPost || featuredContentTaxonomy) &&
+							__('Unavailable when a taxonomy filter is set', '%g_textdomain%'),
 					},
 				]}
 				type='radiosSegmented'
@@ -112,7 +121,9 @@ export const FeaturedContentOptions = ({ attributes, setAttributes }) => {
 					label={__('Exclude current', '%g_textdomain%')}
 					subtitle={__('Best used with blog posts', '%g_textdomain%')}
 					checked={featuredContentExcludeCurrentPost}
-					onChange={(value) => setAttributes({ [getAttrKey('featuredContentExcludeCurrentPost', attributes, manifest)]: value })}
+					onChange={(value) =>
+						setAttributes({ [getAttrKey('featuredContentExcludeCurrentPost', attributes, manifest)]: value })
+					}
 				/>
 			</AnimatedVisibility>
 
@@ -122,7 +133,10 @@ export const FeaturedContentOptions = ({ attributes, setAttributes }) => {
 			>
 				<AsyncMultiSelect
 					key={featuredContentPostType.value}
-					help={__('Newest 30 items are shown, others can be selected by searching. If blank, all items are shown.', '%g_textdomain%')}
+					help={__(
+						'Newest 30 items are shown, others can be selected by searching. If blank, all items are shown.',
+						'%g_textdomain%',
+					)}
 					value={featuredContentPosts}
 					loadOptions={fetchFromWpRest(featuredContentPostType?.api, {
 						processLabel: ({ title: { rendered } }) => rendered,
@@ -153,10 +167,12 @@ export const FeaturedContentOptions = ({ attributes, setAttributes }) => {
 					setUseSpecificPosts(false);
 					setUseSpecificTerms(false);
 
-					const value = rawValue === '_all' ? allGenericOption : taxonomyOptions.find((option) => option.value === rawValue);
+					const value =
+						rawValue === '_all' ? allGenericOption : taxonomyOptions.find((option) => option.value === rawValue);
 
 					setAttributes({
-						[getAttrKey('featuredContentTaxonomy', attributes, manifest)]: value === allGenericOption ? undefined : value,
+						[getAttrKey('featuredContentTaxonomy', attributes, manifest)]:
+							value === allGenericOption ? undefined : value,
 						[getAttrKey('featuredContentTerms', attributes, manifest)]: undefined,
 						[getAttrKey('featuredContentUseCurrentTerm', attributes, manifest)]: false,
 						[getAttrKey('featuredContentPosts', attributes, manifest)]: undefined,
@@ -183,7 +199,9 @@ export const FeaturedContentOptions = ({ attributes, setAttributes }) => {
 						label: __('Select terms to show', '%g_textdomain%'),
 						value: 'manual',
 						disabled: (featuredContentTaxonomy ?? allGenericOption)?.value === '_all',
-						subtitle: (featuredContentTaxonomy ?? allGenericOption)?.value === '_all' && __('Select a taxonomy to enable', '%g_textdomain%'),
+						subtitle:
+							(featuredContentTaxonomy ?? allGenericOption)?.value === '_all' &&
+							__('Select a taxonomy to enable', '%g_textdomain%'),
 					},
 					{
 						label: __('Show same terms as current post', '%g_textdomain%'),
@@ -200,7 +218,10 @@ export const FeaturedContentOptions = ({ attributes, setAttributes }) => {
 			>
 				<AsyncMultiSelect
 					key={featuredContentTaxonomy?.value}
-					help={__('Newest 30 items are shown, others can be selected by searching. If blank, all items are shown.', '%g_textdomain%')}
+					help={__(
+						'Newest 30 items are shown, others can be selected by searching. If blank, all items are shown.',
+						'%g_textdomain%',
+					)}
 					value={featuredContentTerms}
 					loadOptions={fetchFromWpRest(featuredContentTaxonomy?.api, {
 						fields: 'id,name',

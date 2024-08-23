@@ -74,7 +74,9 @@ export const PickerPlaceholder = (props) => {
 					<Button
 						key={index}
 						onPress={async () => {
-							const blocksToInsert = blockData.map(({ name: blockName, attributes: blockAttrs }) => createBlock(blockName, blockAttrs));
+							const blocksToInsert = blockData.map(({ name: blockName, attributes: blockAttrs }) =>
+								createBlock(blockName, blockAttrs),
+							);
 
 							onChange(attrsToSet);
 
@@ -90,7 +92,9 @@ export const PickerPlaceholder = (props) => {
 
 			{inserter && (
 				<>
-					<span className='es-uic-col-span-2 es-uic-select-none es-uic-justify-self-center'>{__('or', 'fe-libs-tailwind')}</span>
+					<span className='es-uic-col-span-2 es-uic-select-none es-uic-justify-self-center'>
+						{__('or', 'fe-libs-tailwind')}
+					</span>
 
 					<div className='es-uic-col-span-2 es-uic-justify-self-center'>
 						{inserter}

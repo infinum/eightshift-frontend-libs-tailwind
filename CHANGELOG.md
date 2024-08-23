@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file.
 
 This projects adheres to [Semantic Versioning](https://semver.org/) and [Keep a CHANGELOG](https://keepachangelog.com/).
 
+## [1.3.0] - 2024-08-08
+- `twClasses` and `twClassesEditor` can now be passed as an array
+- Updated schemas to account for the `twClasses`/`twClassesEditor` changes.
+- Tailwind output functions will now output the custom classes if no Tailwind classes are in the output.
+- Tweaked Prettier config.
+- Updated dependencies.
+
 ## [1.2.0] - 2024-08-08
 - Fixed default `perPage` param in `wpSearchRoute`.
 - Updated image and file pickers with support for `hidden` prop and accepted types passthrough.
@@ -33,6 +40,7 @@ This projects adheres to [Semantic Versioning](https://semver.org/) and [Keep a 
 
 [Unreleased]: https://github.com/infinum/eightshift-frontend-libs-tailwind/compare/master...HEAD
 
+[1.3.0]: https://github.com/infinum/eightshift-frontend-libs-tailwind/compare/1.2.0...1.3.0
 [1.2.0]: https://github.com/infinum/eightshift-frontend-libs-tailwind/compare/1.1.1...1.2.0
 [1.1.1]: https://github.com/infinum/eightshift-frontend-libs-tailwind/compare/1.1.0...1.1.1
 [1.1.0]: https://github.com/infinum/eightshift-frontend-libs-tailwind/compare/1.0.0...1.1.0

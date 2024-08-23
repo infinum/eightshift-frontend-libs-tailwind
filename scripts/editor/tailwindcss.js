@@ -21,10 +21,15 @@ import { clsx } from '@eightshift/ui-components/utilities';
  */
 export const getTwPart = (part, manifest, ...custom) => {
 	if (!part || !manifest || !manifest?.tailwind || Object.keys(manifest?.tailwind ?? {}).length === 0) {
-		return '';
+		return clsx(...custom);
 	}
 
-	const partClasses = manifest?.tailwind?.parts?.[part]?.twClassesEditor ?? manifest?.tailwind?.parts?.[part]?.twClasses ?? '';
+	let partClasses =
+		manifest?.tailwind?.parts?.[part]?.twClassesEditor ?? manifest?.tailwind?.parts?.[part]?.twClasses ?? '';
+
+	if (Array.isArray(partClasses)) {
+		partClasses = partClasses.join(' ');
+	}
 
 	return clsx(partClasses, ...custom);
 };
@@ -50,46 +55,56 @@ export const getTwPart = (part, manifest, ...custom) => {
  */
 export const getTwDynamicPart = (part, attributes, manifest, ...custom) => {
 	if (!part || !manifest || !manifest?.tailwind || Object.keys(manifest?.tailwind ?? {}).length === 0) {
-		return '';
+		return clsx(...custom);
 	}
 
-	const baseClasses = manifest?.tailwind?.parts?.[part]?.twClassesEditor ?? manifest?.tailwind?.parts?.[part]?.twClasses ?? '';
+	const baseClasses =
+		manifest?.tailwind?.parts?.[part]?.twClassesEditor ?? manifest?.tailwind?.parts?.[part]?.twClasses ?? '';
 
-	const mainClasses = Object.entries(manifest?.tailwind?.options ?? {}).reduce((current, [attributeName, { responsive, twClasses, twClassesEditor, part: partName }]) => {
-		if (partName !== part) {
-			return current;
-		}
-
-		const value = checkAttr(attributeName, attributes, manifest, true);
-
-		if (!value) {
-			return current;
-		}
-
-		if (!responsive) {
-			return [...current, twClassesEditor?.[value] ?? twClasses?.[value]];
-		}
-
-		const responsiveClasses = Object.keys(value).reduce((curr, breakpoint) => {
-			if (breakpoint === '_desktopFirst') {
-				return curr;
+	const mainClasses = Object.entries(manifest?.tailwind?.options ?? {}).reduce(
+		(current, [attributeName, { responsive, twClasses, twClassesEditor, part: partName }]) => {
+			if (partName !== part) {
+				return current;
 			}
 
-			const currentClasses = twClassesEditor?.[value[breakpoint]] ?? twClasses?.[value[breakpoint]];
+			const value = checkAttr(attributeName, attributes, manifest, true);
 
-			if (breakpoint === '_default') {
-				return [...curr, currentClasses];
+			if (!value) {
+				return current;
 			}
 
-			if (Array.isArray(currentClasses)) {
+			if (!responsive) {
+				const currentClasses = twClassesEditor?.[value] ?? twClasses?.[value];
+
+				if (Array.isArray(currentClasses)) {
+					return [...current, ...currentClasses];
+				}
+
+				return [...current, currentClasses];
+			}
+
+			const responsiveClasses = Object.keys(value).reduce((curr, breakpoint) => {
+				if (breakpoint === '_desktopFirst') {
+					return curr;
+				}
+
+				let currentClasses = twClassesEditor?.[value[breakpoint]] ?? twClasses?.[value[breakpoint]];
+
+				if (!Array.isArray(currentClasses)) {
+					currentClasses = [currentClasses];
+				}
+
+				if (breakpoint === '_default') {
+					return [...curr, ...currentClasses];
+				}
+
 				return [...curr, ...currentClasses.split(' ').map((currentClass) => `${breakpoint}:${currentClass}`)];
-			}
+			}, []);
 
-			return [...curr, `${breakpoint}:${currentClasses}`];
-		}, []);
-
-		return [...current, ...responsiveClasses];
-	}, []);
+			return [...current, ...responsiveClasses];
+		},
+		[],
+	);
 
 	return clsx(baseClasses, ...mainClasses, ...custom);
 };
@@ -112,46 +127,59 @@ export const getTwDynamicPart = (part, attributes, manifest, ...custom) => {
  */
 export const getTwClasses = (attributes, manifest, ...custom) => {
 	if (!attributes || !manifest || !manifest?.tailwind || Object.keys(manifest?.tailwind ?? {}).length === 0) {
-		return '';
+		return clsx(...custom);
 	}
 
-	const baseClasses = manifest?.tailwind?.base?.twClassesEditor ?? manifest?.tailwind?.base?.twClasses ?? '';
+	let baseClasses = manifest?.tailwind?.base?.twClassesEditor ?? manifest?.tailwind?.base?.twClasses ?? '';
 
-	const mainClasses = Object.entries(manifest?.tailwind?.options ?? {}).reduce((current, [attributeName, { responsive, twClasses, twClassesEditor, part: partName }]) => {
-		if (partName) {
-			return current;
-		}
+	if (Array.isArray(baseClasses)) {
+		baseClasses = baseClasses.join(' ');
+	}
 
-		const value = checkAttr(attributeName, attributes, manifest, true);
-
-		if (!value) {
-			return current;
-		}
-
-		if (!responsive) {
-			return [...current, twClassesEditor?.[value] ?? twClasses?.[value]];
-		}
-
-		const responsiveClasses = Object.keys(value).reduce((curr, breakpoint) => {
-			if (breakpoint === '_desktopFirst') {
-				return curr;
+	const mainClasses = Object.entries(manifest?.tailwind?.options ?? {}).reduce(
+		(current, [attributeName, { responsive, twClasses, twClassesEditor, part: partName }]) => {
+			if (partName) {
+				return current;
 			}
 
-			const currentClasses = twClassesEditor?.[value[breakpoint]] ?? twClasses?.[value[breakpoint]];
+			const value = checkAttr(attributeName, attributes, manifest, true);
 
-			if (breakpoint === '_default') {
-				return [...curr, currentClasses];
+			if (!value) {
+				return current;
 			}
 
-			if (Array.isArray(currentClasses)) {
-				return [...curr, ...currentClasses.split(' ').map((currentClass) => `${breakpoint}:${currentClass}`)];
+			if (!responsive) {
+				let currentClasses = twClassesEditor?.[value] ?? twClasses?.[value];
+
+				if (Array.isArray(currentClasses)) {
+					currentClasses = currentClasses.join(' ');
+				}
+
+				return [...current, currentClasses];
 			}
 
-			return [...curr, `${breakpoint}:${currentClasses}`];
-		}, []);
+			const responsiveClasses = Object.keys(value).reduce((curr, breakpoint) => {
+				if (breakpoint === '_desktopFirst') {
+					return curr;
+				}
 
-		return [...current, ...responsiveClasses];
-	}, []);
+				let currentClasses = twClassesEditor?.[value[breakpoint]] ?? twClasses?.[value[breakpoint]];
+
+				if (!Array.isArray(currentClasses)) {
+					currentClasses = [currentClasses];
+				}
+
+				if (breakpoint === '_default') {
+					return [...curr, ...currentClasses];
+				}
+
+				return [...curr, ...currentClasses.map((currentClass) => `${breakpoint}:${currentClass}`)];
+			}, []);
+
+			return [...current, ...responsiveClasses];
+		},
+		[],
+	);
 
 	const combinationClasses =
 		manifest?.tailwind?.combinations?.reduce((current, { attributes: conditions, twClasses, twClassesEditor }) => {
@@ -171,7 +199,13 @@ export const getTwClasses = (attributes, manifest, ...custom) => {
 				}
 			}
 
-			return [...current, twClassesEditor ?? twClasses];
+			let currentClasses = twClassesEditor ?? twClasses;
+
+			if (!Array.isArray(currentClasses)) {
+				currentClasses = [currentClasses];
+			}
+
+			return [...current, ...currentClasses];
 		}, []) ?? [];
 
 	return clsx(baseClasses, ...mainClasses, ...combinationClasses, ...custom);
@@ -297,8 +331,12 @@ function* extractKeys(obj, parentKey = '', isResponsive = false) {
 }
 
 const combineAndRemoveDuplicates = (results) => {
-	return results.reduce((acc, { key, value, responsive }) => {
+	return results.reduce((acc, { value, responsive }) => {
 		acc[responsive] = acc[responsive] ? `${acc[responsive]} ${value}` : value;
+
+		if (Array.isArray(acc[responsive])) {
+			acc[responsive] = acc[responsive].join(' ');
+		}
 
 		return acc;
 	}, {});

@@ -8,7 +8,8 @@ export const addPagination = (emblaApi, dotsNode) => {
 
 		dotNodes = emblaApi.scrollSnapList().map((_, index) => {
 			const elem = document.createElement('button');
-			elem.className = 'size-2.5 rounded-full border border-gray-500 transition hover:scale-105 focus:outline-none focus-visible:ring focus-visible:ring-navy-500/30';
+			elem.className =
+				'size-2.5 rounded-full border border-gray-500 transition hover:scale-105 focus:outline-none focus-visible:ring focus-visible:ring-navy-500/30';
 
 			elem.addEventListener('click', () => emblaApi.scrollTo(index), false);
 			dotsNode.appendChild(elem);
@@ -26,7 +27,12 @@ export const addPagination = (emblaApi, dotsNode) => {
 		});
 	};
 
-	emblaApi.on('init', addDots).on('reInit', addDots).on('init', toggleDotBtnsActive).on('reInit', toggleDotBtnsActive).on('select', toggleDotBtnsActive);
+	emblaApi
+		.on('init', addDots)
+		.on('reInit', addDots)
+		.on('init', toggleDotBtnsActive)
+		.on('reInit', toggleDotBtnsActive)
+		.on('select', toggleDotBtnsActive);
 
 	return () => {
 		dotsNode.innerHTML = '';

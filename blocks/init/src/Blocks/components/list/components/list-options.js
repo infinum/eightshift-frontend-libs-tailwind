@@ -35,7 +35,9 @@ export const ListOptions = (attributes) => {
 				<ToggleButton
 					selected={listFontWeight === '700'}
 					icon={icons.bold}
-					onChange={(value) => setAttributes({ [getAttrKey('listFontWeight', attributes, manifest)]: value ? '700' : '400' })}
+					onChange={(value) =>
+						setAttributes({ [getAttrKey('listFontWeight', attributes, manifest)]: value ? '700' : '400' })
+					}
 					tooltip={__('Bold', '%g_textdomain%')}
 					hidden={hiddenOptions.weight}
 				/>

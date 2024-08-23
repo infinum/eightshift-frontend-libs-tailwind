@@ -25,7 +25,9 @@ function getConfig(
 	blocksManifestSettingsPath = 'src/Blocks/manifest.json',
 ) {
 	if (typeof projectDir === 'undefined') {
-		throw Error('projectDir parameter is empty, please provide. This key represents: Current project directory absolute path. For example: __dirname');
+		throw Error(
+			'projectDir parameter is empty, please provide. This key represents: Current project directory absolute path. For example: __dirname',
+		);
 	}
 
 	if (typeof projectPathConfig === 'undefined') {
@@ -57,8 +59,16 @@ function getConfig(
 		applicationEntry: path.resolve(absolutePath, assetsPathConfigClean, 'application.js'),
 		applicationAdminEntry: path.resolve(absolutePath, assetsPathConfigClean, 'application-admin.js'),
 		applicationBlocksEntry: path.resolve(absolutePath, blocksAssetsPathConfigClean, 'application-blocks.js'),
-		applicationBlocksEditorEntry: path.resolve(absolutePath, blocksAssetsPathConfigClean, 'application-blocks-editor.js'),
-		applicationBlocksFrontendEntry: path.resolve(absolutePath, blocksAssetsPathConfigClean, 'application-blocks-frontend.js'),
+		applicationBlocksEditorEntry: path.resolve(
+			absolutePath,
+			blocksAssetsPathConfigClean,
+			'application-blocks-editor.js',
+		),
+		applicationBlocksFrontendEntry: path.resolve(
+			absolutePath,
+			blocksAssetsPathConfigClean,
+			'application-blocks-frontend.js',
+		),
 
 		blocksManifestSettingsPath: path.resolve(absolutePath, blocksManifestSettingsPathClean),
 	};

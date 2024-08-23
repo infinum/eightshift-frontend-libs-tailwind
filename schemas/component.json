@@ -126,12 +126,12 @@
 					"description": "Base classes for the main part of the component.",
 					"properties": {
 						"twClasses": {
-							"type": "string",
-							"description": "Classnames to apply."
+							"type": ["string", "array"],
+							"description": "Classnames to apply. An array of classnames (strings) can also be provided for improved manifest readability."
 						},
 						"twClassesEditor": {
-							"type": "string",
-							"description": "Editor-specific classnames to apply. Overrides 'twClasses'"
+							"type": ["string", "array"],
+							"description": "Editor-specific classnames to apply. Overrides 'twClasses'. An array of classnames (strings) can also be provided for improved manifest readability."
 						}
 					},
 					"minProperties": 1
@@ -180,12 +180,12 @@
 								}
 							},
 							"twClasses": {
-								"type": "string",
-								"description": "Classnames to apply if all conditions match. Key is the attribute value, value is the classnames to apply."
+								"type": ["string", "array"],
+								"description": "Classnames to apply if all conditions match. Key is the attribute value, value is the classnames to apply. An array of classnames (strings) can also be provided for improved manifest readability."
 							},
 							"twClassesEditor": {
-								"type": "string",
-								"description": "Editor-specific classnames to apply if all conditions match. Overrides 'twClasses'. Key is the attribute value, value is the classnames to apply."
+								"type": ["string", "array"],
+								"description": "Editor-specific classnames to apply if all conditions match. Overrides 'twClasses'. Key is the attribute value, value is the classnames to apply. An array of classnames (strings) can also be provided for improved manifest readability."
 							}
 						},
 						"required": [
@@ -208,12 +208,12 @@
 			"type": "object",
 			"properties": {
 				"twClasses": {
-					"type": "string",
-					"description": "Classnames to apply."
+					"type": ["string", "array"],
+					"description": "Classnames to apply. An array of classnames (strings) can also be provided for improved manifest readability."
 				},
 				"twClassesEditor": {
-					"type": "string",
-					"description": "Editor-specific classnames to apply. Overrides 'twClasses'."
+					"type": ["string", "array"],
+					"description": "Editor-specific classnames to apply. Overrides 'twClasses'. An array of classnames (strings) can also be provided for improved manifest readability."
 				}
 			}
 		},
@@ -222,21 +222,21 @@
 			"properties": {
 				"twClasses": {
 					"type": "object",
-					"description": "Classnames to apply. Key is the attribute value, value is the classnames to apply.",
+					"description": "Classnames to apply. Key is the attribute value, value is the classnames to apply. An array of classnames (strings) can also be provided for improved manifest readability.",
 					"additionalProperties": {
-						"type": "string"
+						"type": ["string", "array"]
 					}
 				},
 				"twClassesEditor": {
 					"type": "object",
-					"description": "Editor-specific classnames to apply. Overrides 'twClasses'. Key is the attribute value, value is the classnames to apply.",
+					"description": "Editor-specific classnames to apply. Overrides 'twClasses'. Key is the attribute value, value is the classnames to apply. An array of classnames (strings) can also be provided for improved manifest readability.",
 					"additionalProperties": {
-						"type": "string"
+						"type": ["string", "array"]
 					}
 				},
 				"part": {
-					"type": "string",
-					"description": "Part to assign the class output to. If not specified, the classes are added to the base class."
+					"type": ["string", "array"],
+					"description": "Part to assign the class output to. If not specified, the classes are added to the base class. You can also specify an array of parts to apply the classes to."
 				}
 			}
 		}

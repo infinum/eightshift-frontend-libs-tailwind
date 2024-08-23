@@ -83,7 +83,8 @@ export function fetchFromWpRest(endpoint, options = {}) {
 
 		return newData.map((item) => {
 			const rawLabel = !noUnescapeTitle ? unescapeHTML(processLabel(item)) : processLabel(item);
-			const truncatedLabel = Number.isInteger(truncateTitle) && truncateTitle > 0 ? truncate(rawLabel, truncateTitle) : rawLabel;
+			const truncatedLabel =
+				Number.isInteger(truncateTitle) && truncateTitle > 0 ? truncate(rawLabel, truncateTitle) : rawLabel;
 
 			return {
 				label: truncatedLabel,

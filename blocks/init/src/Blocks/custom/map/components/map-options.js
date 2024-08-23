@@ -111,15 +111,33 @@ export const MapOptions = ({ attributes, setAttributes }) => {
 				{(layer) => {
 					const { type, apiKey, geoJsonUrl, geoJsonId, styleUrl, hidden, updateData } = layer;
 
-					const needsApiKey = ['mapBoxVector', 'mapBoxRaster', 'mapTilerVector', 'vectorJson', 'mapTilerRasterXyz', 'mapTilerRasterJson'].includes(type);
+					const needsApiKey = [
+						'mapBoxVector',
+						'mapBoxRaster',
+						'mapTilerVector',
+						'vectorJson',
+						'mapTilerRasterXyz',
+						'mapTilerRasterJson',
+					].includes(type);
 
-					const hasMapStyleOptions = ['mapBoxVector', 'mapBoxRaster', 'mapTilerVector', 'vectorJson', 'mapTilerRasterXyz', 'mapTilerRasterJson'].includes(type);
+					const hasMapStyleOptions = [
+						'mapBoxVector',
+						'mapBoxRaster',
+						'mapTilerVector',
+						'vectorJson',
+						'mapTilerRasterXyz',
+						'mapTilerRasterJson',
+					].includes(type);
 
 					return (
 						<RepeaterItem
-							icon={layer?.type ? layerTypes?.[layer?.type]?.icon ?? icons.mapLayer : icons.layerOff}
+							icon={layer?.type ? (layerTypes?.[layer?.type]?.icon ?? icons.mapLayer) : icons.layerOff}
 							label={layerTypes?.[type]?.title ?? __('New layer', '%g_textdomain%')}
-							subtitle={type === 'geoJson' ? truncateMiddle(geoJsonUrl?.slice(geoJsonUrl?.lastIndexOf('/') + 1) ?? '', 20) : layerTypes?.[type]?.subtitle}
+							subtitle={
+								type === 'geoJson'
+									? truncateMiddle(geoJsonUrl?.slice(geoJsonUrl?.lastIndexOf('/') + 1) ?? '', 20)
+									: layerTypes?.[type]?.subtitle
+							}
 							actions={
 								layer?.type?.length < 1 ? (
 									icons.dummySpacer
@@ -160,15 +178,23 @@ export const MapOptions = ({ attributes, setAttributes }) => {
 									onChange={(value) => updateData({ styleUrl: value })}
 									help={
 										<>
-											{!type?.startsWith('mapBox') && __('Copy the full style URL from MapTiler. Keep the API key inside the URL.', '%g_textdomain%')}
+											{!type?.startsWith('mapBox') &&
+												__('Copy the full style URL from MapTiler. Keep the API key inside the URL.', '%g_textdomain%')}
 											{type === 'mapBoxVector' && __('Copy the full style URL from Mapbox.', '%g_textdomain%')}
-											{type === 'mapBoxRaster' && __('Copy the full style URL from Mapbox or a Mapbox-compatible source. Keep the access token inside the URL.', '%g_textdomain%')}
+											{type === 'mapBoxRaster' &&
+												__(
+													'Copy the full style URL from Mapbox or a Mapbox-compatible source. Keep the access token inside the URL.',
+													'%g_textdomain%',
+												)}
 											<br />
 											<br />
 											{['mapBoxRaster', 'mapTilerVector', 'mapTilerRasterXyz'].includes(type) && (
 												<>
 													<code className='es-bg-transparent es-p-0 es-text-3'>{'{z}/{x}/{y}'}</code>
-													{__("should be left as they are in the URL; they're needed for the map to work properly.", '%g_textdomain%')}
+													{__(
+														"should be left as they are in the URL; they're needed for the map to work properly.",
+														'%g_textdomain%',
+													)}
 													<br />
 													<br />
 												</>
@@ -176,7 +202,8 @@ export const MapOptions = ({ attributes, setAttributes }) => {
 											{__('Example', '%g_textdomain%')}:
 											<br />
 											<span className='es-word-break-all'>
-												{['mapTilerRasterJson', 'vectorJson'].includes(type) && 'https://api.maptiler.com/maps/{styleName}/tiles.json?key={apiKey}'}
+												{['mapTilerRasterJson', 'vectorJson'].includes(type) &&
+													'https://api.maptiler.com/maps/{styleName}/tiles.json?key={apiKey}'}
 
 												{type === 'mapTilerVector' && 'https://api.maptiler.com/tiles/v3/{z}/{x}/{y}.pbf?key={apiKey}'}
 
@@ -188,9 +215,11 @@ export const MapOptions = ({ attributes, setAttributes }) => {
 													</>
 												)}
 
-												{type === 'mapBoxRaster' && 'https://api.mapbox.com/v4/{tilesetId}/{z}/{x}/{y}[@2x].{imageFormat}?acess_token={apiKey}'}
+												{type === 'mapBoxRaster' &&
+													'https://api.mapbox.com/v4/{tilesetId}/{z}/{x}/{y}[@2x].{imageFormat}?acess_token={apiKey}'}
 
-												{type === 'mapTilerRasterXyz' && 'https://api.maptiler.com/maps/{styleName}/{z}/{x}/{y}.png?key={apiKey}'}
+												{type === 'mapTilerRasterXyz' &&
+													'https://api.maptiler.com/maps/{styleName}/{z}/{x}/{y}.png?key={apiKey}'}
 											</span>
 										</>
 									}

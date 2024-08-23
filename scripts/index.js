@@ -15,10 +15,23 @@ export * from './editor/fetch';
 export * from './editor/options';
 export * from './editor/utility';
 export * from './editor/tailwindcss';
-export { getAttributes, getExample, getFullBlockName, getFullBlockNameVariation, registerBlocks, registerVariations } from './editor/registration';
+export {
+	getAttributes,
+	getExample,
+	getFullBlockName,
+	getFullBlockNameVariation,
+	registerBlocks,
+	registerVariations,
+} from './editor/registration';
 export { STORE_NAME, BUILD_VERSION, setStore, setStoreGlobalWindow, setConfigFlags } from './editor/store';
 
 // Helpers.
-export { getBreakpointData, getBreakpointNames, getGlobalManifest, getBreakpointUiData, getResponsiveData } from './helpers/breakpoints';
+export {
+	getBreakpointData,
+	getBreakpointNames,
+	getGlobalManifest,
+	getBreakpointUiData,
+	getResponsiveData,
+} from './helpers/breakpoints';
 export { cookies } from './helpers/cookies';
 export { dynamicImport } from './helpers/dynamic-import';

@@ -1,6 +1,24 @@
 import { __, sprintf } from '@wordpress/i18n';
-import { getOption, checkAttr, getAttrKey, FileSelector, getHiddenOptions, MediaPicker } from '@eightshift/frontend-libs-tailwind/scripts';
-import { AnimatedVisibility, BaseControl, Expandable, InputField, Notice, OptionSelect, Repeater, RepeaterItem, Spacer, Toggle } from '@eightshift/ui-components';
+import {
+	getOption,
+	checkAttr,
+	getAttrKey,
+	FileSelector,
+	getHiddenOptions,
+	MediaPicker,
+} from '@eightshift/frontend-libs-tailwind/scripts';
+import {
+	AnimatedVisibility,
+	BaseControl,
+	Expandable,
+	InputField,
+	Notice,
+	OptionSelect,
+	Repeater,
+	RepeaterItem,
+	Spacer,
+	Toggle,
+} from '@eightshift/ui-components';
 import { icons } from '@eightshift/ui-components/icons';
 import manifest from '../manifest.json';
 
@@ -109,7 +127,10 @@ export const VideoOptions = (attributes) => {
 				<Notice
 					type='warning'
 					label={__('Video plays automatically, with sound, and without controls', '%g_textdomain%')}
-					subtitle={__('This will bother most users and is an accessibility issue. Consider changing some of the options.', '%g_textdomain%')}
+					subtitle={__(
+						'This will bother most users and is an accessibility issue. Consider changing some of the options.',
+						'%g_textdomain%',
+					)}
 					icon={icons.a11yWarning}
 					alignIconToTitle
 				/>
