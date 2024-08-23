@@ -28,7 +28,9 @@ $icon = $manifest['icons'][$iconName];
 
 $className = Helpers::getTwClasses($attributes, $manifest, $additionalClass);
 
-$icon = str_replace('<svg ', "<svg class=\"{$className}\"", $icon);
+if (!empty($className)) {
+	$icon = str_replace('<svg ', '<svg class="' . htmlspecialchars($className) . '" ', $icon);
+}
 
 // phpcs:ignore Eightshift.Security.HelpersEscape.OutputNotEscaped
 echo $icon;
