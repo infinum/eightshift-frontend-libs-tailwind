@@ -26,7 +26,6 @@ if (empty($videoUrl)) {
 }
 
 $videoMimeType = Helpers::checkAttr('videoMimeType', $attributes, $manifest);
-$videoPosterId = Helpers::checkAttr('videoPosterId', $attributes, $manifest);
 $videoPosterUrl = Helpers::checkAttr('videoPosterUrl', $attributes, $manifest);
 $videoLoop = Helpers::checkAttr('videoLoop', $attributes, $manifest);
 $videoAutoplay = Helpers::checkAttr('videoAutoplay', $attributes, $manifest);
@@ -47,7 +46,6 @@ $additionalAttributes = Helpers::classnames([
 	class="<?php echo esc_attr(Helpers::getTwPart('video', $manifest)); ?>"
 	<?php echo esc_attr($additionalAttributes); ?>
 	preload="<?php echo esc_attr($videoPreload); ?>"
-	poster="<?php echo esc_attr($videoPosterUrl); ?>"
 	<?php if ($videoPosterUrl) { ?>
 		poster="<?php echo esc_attr($videoPosterUrl); ?>"
 	<?php } ?>
