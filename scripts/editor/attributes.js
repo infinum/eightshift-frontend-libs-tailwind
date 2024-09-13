@@ -301,3 +301,28 @@ export const props = (newName, attributes, manual = {}) => {
 	// Return the original attribute for optimization purposes.
 	return output;
 };
+
+
+/**
+ * Filter attributes by array of keys. Used to provide alternative attributes to server side render component to prevent unnecessary rerender.
+ *
+ * @param {object} attributes Attributes data source.
+ * @param {array} filterAttributes Array of attributes to filter.
+ * @param {object} appendItems Append additional attributes.
+ *
+ * @returns {object}
+ */
+export const getFilteredAttributes = (attributes, filterAttributes, appendItems = {}) => {
+	const output = {};
+
+	for (const [key, value] of Object.entries(attributes)) {
+		if (filterAttributes.includes(key)) {
+			output[key] = value;
+		}
+	}
+
+	return {
+		...output,
+		...appendItems,
+	};
+};
