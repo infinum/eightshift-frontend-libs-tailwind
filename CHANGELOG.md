@@ -4,6 +4,9 @@ All notable changes to this project will be documented in this file.
 
 This projects adheres to [Semantic Versioning](https://semver.org/) and [Keep a CHANGELOG](https://keepachangelog.com/).
 
+## [1.3.1] - 2024-09-13
+- Helper `getFilteredAttributes` used on SSR components to filter out unwanted attributes and optimize the output.
+
 ## [1.3.0] - 2024-08-08
 - `twClasses` and `twClassesEditor` can now be passed as an array
 - Updated schemas to account for the `twClasses`/`twClassesEditor` changes.
@@ -40,6 +43,7 @@ This projects adheres to [Semantic Versioning](https://semver.org/) and [Keep a 
 
 [Unreleased]: https://github.com/infinum/eightshift-frontend-libs-tailwind/compare/master...HEAD
 
+[1.3.1]: https://github.com/infinum/eightshift-frontend-libs-tailwind/compare/1.3.0...1.3.1
 [1.3.0]: https://github.com/infinum/eightshift-frontend-libs-tailwind/compare/1.2.0...1.3.0
 [1.2.0]: https://github.com/infinum/eightshift-frontend-libs-tailwind/compare/1.1.1...1.2.0
 [1.1.1]: https://github.com/infinum/eightshift-frontend-libs-tailwind/compare/1.1.0...1.1.1
