@@ -9,7 +9,7 @@ export const useThemeOptions = (settingName) => {
 
 	useEffect(() => {
 		apiFetch({ path: '/wp/v2/settings' }).then((settings) => {
-			setSettings(settings?.[settingName]);
+			setSettings(JSON.parse(settings?.[settingName]));
 		});
 	}, []);
 
@@ -21,7 +21,7 @@ export const useThemeOptions = (settingName) => {
 				path: '/wp/v2/settings',
 				method: 'POST',
 				data: {
-					[settingName]: settings,
+					[settingName]: JSON.stringify(settings),
 				},
 			});
 
