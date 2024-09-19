@@ -302,7 +302,6 @@ export const props = (newName, attributes, manual = {}) => {
 	return output;
 };
 
-
 /**
  * Filter attributes by array of keys. Used to provide alternative attributes to server side render component to prevent unnecessary rerender.
  *
