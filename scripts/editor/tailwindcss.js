@@ -186,7 +186,7 @@ export const getTwClasses = (attributes, manifest, ...custom) => {
 			const conditionKeys = Object.keys(conditions);
 
 			for (const key of conditionKeys) {
-				const value = checkAttr(key, attributes, manifest, true);
+				const value = checkAttr(key, attributes, manifest, true).toString();
 
 				const isArrayCondition = Array.isArray(conditions[key]);
 
