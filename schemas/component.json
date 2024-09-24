@@ -8,7 +8,7 @@
 		},
 		"componentName": {
 			"type": "string",
-			"pattern": "^[^/][a-z0-9-]*$",
+			"pattern": "^[^\/][a-z0-9-]*$",
 			"description": "Unique identifier for the component."
 		},
 		"title": {
@@ -31,14 +31,30 @@
 							"oneOf": [
 								{
 									"type": "string",
-									"enum": ["null", "boolean", "object", "array", "string", "integer", "number"]
+									"enum": [
+										"null",
+										"boolean",
+										"object",
+										"array",
+										"string",
+										"integer",
+										"number"
+									]
 								},
 								{
 									"type": "array",
 									"uniqueItems": true,
 									"items": {
 										"type": "string",
-										"enum": ["null", "boolean", "object", "array", "string", "integer", "number"]
+										"enum": [
+											"null",
+											"boolean",
+											"object",
+											"array",
+											"string",
+											"integer",
+											"number"
+										]
 									}
 								}
 							]
@@ -63,14 +79,18 @@
 						"source": {
 							"type": "string",
 							"description": "Attribute sources are used to define how the attribute values are extracted from saved post content. They provide a mechanism to map from the saved markup to a JavaScript representation of a block.",
-							"enum": ["attribute"]
+							"enum": [
+								"attribute"
+							]
 						},
 						"attribute": {
 							"type": "string",
 							"description": "Use an attribute source to extract the value from an attribute in the markup. The attribute is specified by the attribute field, which must be supplied.\n\nExample: Extract the src attribute from an image found in the block's markup."
 						}
 					},
-					"required": ["type"]
+					"required": [
+						"type"
+					]
 				}
 			},
 			"additionalProperties": false
@@ -168,7 +188,10 @@
 								"description": "Editor-specific classnames to apply if all conditions match. Overrides 'twClasses'. Key is the attribute value, value is the classnames to apply. An array of classnames (strings) can also be provided for improved manifest readability."
 							}
 						},
-						"required": ["attributes", "twClasses"]
+						"required": [
+							"attributes",
+							"twClasses"
+						]
 					},
 					"minLength": 1
 				}
@@ -176,7 +199,10 @@
 			"minProperties": 1
 		}
 	},
-	"required": ["componentName", "title"],
+	"required": [
+		"componentName",
+		"title"
+	],
 	"$defs": {
 		"twPartEntry": {
 			"type": "object",
