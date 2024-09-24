@@ -165,13 +165,13 @@
 									"[a-zA-Z]": {
 										"anyOf": [
 											{
-												"type": "string",
+												"type": ["string", "number", "boolean"],
 												"minLength": 1
 											},
 											{
 												"type": "array",
 												"items": {
-													"type": "string",
+													"type": ["string", "number", "boolean"],
 													"minLength": 1
 												}
 											}
