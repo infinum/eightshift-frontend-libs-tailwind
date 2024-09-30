@@ -1,5 +1,5 @@
 {
-	"title": "JSON schema for Eightshift global manifest",
+	"title": "JSON schema for Frontend libs Tailwind global manifest",
 	"$schema": "http://json-schema.org/draft-04/schema#",
 	"type": "object",
 	"properties": {

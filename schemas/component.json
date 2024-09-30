@@ -101,7 +101,7 @@
 			"properties": {
 				"attributes": {
 					"type": "object",
-					"description": "Set the attribues for the block example"
+					"description": "Set the attributes for the block example"
 				},
 				"innerBlocks": {
 					"type": "array",
@@ -119,18 +119,32 @@
 		},
 		"tailwind": {
 			"type": "object",
-			"description": "Defines shared Tailwind configs for the component. 'base' sets the base classes for the main part of the component. The base is augmented by 'options' and 'combinations', if set. 'parts' can be used for static/supporting parts of the component.",
+			"description": "Defines shared Tailwind configs for the component. Allows defining flexible parts, option-based classes, and combinations to add various styles.",
 			"properties": {
 				"base": {
+					"deprecated": true,
 					"type": "object",
-					"description": "Base classes for the main part of the component.",
+					"description": "DEPRECATED - move into parts (part should be named 'base')! Base classes for the main part of the component.",
 					"properties": {
 						"twClasses": {
-							"type": ["string", "array"],
+							"type": [
+								"string",
+								"array"
+							],
 							"description": "Classnames to apply. An array of classnames (strings) can also be provided for improved manifest readability."
 						},
 						"twClassesEditor": {
-							"type": ["string", "array"],
+							"type": [
+								"string",
+								"array"
+							],
+							"description": "Editor-specific classnames to apply. These classes are added to 'twClassesEditorOnly'/'twClasses'. An array of classnames (strings) can also be provided for improved manifest readability."
+						},
+						"twClassesEditorOnly": {
+							"type": [
+								"string",
+								"array"
+							],
 							"description": "Editor-specific classnames to apply. Overrides 'twClasses'. An array of classnames (strings) can also be provided for improved manifest readability."
 						}
 					},
@@ -138,7 +152,7 @@
 				},
 				"options": {
 					"type": "object",
-					"description": "Per-attribute classes, added to the base class. Key represents the attribute name.",
+					"description": "Per-attribute classes, added to one or more parts, or different classes per part. Key represents the attribute name.",
 					"additionalProperties": {
 						"$ref": "#/$defs/twOptionsEntry"
 					},
@@ -146,7 +160,7 @@
 				},
 				"parts": {
 					"type": "object",
-					"description": "Stand-alone parts of the component, not affected by 'options' or 'combinations'. Key represents the part name.",
+					"description": "Parts of the component. Key represents the part name.",
 					"additionalProperties": {
 						"$ref": "#/$defs/twPartEntry"
 					},
@@ -154,7 +168,7 @@
 				},
 				"combinations": {
 					"type": "array",
-					"description": "Conditionally applied classes, depending on the set attribute values. Added to the base class.",
+					"description": "Conditionally applied classes, depending on the set attribute values. Added to the chosen part, or different classes per part.",
 					"items": {
 						"type": "object",
 						"properties": {
@@ -165,13 +179,21 @@
 									"[a-zA-Z]": {
 										"anyOf": [
 											{
-												"type": ["string", "number", "boolean"],
+												"type": [
+													"string",
+													"number",
+													"boolean"
+												],
 												"minLength": 1
 											},
 											{
 												"type": "array",
 												"items": {
-													"type": ["string", "number", "boolean"],
+													"type": [
+														"string",
+														"number",
+														"boolean"
+													],
 													"minLength": 1
 												}
 											}
@@ -180,17 +202,36 @@
 								}
 							},
 							"twClasses": {
-								"type": ["string", "array"],
+								"type": [
+									"string",
+									"array"
+								],
 								"description": "Classnames to apply if all conditions match. Key is the attribute value, value is the classnames to apply. An array of classnames (strings) can also be provided for improved manifest readability."
 							},
 							"twClassesEditor": {
-								"type": ["string", "array"],
+								"type": [
+									"string",
+									"array"
+								],
+								"description": "Editor-specific classnames to apply if all conditions match. These classes are added to 'twClassesEditorOnly'/'twClasses'. Key is the attribute value, value is the classnames to apply. An array of classnames (strings) can also be provided for improved manifest readability."
+							},
+							"twClassesEditorOnly": {
+								"type": [
+									"string",
+									"array"
+								],
 								"description": "Editor-specific classnames to apply if all conditions match. Overrides 'twClasses'. Key is the attribute value, value is the classnames to apply. An array of classnames (strings) can also be provided for improved manifest readability."
+							},
+							"output": {
+								"type": "object",
+								"description": "Allows outputting different classes per part for this combination. Key is the part name, value is an object with class definitions ('twClasses'/'twClassesEditor'/'twClassesEditorOnly'). Overrides 'twClasses'/'twClassesEditor'/'twClassesEditorOnly' if set.",
+								"additionalProperties": {
+									"$ref": "#/$defs/twPartEntry"
+								}
 							}
 						},
 						"required": [
-							"attributes",
-							"twClasses"
+							"attributes"
 						]
 					},
 					"minLength": 1
@@ -208,11 +249,24 @@
 			"type": "object",
 			"properties": {
 				"twClasses": {
-					"type": ["string", "array"],
+					"type": [
+						"string",
+						"array"
+					],
 					"description": "Classnames to apply. An array of classnames (strings) can also be provided for improved manifest readability."
 				},
 				"twClassesEditor": {
-					"type": ["string", "array"],
+					"type": [
+						"string",
+						"array"
+					],
+					"description": "Editor-specific classnames to apply. These classes are added to 'twClassesEditorOnly'/'twClasses'. An array of classnames (strings) can also be provided for improved manifest readability."
+				},
+				"twClassesEditorOnly": {
+					"type": [
+						"string",
+						"array"
+					],
 					"description": "Editor-specific classnames to apply. Overrides 'twClasses'. An array of classnames (strings) can also be provided for improved manifest readability."
 				}
 			}
@@ -224,19 +278,74 @@
 					"type": "object",
 					"description": "Classnames to apply. Key is the attribute value, value is the classnames to apply. An array of classnames (strings) can also be provided for improved manifest readability.",
 					"additionalProperties": {
-						"type": ["string", "array"]
+						"type": [
+							"string",
+							"array"
+						]
 					}
 				},
 				"twClassesEditor": {
 					"type": "object",
+					"description": "Editor-specific classnames to apply. These classes are added to 'twClassesEditorOnly'/'twClasses'. Key is the attribute value, value is the classnames to apply. An array of classnames (strings) can also be provided for improved manifest readability.",
+					"additionalProperties": {
+						"type": [
+							"string",
+							"array"
+						]
+					}
+				},
+				"twClassesEditorOnly": {
+					"type": "object",
 					"description": "Editor-specific classnames to apply. Overrides 'twClasses'. Key is the attribute value, value is the classnames to apply. An array of classnames (strings) can also be provided for improved manifest readability.",
 					"additionalProperties": {
-						"type": ["string", "array"]
+						"type": [
+							"string",
+							"array"
+						]
 					}
 				},
 				"part": {
-					"type": ["string", "array"],
-					"description": "Part to assign the class output to. If not specified, the classes are added to the base class. You can also specify an array of parts to apply the classes to."
+					"type": "string",
+					"description": "Part to assign the class output to. If not specified, the classes are added to the base class. Specify multiple parts by separating their names with commas. NOTE: if classes are specified per-part, this list will be ignored!"
+				},
+				"responsive": {
+					"type": "boolean",
+					"description": "Set to 'true' if the option has the ability to have per-breakpoint values."
+				}
+			},
+			"additionalProperties": {
+				"type": "object",
+				"properties": {
+					"twClasses": {
+						"type": "object",
+						"description": "Classnames to apply. Key is the attribute value, value is the classnames to apply. An array of classnames (strings) can also be provided for improved manifest readability.",
+						"additionalProperties": {
+							"type": [
+								"string",
+								"array"
+							]
+						}
+					},
+					"twClassesEditor": {
+						"type": "object",
+						"description": "Editor-specific classnames to apply. These classes are added to 'twClassesEditorOnly'/'twClasses'. Key is the attribute value, value is the classnames to apply. An array of classnames (strings) can also be provided for improved manifest readability.",
+						"additionalProperties": {
+							"type": [
+								"string",
+								"array"
+							]
+						}
+					},
+					"twClassesEditorOnly": {
+						"type": "object",
+						"description": "Editor-specific classnames to apply. Overrides 'twClasses'. Key is the attribute value, value is the classnames to apply. An array of classnames (strings) can also be provided for improved manifest readability.",
+						"additionalProperties": {
+							"type": [
+								"string",
+								"array"
+							]
+						}
+					}
 				}
 			}
 		}
