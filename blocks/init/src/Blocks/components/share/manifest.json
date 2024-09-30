@@ -65,7 +65,7 @@
 			},
 			"icon": {
 				"twClasses": "text-gray-400 hover:text-gray-900 focus:outline-none focus-visible:text-navy-500 [&>svg]:size-5 transition",
-				"twClassesEditor": "text-gray-400 size-5"
+				"twClassesEditorOnly": "text-gray-400 size-5"
 			}
 		}
 	}

@@ -40,7 +40,7 @@
 	"tailwind": {
 		"base": {
 			"twClasses": "flex items-center justify-between gap-4 max-w-screen-md mx-auto h-full ~sm/md:~px-8/20",
-			"twClassesEditor": "flex items-center justify-between gap-4 p-1"
+			"twClassesEditorOnly": "flex items-center justify-between gap-4 p-1"
 		},
 		"parts": {
 			"wrapper": {
@@ -48,11 +48,11 @@
 			},
 			"logo": {
 				"twClasses": "~sm/md:~w-20/28",
-				"twClassesEditor": "max-w-32"
+				"twClassesEditorOnly": "max-w-32"
 			},
 			"link": {
 				"twClasses": "text-base text-gray-700 hover:underline underline-offset-2 decoration-red-500 decoration-2",
-				"twClassesEditor": "text-base"
+				"twClassesEditorOnly": "text-base"
 			},
 			"drawerLink": {
 				"twClasses": "text-lg sm:text-base text-gray-700 hover:underline underline-offset-2 decoration-red-500 decoration-2 block py-4 sm:py-2"

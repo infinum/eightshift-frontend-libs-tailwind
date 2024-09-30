@@ -327,7 +327,7 @@
 	"tailwind": {
 		"base": {
 			"twClasses": "scroll-my-24",
-			"twClassesEditor": "flow-root"
+			"twClassesEditorOnly": "flow-root"
 		},
 		"options": {
 			"wrapperBackground": {
@@ -384,7 +384,7 @@
 					"true": "hidden",
 					"false": "block"
 				},
-				"twClassesEditor": {
+				"twClassesEditorOnly": {
 					"true": "opacity-25"
 				}
 			},

@@ -473,7 +473,7 @@
 					"true": "hidden",
 					"false": "flex"
 				},
-				"twClassesEditor": {
+				"twClassesEditorOnly": {
 					"true": "opacity-25",
 					"false": "opacity-100"
 				}

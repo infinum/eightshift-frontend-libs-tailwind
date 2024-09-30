@@ -59,11 +59,11 @@
 			},
 			"link": {
 				"twClasses": "block w-fit text-base text-gray-700 hover:underline underline-offset-2 decoration-navy-500 decoration-2",
-				"twClassesEditor": "text-base text-gray-700"
+				"twClassesEditorOnly": "text-base text-gray-700"
 			},
 			"logo": {
 				"twClasses": "min-h-16 w-28",
-				"twClassesEditor": "min-h-16 max-w-28 p-1 [&_img]:!object-contain"
+				"twClassesEditorOnly": "min-h-16 max-w-28 p-1 [&_img]:!object-contain"
 			},
 			"share": {
 				"twClasses": "mt-5"

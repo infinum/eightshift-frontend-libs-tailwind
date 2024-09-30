@@ -107,12 +107,12 @@
 	"tailwind": {
 		"base": {
 			"twClasses": "grid grid-flow-col justify-items-center auto-cols-[85%] sm:auto-cols-[minmax(20rem,_auto)] *:select-none",
-			"twClassesEditor": "grid grid-flow-col justify-items-center auto-cols-[minmax(20rem,_auto)]"
+			"twClassesEditorOnly": "grid grid-flow-col justify-items-center auto-cols-[minmax(20rem,_auto)]"
 		},
 		"parts": {
 			"container": {
 				"twClasses": "overflow-hidden py-2",
-				"twClassesEditor": "overflow-y-hidden overflow-x-auto w-full has-[>_:empty]:hidden"
+				"twClassesEditorOnly": "overflow-y-hidden overflow-x-auto w-full has-[>_:empty]:hidden"
 			}
 		},
 		"options": {
