@@ -12,6 +12,8 @@ import { clsx } from '@eightshift/ui-components/utilities';
  *
  * @returns {string} Output classes.
  *
+ * @deprecated Since 1.4.0. Use `tailwindClasses` instead.
+ *
  * @example
  * const classes = getTwPart('intro', manifest);
  *
@@ -45,6 +47,8 @@ export const getTwPart = (part, manifest, ...custom) => {
  * @param {...string?} custom - Custom classes to include in the output.
  *
  * @returns {string} Output classes.
+ *
+ * @deprecated Since 1.4.0. Use `tailwindClasses` instead.
  *
  * @example
  * const classes = getTwPart('intro', manifest);
@@ -117,6 +121,8 @@ export const getTwDynamicPart = (part, attributes, manifest, ...custom) => {
  * @param {...string?} custom - Custom classes to include in the output.
  *
  * @returns {string} Output classes
+ *
+ * @deprecated Since 1.4.0. Use `tailwindClasses` instead.
  *
  * @example
  * const classes = getTwClasses(attributes, manifest);
@@ -340,4 +346,207 @@ const combineAndRemoveDuplicates = (results) => {
 
 		return acc;
 	}, {});
+};
+
+const unifyClasses = (classes) => {
+	if (Array.isArray(classes)) {
+		return clsx(...classes);
+	}
+
+	return classes.trim();
+};
+
+const processOption = (partName, optionValue, defs) => {
+	let optionClasses = [];
+
+	const isResponsive = defs?.responsive === true;
+	const itemPartName = defs?.part ?? 'base';
+	const isSingleValue = 'twClasses' in defs || 'twClassesEditor' in defs || 'twClassesEditorOnly' in defs;
+
+	// Part checks.
+	if (!isSingleValue && typeof defs?.[partName] === 'undefined') {
+		return '';
+	}
+
+	if (isSingleValue && !itemPartName.includes(partName)) {
+		return '';
+	}
+
+	// Non-responsive options.
+	if (!isResponsive) {
+		const rawValueBase =
+			defs?.twClassesEditorOnly?.[optionValue] ??
+			defs?.twClasses?.[optionValue] ??
+			defs?.[partName]?.twClassesEditorOnly?.[optionValue] ??
+			defs?.[partName]?.twClasses?.[optionValue] ??
+			'';
+
+		const rawValueEditor =
+			defs?.twClassesEditor?.[optionValue] ?? defs?.[partName]?.twClassesEditor?.[optionValue] ?? '';
+
+		return clsx(unifyClasses(rawValueBase), unifyClasses(rawValueEditor));
+	}
+
+	// Responsive options.
+	const breakpoints = Object.keys(optionValue).filter((key) => key !== '_desktopFirst');
+
+	for (const breakpoint of breakpoints) {
+		const breakpointValue = optionValue?.[breakpoint];
+
+		if (typeof breakpointValue === 'undefined') {
+			continue;
+		}
+
+		const rawValueBase =
+			defs?.twClassesEditorOnly?.[breakpointValue] ??
+			defs?.twClasses?.[breakpointValue] ??
+			defs?.[partName]?.twClassesEditorOnly?.[breakpointValue] ??
+			defs?.[partName]?.twClasses?.[breakpointValue] ??
+			'';
+
+		const rawValueEditor =
+			defs?.twClassesEditor?.[breakpointValue] ?? defs?.[partName]?.twClassesEditor?.[breakpointValue] ?? '';
+
+		if (breakpoint === '_default') {
+			optionClasses = [...optionClasses, unifyClasses(rawValueBase), unifyClasses(rawValueEditor)];
+
+			continue;
+		}
+
+		const splitClassesBase = unifyClasses(rawValueBase)
+			.split(' ')
+			.filter(Boolean)
+			.map((currentClass) => `${breakpoint}:${currentClass}`);
+
+		const splitClassesEditor = unifyClasses(rawValueEditor)
+			.split(' ')
+			.filter(Boolean)
+			.map((currentClass) => `${breakpoint}:${currentClass}`);
+
+		optionClasses = [...optionClasses, unifyClasses(splitClassesBase), unifyClasses(splitClassesEditor)];
+	}
+
+	return unifyClasses(optionClasses);
+};
+
+const processCombination = (partName, combo, attributes, manifest) => {
+	let matches = true;
+
+	for (const [attributeName, allowedValue] of Object.entries(combo?.attributes ?? {})) {
+		const optionValue = checkAttr(attributeName, attributes, manifest, true);
+
+		if (Array.isArray(allowedValue) && !allowedValue.includes(optionValue)) {
+			matches = false;
+			break;
+		}
+
+		if (optionValue !== allowedValue) {
+			matches = false;
+			break;
+		}
+	}
+
+	if (!matches) {
+		return '';
+	}
+
+	const itemPartName = combo?.part ?? 'base';
+	const isSingleValue = 'twClasses' in combo || 'twClassesEditor' in combo || 'twClassesEditorOnly' in combo;
+
+	if (isSingleValue && !partName.includes(itemPartName)) {
+		return '';
+	}
+
+	const rawValueBase =
+		combo?.output?.[partName]?.twClassesEditorOnly ??
+		combo?.output?.[partName]?.twClasses ??
+		combo?.twClassesEditorOnly ??
+		combo?.twClasses ??
+		'';
+
+	const rawValueEditor = combo?.output?.[partName]?.twClassesEditor ?? combo?.twClassesEditor ?? '';
+
+	if (!Array.isArray(rawValueBase) && typeof rawValueBase !== 'string') {
+		throw new Error(
+			'Combination classes/editor-only classes were not defined correctly. Please check the combination definition in the manifest.',
+		);
+	}
+
+	if (!Array.isArray(rawValueEditor) && typeof rawValueEditor !== 'string') {
+		throw new Error(
+			'Combination editor classes were not defined correctly. Please check the combination definition in the manifest.',
+		);
+	}
+
+	return clsx(unifyClasses(rawValueBase), unifyClasses(rawValueEditor));
+};
+
+/**
+ * Get Tailwind classes from attributes and manifest.
+ *
+ * @param {string} part - Part to get classes for.
+ * @param {Object<string, mixed>} attributes - Component/block attributes.
+ * @param {Object<string, mixed>} manifest - Component/block manifest data.
+ * @param {...string?} custom - Custom classes to include in the output.
+ *
+ * @returns {string} Output classes
+ *
+ * @example
+ * const classes = tailwindClasses(attributes, manifest);
+ *
+ * @example
+ * const classes = tailwindClasses(attributes, manifest, 'p-4 bg-gray-100');
+ *
+ */
+export const tailwindClasses = (part, attributes, manifest, ...custom) => {
+	// If nothing is set, return custom classes as a fallback.
+	if (!attributes || !manifest || !manifest?.tailwind || Object.keys(manifest?.tailwind ?? {}).length === 0) {
+		return clsx(...custom);
+	}
+
+	const allParts = ['base', ...Object.keys(manifest?.tailwind?.parts ?? {})];
+
+	let partName = 'base';
+
+	if (part?.length > 0 && typeof manifest.tailwind.parts[part] !== 'undefined' && allParts.includes(part)) {
+		partName = part;
+	} else if (part !== 'base') {
+		throw new Error(`Part '${part}' is not defined in the manifest.`);
+	}
+
+	// Base classes.
+	const baseBaseClasses = manifest?.tailwind?.parts?.[partName]?.twClassesEditorOnly ??
+		manifest?.tailwind?.parts?.[partName]?.twClasses ??
+		manifest?.tailwind?.base?.twClassesEditorOnly ??
+		manifest?.tailwind?.base?.twClasses ?? [''];
+	const baseEditorClasses = manifest?.tailwind?.parts?.[partName]?.twClassesEditor ??
+		manifest?.tailwind?.base?.twClassesEditor ?? [''];
+
+	// Option classes.
+	const options = manifest?.tailwind?.options ?? {};
+
+	let optionClasses = [];
+
+	for (const [attributeName, defs] of Object.entries(options)) {
+		const optionValue = checkAttr(attributeName, attributes, manifest, true);
+
+		optionClasses = [...optionClasses, processOption(partName, optionValue, defs)];
+	}
+
+	// Combinations.
+	const combinations = manifest?.tailwind?.combinations ?? [];
+
+	let combinationClasses = [];
+
+	for (const combo of combinations) {
+		combinationClasses = [...combinationClasses, processCombination(partName, combo, attributes, manifest)];
+	}
+
+	return clsx(
+		unifyClasses(baseBaseClasses),
+		unifyClasses(baseEditorClasses),
+		...optionClasses,
+		...combinationClasses,
+		...custom,
+	);
 };
