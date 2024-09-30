@@ -49,10 +49,10 @@ export const HeadingOptions = (attributes) => {
 					type='menu'
 					wrapperProps={{
 						triggerIcon: <span className='es-uic-font-mono uppercase'>{headingTag}</span>,
-						tooltip: __('Heading level', '%g_textdomain%'),
 					}}
 					hidden={hiddenOptions?.headingLevel}
 					noTriggerLabel
+					tooltip
 				/>
 
 				{additionalControls}
