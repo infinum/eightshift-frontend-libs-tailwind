@@ -50,8 +50,8 @@ $carouselPagination = Helpers::checkAttr('carouselPagination', $attributes, $man
 		</div>
 	<?php } ?>
 
-	<div class="<?php echo esc_attr(Helpers::getTwPart('container', $manifest, "{$blockJsClass}-container")); ?>">
-		<div class="<?php echo esc_attr(Helpers::getTwClasses($attributes, $manifest)); ?>">
+	<div class="<?php echo esc_attr(Helpers::tailwindClasses('container', $attributes, $manifest, "{$blockJsClass}-container")); ?>">
+		<div class="<?php echo esc_attr(Helpers::tailwindClasses('base', $attributes, $manifest)); ?>">
 			<?php
 			// phpcs:ignore Eightshift.Security.HelpersEscape.OutputNotEscaped
 			echo $renderContent;

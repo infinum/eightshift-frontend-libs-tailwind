@@ -2,8 +2,7 @@ import {
 	checkAttr,
 	getBreakpointData,
 	getBreakpointNames,
-	getTwClasses,
-	getTwPart,
+	tailwindClasses,
 } from '@eightshift/frontend-libs-tailwind/scripts';
 import { ImagePlaceholder } from '@eightshift/ui-components';
 import manifest from './../manifest.json';
@@ -47,7 +46,7 @@ export const ImageEditor = (attributes) => {
 						);
 					})}
 					<img
-						className={getTwClasses(attributes, manifest, additionalClass?.image ?? additionalClass)}
+						className={tailwindClasses(attributes, manifest, additionalClass?.image ?? additionalClass)}
 						src={imageData?.['_default'].url}
 					/>
 				</picture>

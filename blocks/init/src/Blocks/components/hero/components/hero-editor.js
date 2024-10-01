@@ -1,4 +1,4 @@
-import { props, checkAttr, getTwPart, getTwClasses } from '@eightshift/frontend-libs-tailwind/scripts';
+import { props, checkAttr, tailwindClasses } from '@eightshift/frontend-libs-tailwind/scripts';
 import { ImageEditor } from '../../image/components/image-editor';
 import { HeadingEditor } from '../../heading/components/heading-editor';
 import { ParagraphEditor } from '../../paragraph/components/paragraph-editor';
@@ -15,12 +15,12 @@ export const HeroEditor = (attributes) => {
 	}
 
 	return (
-		<div className={getTwClasses(attributes, manifest, additionalClass)}>
+		<div className={tailwindClasses(attributes, manifest, additionalClass)}>
 			<ImageEditor
 				{...props('image', attributes, {
 					additionalClass: {
 						image: '!size-full grayscale',
-						picture: getTwPart('imagePicture', manifest),
+						picture: tailwindClasses('imagePicture', attributes, manifest),
 					},
 				})}
 			/>

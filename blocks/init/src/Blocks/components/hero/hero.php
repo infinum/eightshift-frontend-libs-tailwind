@@ -19,12 +19,12 @@ if (!$heroUse) {
 $additionalClass = $attributes['additionalClass'] ?? '';
 ?>
 
-<section class="<?php echo esc_attr(Helpers::getTwClasses($attributes, $manifest, $additionalClass)); ?>">
+<section class="<?php echo esc_attr(Helpers::tailwindClasses('base', $attributes, $manifest, $additionalClass)); ?>">
 	<?php
 	echo Helpers::render('image', Helpers::props('image', $attributes, [
 		'additionalClass' => [
 			'image' => 'size-full grayscale',
-			'picture' => Helpers::getTwPart('imagePicture', $manifest),
+			'picture' => Helpers::tailwindClasses('imagePicture', $attributes, $manifest),
 		],
 	]));
 	?>

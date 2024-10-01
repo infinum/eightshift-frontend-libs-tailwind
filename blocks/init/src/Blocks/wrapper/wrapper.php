@@ -22,7 +22,7 @@ $wrapperId = Helpers::checkAttr('wrapperId', $attributes, $manifest);
 ?>
 
 <div
-	class="<?php echo esc_attr(Helpers::getTwClasses($attributes, $manifest)); ?>"
+	class="<?php echo esc_attr(Helpers::tailwindClasses('base', $attributes, $manifest)); ?>"
 	<?php if (!empty($wrapperId)) { ?>
 		id="<?php echo esc_attr($wrapperId); ?>"
 	<?php } ?>

@@ -41,7 +41,7 @@ $activeLayers = array_values($activeLayers);
 ?>
 
 <div
-	class="<?php echo esc_attr(Helpers::getTwClasses($attributes, $manifest, $blockJsClass)); ?>"
+	class="<?php echo esc_attr(Helpers::tailwindClasses('base', $attributes, $manifest, $blockJsClass)); ?>"
 	data-center-lat="<?php echo esc_attr($mapCenterLat); ?>"
 	data-center-lon="<?php echo esc_attr($mapCenterLon); ?>"
 	data-center-zoom="<?php echo esc_attr($mapZoom); ?>"

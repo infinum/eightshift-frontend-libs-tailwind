@@ -36,7 +36,7 @@ if (function_exists('idn_to_ascii') && function_exists('sanitize_title')) {
 
 <<?php echo esc_attr($headingTag); ?>
 	data-slug="<?php echo esc_attr($sanitizedTitle) ?>"
-	class="<?php echo esc_attr(Helpers::getTwClasses($attributes, $manifest, $additionalClass)); ?>"
+	class="<?php echo esc_attr(Helpers::tailwindClasses('base', $attributes, $manifest, $additionalClass)); ?>"
 >
 	<?php
 		// phpcs:ignore Eightshift.Security.HelpersEscape.OutputNotEscaped

@@ -138,5 +138,12 @@ module.exports = {
 		'no-descending-specificity': null,
 
 		'import-notation': null,
+
+		'at-rule-no-unknown': [
+			true,
+			{
+				ignoreAtRules: ['tailwind'],
+			},
+		],
 	},
 };

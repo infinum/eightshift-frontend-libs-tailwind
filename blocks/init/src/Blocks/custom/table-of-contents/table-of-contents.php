@@ -14,7 +14,7 @@ $blockClass = $attributes['blockClass'] ?? '';
 $blockJsClass = $attributes['blockJsClass'] ?? '';
 
 $tocClass = Helpers::classnames([
-	Helpers::getTwPart('container', $manifest),
+	Helpers::tailwindClasses('container', $attributes, $manifest),
 	$blockJsClass,
 ]);
 
@@ -25,7 +25,7 @@ $headingLevelsToUse = implode(',', array_keys(array_filter($tableOfContentsHeadi
 ?>
 
 <div class="<?php echo esc_attr($tocClass); ?>" data-levels="<?php echo esc_attr($headingLevelsToUse); ?>">
-	<p class="<?php echo esc_attr(Helpers::getTwPart('description', $manifest)); ?>">
+	<p class="<?php echo esc_attr(Helpers::tailwindClasses('description', $attributes, $manifest)); ?>">
 	<?php echo esc_attr($tableOfContentsDescription); ?>
 	</p>
 </div>

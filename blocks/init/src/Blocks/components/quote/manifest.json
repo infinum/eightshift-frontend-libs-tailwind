@@ -37,7 +37,7 @@
 			},
 			"author": {
 				"twClasses": "font-sans text-sm text-gray-500 mt-4 font-light",
-				"twClassesEditor": "inline-flex gap-1 font-sans text-sm text-gray-500 mt-2 font-light"
+				"twClassesEditorOnly": "inline-flex gap-1 font-sans text-sm text-gray-500 mt-2 font-light"
 			},
 			"icon": {
 				"twClasses": "ml-1 ~mb-3/4 pointer-events-none text-gray-400 size-6"

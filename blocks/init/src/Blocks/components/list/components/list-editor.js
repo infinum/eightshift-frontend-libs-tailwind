@@ -1,6 +1,6 @@
 import { __ } from '@wordpress/i18n';
 import { RichText } from '@wordpress/block-editor';
-import { checkAttr, getAttrKey, getTwClasses } from '@eightshift/frontend-libs-tailwind/scripts';
+import { checkAttr, getAttrKey, tailwindClasses } from '@eightshift/frontend-libs-tailwind/scripts';
 import manifest from '../manifest.json';
 
 export const ListEditor = (attributes) => {
@@ -16,7 +16,7 @@ export const ListEditor = (attributes) => {
 	const listType = checkAttr('listType', attributes, manifest);
 
 	return (
-		<div className={getTwClasses(attributes, manifest, additionalClass)}>
+		<div className={tailwindClasses(attributes, manifest, additionalClass)}>
 			<RichText
 				tagName={listType}
 				multiline='li'

@@ -23,7 +23,7 @@ $listType = Helpers::checkAttr('listType', $attributes, $manifest);
 ?>
 
 <<?php echo esc_attr($listType); ?>
-	class="<?php echo esc_attr(Helpers::getTwClasses($attributes, $manifest, $additionalClass)); ?>"
+	class="<?php echo esc_attr(Helpers::tailwindClasses('base', $attributes, $manifest, $additionalClass)); ?>"
 >
 	<?php
 	// phpcs:ignore Eightshift.Security.HelpersEscape.OutputNotEscaped

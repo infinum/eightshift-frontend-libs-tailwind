@@ -1,6 +1,6 @@
 import React, { useId, useState, useRef } from 'react';
 import { __ } from '@wordpress/i18n';
-import { BlockInserter, checkAttr, getAttrKey, getTwPart } from '@eightshift/frontend-libs-tailwind/scripts';
+import { BlockInserter, checkAttr, getAttrKey, tailwindClasses } from '@eightshift/frontend-libs-tailwind/scripts';
 import { RichText, useBlockProps, useInnerBlocksProps } from '@wordpress/block-editor';
 import manifest from '../manifest.json';
 import { JsxSvg } from '@eightshift/ui-components/icons';
@@ -25,7 +25,7 @@ export const AccordionItemEditor = ({ attributes, setAttributes, clientId }) => 
 		<>
 			<div
 				aria-expanded={expanded}
-				className={getTwPart('trigger', manifest)}
+				className={tailwindClasses('trigger', attributes, manifest)}
 			>
 				<RichText
 					placeholder={__('Section title', '%g_textdomain%')}
@@ -37,11 +37,11 @@ export const AccordionItemEditor = ({ attributes, setAttributes, clientId }) => 
 
 				<button
 					onClick={(e) => setExpanded(!expanded)}
-					className={getTwPart('editor-trigger', manifest)}
+					className={tailwindClasses('editor-trigger', attributes, manifest)}
 				>
 					<JsxSvg
 						svg={manifest.resources.icon}
-						className={getTwPart('editor-trigger-icon', manifest, expanded && 'rotate-45')}
+						className={tailwindClasses('editor-trigger-icon', attributes, manifest, expanded && 'rotate-45')}
 					/>
 				</button>
 			</div>
@@ -52,7 +52,7 @@ export const AccordionItemEditor = ({ attributes, setAttributes, clientId }) => 
 			>
 				<div
 					{...innerBlocksProps}
-					className={getTwPart('content-container', manifest)}
+					className={tailwindClasses('content-container', attributes, manifest)}
 				/>
 			</AnimatedVisibility>
 		</>

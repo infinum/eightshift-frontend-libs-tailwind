@@ -92,7 +92,7 @@
 	"tailwind": {
 		"base": {
 			"twClasses": "font-sans [&_a]:underline font-synthesis-none",
-			"twClassesEditor": "font-sans [&>a]:underline font-synthesis-none"
+			"twClassesEditorOnly": "font-sans [&>a]:underline font-synthesis-none"
 		},
 		"options": {
 			"listSize": {
@@ -115,7 +115,7 @@
 					"decimal": "list-decimal ml-[1.125em]",
 					"checks": "list-['✓_'] ml-[1em]"
 				},
-				"twClassesEditor": {
+				"twClassesEditorOnly": {
 					"none": "*:list-none",
 					"disc": "*:list-disc *:ml-[1.125em]",
 					"decimal": "*:list-decimal *:ml-[1.125em]",

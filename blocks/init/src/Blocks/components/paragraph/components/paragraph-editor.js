@@ -1,6 +1,6 @@
 import { __ } from '@wordpress/i18n';
 import { RichText } from '@wordpress/block-editor';
-import { checkAttr, getAttrKey, getTwClasses } from '@eightshift/frontend-libs-tailwind/scripts';
+import { checkAttr, getAttrKey, tailwindClasses } from '@eightshift/frontend-libs-tailwind/scripts';
 import manifest from './../manifest.json';
 
 export const ParagraphEditor = (attributes) => {
@@ -25,7 +25,7 @@ export const ParagraphEditor = (attributes) => {
 	return (
 		<RichText
 			identifier={getAttrKey('paragraphContent', attributes, manifest)}
-			className={getTwClasses(attributes, manifest, additionalClass)}
+			className={tailwindClasses(attributes, manifest, additionalClass)}
 			placeholder={placeholder}
 			value={paragraphContent}
 			onChange={(value) => setAttributes({ [getAttrKey('paragraphContent', attributes, manifest)]: value })}

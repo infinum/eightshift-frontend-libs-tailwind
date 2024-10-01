@@ -19,24 +19,24 @@ $siteFooterLogoId = Helpers::checkAttr('siteFooterLogoId', $attributes, $manifes
 $logoAlt = get_post_meta($siteFooterLogoId, '_wp_attachment_image_alt', true) ?? '';
 ?>
 
-<div class="<?php echo esc_attr(Helpers::getTwClasses($attributes, $manifest)); ?>">
-	<div class="<?php echo esc_attr(Helpers::getTwPart('topContainer', $manifest)); ?>">
+<div class="<?php echo esc_attr(Helpers::tailwindClasses('base', $attributes, $manifest)); ?>">
+	<div class="<?php echo esc_attr(Helpers::tailwindClasses('topContainer', $attributes, $manifest)); ?>">
 		<a href="<?php echo esc_url(get_home_url()); ?>">
 			<img
 				src="<?php echo esc_attr($siteFooterLogoUrl); ?>"
 				alt="<?php echo esc_attr($logoAlt); ?>"
-				class="<?php echo esc_attr(Helpers::getTwPart('logo', $manifest)); ?>"
+				class="<?php echo esc_attr(Helpers::tailwindClasses('logo', $attributes, $manifest)); ?>"
 			>
 		</a>
-		<div class="<?php echo esc_attr(Helpers::getTwPart('linksContainer', $manifest)); ?>">
+		<div class="<?php echo esc_attr(Helpers::tailwindClasses('linksContainer', $attributes, $manifest)); ?>">
 
 			<?php
 			foreach ($siteFooterPrimary as $index => $value) {
 				$items = $value['items'] ?? [];
 				$header = $value['header'] ?? '';
 				?>
-				<div class="<?php echo esc_attr(Helpers::getTwPart('sectionContainer', $manifest)); ?>">
-					<p class="<?php echo esc_attr(Helpers::getTwPart('sectionTitle', $manifest)); ?>">
+				<div class="<?php echo esc_attr(Helpers::tailwindClasses('sectionContainer', $attributes, $manifest)); ?>">
+					<p class="<?php echo esc_attr(Helpers::tailwindClasses('sectionTitle', $attributes, $manifest)); ?>">
 						<?php echo wp_kses_post($header); ?>
 					</p>
 
@@ -46,7 +46,7 @@ $logoAlt = get_post_meta($siteFooterLogoId, '_wp_attachment_image_alt', true) ??
 						?>
 						<a
 							href="<?php echo esc_url($item['url']); ?>"
-							class="<?php echo esc_attr(Helpers::getTwPart('link', $manifest)); ?>"
+							class="<?php echo esc_attr(Helpers::tailwindClasses('link', $attributes, $manifest)); ?>"
 							<?php if ($item['newTab'] ?? false) { ?>
 								target="_blank"
 								rel="noopener noreferrer"
@@ -60,9 +60,9 @@ $logoAlt = get_post_meta($siteFooterLogoId, '_wp_attachment_image_alt', true) ??
 		</div>
 	</div>
 
-	<div class="<?php echo esc_attr(Helpers::getTwPart('bottomContainer', $manifest)); ?>">
+	<div class="<?php echo esc_attr(Helpers::tailwindClasses('bottomContainer', $attributes, $manifest)); ?>">
 		<?php if (!empty($siteFooterCopyright)) { ?>
-			<span class="<?php echo esc_attr(Helpers::getTwPart('copyright', $manifest)); ?>">
+			<span class="<?php echo esc_attr(Helpers::tailwindClasses('copyright', $attributes, $manifest)); ?>">
 				&copy; <?php echo esc_attr($siteFooterCopyright); ?>
 			</span>
 		<?php } ?>

@@ -52,17 +52,17 @@
 		"parts": {
 			"trigger": {
 				"twClasses": "flex items-center justify-between gap-2 group px-2 py-4 w-full border-t border-t-gray-400 text-sm font-medium focus:outline-none focus-visible:ring focus-visible:ring-navy-500/30 transition [&>svg]:size-5 [&>svg]:transition-transform [&[aria-expanded=true]>svg]:rotate-45",
-				"twClassesEditor": "flex items-center justify-between gap-2 group px-2 py-4 w-full border-t border-t-gray-400 text-sm font-medium"
+				"twClassesEditorOnly": "flex items-center justify-between gap-2 group px-2 py-4 w-full border-t border-t-gray-400 text-sm font-medium"
 			},
 			"content-container": {
 				"twClasses": "pl-2 pr-8 pb-4 animate-in fade-in duration-500 fill-mode-forwards",
-				"twClassesEditor": "pl-2 pr-8 pb-4 *:!m-0"
+				"twClassesEditorOnly": "pl-2 pr-8 pb-4 *:!m-0"
 			},
 			"editor-trigger": {
-				"twClassesEditor": "focus:outline-none focus-visible:ring focus-visible:ring-navy-500/30 transition"
+				"twClassesEditorOnly": "focus:outline-none focus-visible:ring focus-visible:ring-navy-500/30 transition"
 			},
 			"editor-trigger-icon": {
-				"twClassesEditor": "size-5 transition duration-300"
+				"twClassesEditorOnly": "size-5 transition duration-300"
 			}
 		}
 	}

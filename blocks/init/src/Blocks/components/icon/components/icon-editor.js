@@ -1,4 +1,4 @@
-import { checkAttr, getTwClasses } from '@eightshift/frontend-libs-tailwind/scripts';
+import { checkAttr, tailwindClasses } from '@eightshift/frontend-libs-tailwind/scripts';
 import { JsxSvg } from '@eightshift/ui-components/icons';
 import manifest from './../manifest.json';
 
@@ -17,7 +17,7 @@ export const IconEditor = (attributes) => {
 	return (
 		<JsxSvg
 			svg={manifestIcons[iconName]}
-			className={getTwClasses(attributes, manifest, additionalClass)}
+			className={tailwindClasses(attributes, manifest, additionalClass)}
 		/>
 	);
 };
