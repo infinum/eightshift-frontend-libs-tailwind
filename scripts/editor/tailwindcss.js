@@ -508,7 +508,12 @@ export const tailwindClasses = (part, attributes, manifest, ...custom) => {
 
 	let partName = 'base';
 
-	if (part?.length > 0 && typeof manifest.tailwind.parts[part] !== 'undefined' && allParts.includes(part)) {
+	if (
+		part !== 'base' &&
+		part?.length > 0 &&
+		typeof manifest?.tailwind?.parts?.[part] !== 'undefined' &&
+		allParts.includes(part)
+	) {
 		partName = part;
 	} else if (part !== 'base') {
 		throw new Error(`Part '${part}' is not defined in the manifest.`);
