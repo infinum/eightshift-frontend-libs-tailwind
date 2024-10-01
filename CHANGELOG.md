@@ -4,6 +4,9 @@ All notable changes to this project will be documented in this file.
 
 This projects adheres to [Semantic Versioning](https://semver.org/) and [Keep a CHANGELOG](https://keepachangelog.com/).
 
+## [1.4.1] - 2024-10-01
+- `tailwindClasses` check will now work fine even if no `parts` are defined.
+
 ## [1.4.0] - 2024-09-30
 - Introduced new, more flexible, and simpler to use `tailwindClasses` function. Replaces `getTwPart`, `getTwDynamicPart`, and `getTwClasses`.
 	- **Potentially breaking**: `twClassesEditor` is now appended to `twClasses`. If you need editor-only classes, you can now use the `twClassesEditorOnly` key. Editor-only classes replace `twClasses`, but will also have classes from `twClassesEditor`.
@@ -60,6 +63,7 @@ This projects adheres to [Semantic Versioning](https://semver.org/) and [Keep a 
 
 [Unreleased]: https://github.com/infinum/eightshift-frontend-libs-tailwind/compare/master...HEAD
 
+[1.4.1]: https://github.com/infinum/eightshift-frontend-libs-tailwind/compare/1.4.0...1.4.1
 [1.4.0]: https://github.com/infinum/eightshift-frontend-libs-tailwind/compare/1.3.3...1.4.0
 [1.3.3]: https://github.com/infinum/eightshift-frontend-libs-tailwind/compare/1.3.2...1.3.3
 [1.3.2]: https://github.com/infinum/eightshift-frontend-libs-tailwind/compare/1.3.1...1.3.2
