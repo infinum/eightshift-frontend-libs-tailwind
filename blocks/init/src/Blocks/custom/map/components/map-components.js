@@ -24,7 +24,7 @@ import { applyStyle as OLMBStyleApply } from 'ol-mapbox-style';
 import { Style, Fill, Stroke, Icon } from 'ol/style';
 
 import manifest from '../manifest.json';
-import { getTwClasses } from '@eightshift/frontend-libs-tailwind/scripts';
+import { tailwindClasses } from '@eightshift/frontend-libs-tailwind/scripts';
 
 export const MapContext = new createContext();
 
@@ -72,7 +72,7 @@ export const OpenLayersMap = ({ children, zoom, center, attributes, manifest }) 
 		<MapContext.Provider value={{ map }}>
 			<div
 				ref={mapRef}
-				className={getTwClasses(attributes, manifest)}
+				className={tailwindClasses(attributes, manifest)}
 			>
 				{children}
 			</div>

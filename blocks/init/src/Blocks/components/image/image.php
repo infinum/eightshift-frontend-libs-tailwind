@@ -57,6 +57,6 @@ $breakpoints = Helpers::getTwBreakpoints($isMobileFirst);
 	<img
 		src="<?php echo esc_url($imageData['_default']['url'] ?? ''); ?>"
 		alt="<?php echo esc_attr($imageAlt); ?>"
-		class="<?php echo esc_attr(Helpers::getTwClasses($attributes, $manifest, $additionalClass['image'] ?? $additionalClass)); ?>"
+		class="<?php echo esc_attr(Helpers::tailwindClasses('base', $attributes, $manifest, $additionalClass['image'] ?? $additionalClass)); ?>"
 	/>
 </picture>

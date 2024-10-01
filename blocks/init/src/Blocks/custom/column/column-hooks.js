@@ -2,7 +2,7 @@ import { createHigherOrderComponent } from '@wordpress/compose';
 import { addFilter } from '@wordpress/hooks';
 import globalManifest from '../../manifest.json';
 import manifest from './manifest.json';
-import { getTwClasses } from '@eightshift/frontend-libs-tailwind/scripts';
+import { tailwindClasses } from '@eightshift/frontend-libs-tailwind/scripts';
 
 const { namespace } = globalManifest;
 
@@ -19,7 +19,7 @@ const parentComponentBlock = createHigherOrderComponent((BlockListBlock) => {
 		if (name === fullBlockName) {
 			updatedProps = {
 				...innerProps,
-				className: getTwClasses(attributes, manifest, '[&_>_.wp-block]:!mx-0 !m-0'),
+				className: tailwindClasses(attributes, manifest, '[&_>_.wp-block]:!mx-0 !m-0'),
 			};
 		}
 

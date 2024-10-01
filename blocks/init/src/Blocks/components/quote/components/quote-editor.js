@@ -1,6 +1,6 @@
 import { __ } from '@wordpress/i18n';
 import { RichText } from '@wordpress/block-editor';
-import { checkAttr, getTwPart, getAttrKey } from '@eightshift/frontend-libs-tailwind/scripts';
+import { checkAttr, tailwindClasses, getAttrKey } from '@eightshift/frontend-libs-tailwind/scripts';
 import { AnimatedVisibility } from '@eightshift/ui-components';
 import { JsxSvg } from '@eightshift/ui-components/icons';
 import manifest from './../manifest.json';
@@ -19,27 +19,27 @@ export const QuoteEditor = (attributes) => {
 	const quoteAuthor = checkAttr('quoteAuthor', attributes, manifest);
 
 	return (
-		<figure className={getTwPart('container', manifest, additionalClass)}>
+		<figure className={tailwindClasses('container', attributes, manifest, additionalClass)}>
 			<AnimatedVisibility
 				visible={quoteShowIcon}
 				noInitial
 			>
 				<JsxSvg
-					className={getTwPart('icon', manifest)}
+					className={tailwindClasses('icon', attributes, manifest)}
 					svg={manifest.resources.quoteIcon}
 				/>
 			</AnimatedVisibility>
 
 			<RichText
 				tagName='blockquote'
-				className={getTwPart('quote-text', manifest)}
+				className={tailwindClasses('quote-text', attributes, manifest)}
 				placeholder={__('Quote text', '%g_textdomain%')}
 				value={quoteText}
 				onChange={(value) => setAttributes({ [getAttrKey('quoteText', attributes, manifest)]: value })}
 				allowedFormats={[]}
 			/>
 
-			<figcaption className={getTwPart('author', manifest)}>
+			<figcaption className={tailwindClasses('author', attributes, manifest)}>
 				&mdash;
 				<RichText
 					placeholder={__('Quote author', '%g_textdomain%')}

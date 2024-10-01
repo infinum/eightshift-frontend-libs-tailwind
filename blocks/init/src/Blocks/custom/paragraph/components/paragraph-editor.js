@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react';
 import { createBlock } from '@wordpress/blocks';
-import { getTwClasses, props } from '@eightshift/frontend-libs-tailwind/scripts';
+import { tailwindClasses, props } from '@eightshift/frontend-libs-tailwind/scripts';
 import { ParagraphEditor as EditorComponent } from '../../../components/paragraph/components/paragraph-editor';
 import manifest from './../manifest.json';
 import globalManifest from './../../../manifest.json';
@@ -35,7 +35,7 @@ export const ParagraphEditor = (keyProps) => {
 			mergeBlocks={mergeBlocks}
 			onReplace={onReplace}
 			onRemove={onReplace ? () => onReplace([]) : undefined}
-			additionalClass={getTwClasses(attributes, manifest)}
+			additionalClass={tailwindClasses(attributes, manifest)}
 		/>
 	);
 };

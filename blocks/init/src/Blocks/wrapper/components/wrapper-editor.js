@@ -1,4 +1,4 @@
-import { checkAttr, getTwClasses } from '@eightshift/frontend-libs-tailwind/scripts';
+import { checkAttr, tailwindClasses } from '@eightshift/frontend-libs-tailwind/scripts';
 import manifest from './../manifest.json';
 
 export const WrapperEditor = ({ attributes, children }) => {
@@ -8,5 +8,5 @@ export const WrapperEditor = ({ attributes, children }) => {
 		return children;
 	}
 
-	return <div className={getTwClasses(attributes, manifest)}>{children}</div>;
+	return <div className={tailwindClasses(attributes, manifest)}>{children}</div>;
 };

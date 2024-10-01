@@ -1,6 +1,6 @@
 import { __ } from '@wordpress/i18n';
 import { RichText } from '@wordpress/block-editor';
-import { checkAttr, getAttrKey, getTwClasses, props } from '@eightshift/frontend-libs-tailwind/scripts';
+import { checkAttr, getAttrKey, tailwindClasses, props } from '@eightshift/frontend-libs-tailwind/scripts';
 import { IconEditor } from '../../icon/components/icon-editor';
 import manifest from './../manifest.json';
 
@@ -17,7 +17,7 @@ export const ButtonEditor = (attributes) => {
 	}
 
 	return (
-		<div className={getTwClasses(attributes, manifest, additionalClass)}>
+		<div className={tailwindClasses(attributes, manifest, additionalClass)}>
 			<IconEditor
 				{...props('icon', attributes, {
 					blockClass: componentClass,

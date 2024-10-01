@@ -10,7 +10,7 @@ use %g_namespace_vendor_prefix%\EightshiftLibs\Helpers\Helpers;
 
 $manifest = Helpers::getManifestByDir(__DIR__);
 
-$blockClass = Helpers::getTwClasses($attributes, $manifest);
+$blockClass = Helpers::tailwindClasses('base', $attributes, $manifest);
 ?>
 
 <div class="<?php echo esc_attr($blockClass); ?>" >

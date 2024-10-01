@@ -1,5 +1,5 @@
 import { __ } from '@wordpress/i18n';
-import { ManageFileButton, checkAttr, getAttrKey, getTwPart } from '@eightshift/frontend-libs-tailwind/scripts';
+import { ManageFileButton, checkAttr, getAttrKey, tailwindClasses } from '@eightshift/frontend-libs-tailwind/scripts';
 import { HStack, MediaPlaceholder, VStack } from '@eightshift/ui-components';
 import { icons } from '@eightshift/ui-components/icons';
 import manifest from '../manifest.json';
@@ -63,7 +63,7 @@ export const VideoEditor = (attributes) => {
 
 			{hasVideo && (
 				<video
-					className={getTwPart('video', manifest, additionalClass)}
+					className={tailwindClasses('video', attributes, manifest, additionalClass)}
 					src={videoUrl}
 					controls
 					muted

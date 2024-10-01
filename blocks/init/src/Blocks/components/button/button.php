@@ -56,7 +56,7 @@ if (!empty($buttonAriaLabel)) {
 	$buttonAttrs['aria-label'] = $buttonAriaLabel;
 }
 
-$buttonAttrs['class'] = Helpers::getTwClasses($attributes, $manifest, 'button', $additionalClass);
+$buttonAttrs['class'] = Helpers::tailwindClasses('base', $attributes, $manifest, 'button', $additionalClass);
 
 $buttonTag = !empty($buttonUrl) ? 'a' : 'button';
 ?>

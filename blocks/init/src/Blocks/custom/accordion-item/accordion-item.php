@@ -24,7 +24,7 @@ $accordionItemLabel = Helpers::checkAttr('accordionItemLabel', $attributes, $man
 	id="<?php echo esc_attr($triggerId); ?>"
 	aria-expanded="false"
 	aria-controls="<?php echo esc_attr($panelId); ?>"
-	class="<?php echo esc_attr(Helpers::getTwPart('trigger', $manifest)); ?>"
+	class="<?php echo esc_attr(Helpers::tailwindClasses('trigger', $attributes, $manifest)); ?>"
 	data-accordion-header
 >
 	<?php
@@ -36,7 +36,7 @@ $accordionItemLabel = Helpers::checkAttr('accordionItemLabel', $attributes, $man
 <section
 	id="<?php echo esc_attr($panelId); ?>"
 	aria-labelledby="<?php echo esc_attr($triggerId); ?>"
-	class="<?php echo esc_attr(Helpers::getTwPart('content-container', $manifest)); ?>"
+	class="<?php echo esc_attr(Helpers::tailwindClasses('content-container', $attributes, $manifest)); ?>"
 	hidden
 >
 	<?php

@@ -105,7 +105,7 @@ $args['posts_per_page'] = $featuredContentPerPage;
 <div>
 	<div
 		id="<?php echo esc_attr($loadMoreId); ?>"
-		class="<?php echo esc_attr(Helpers::getTwClasses($attributes, $manifest)); ?>"
+		class="<?php echo esc_attr(Helpers::tailwindClasses('base', $attributes, $manifest)); ?>"
 		aria-live="polite"
 	>
 		<?php
@@ -124,7 +124,7 @@ $args['posts_per_page'] = $featuredContentPerPage;
 	<?php
 	// phpcs:ignore Squiz.NamingConventions.ValidVariableName.MemberNotCamelCaps
 	if (!$featuredContentServerSideRender && $mainQuery->max_num_pages > 1) { ?>
-		<div class="<?php echo esc_attr(Helpers::getTwPart('loadMoreContainer', $manifest)); ?>">
+		<div class="<?php echo esc_attr(Helpers::tailwindClasses('loadMoreContainer', $attributes, $manifest)); ?>">
 			<?php
 			echo Helpers::render('load-more', Helpers::props('loadMore', $attributes, [
 				'loadMoreInitialItems' => wp_json_encode($mainQuery->posts),

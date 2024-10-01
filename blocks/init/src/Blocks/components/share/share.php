@@ -23,7 +23,7 @@ $additionalClass = $attributes['additionalClass'] ?? '';
 
 ?>
 <div
-	class="<?php echo esc_attr(Helpers::getTwPart('container', $manifest, $additionalClass, $manifest['componentJsClass'])); ?>"
+	class="<?php echo esc_attr(Helpers::tailwindClasses('container', $attributes, $manifest, $additionalClass, $manifest['componentJsClass'])); ?>"
 	data-mode="<?php echo esc_attr($shareMode); ?>"
 >
 	<?php
@@ -35,7 +35,7 @@ $additionalClass = $attributes['additionalClass'] ?? '';
 			$shareUrl = str_replace('POST_FEATURED_IMAGE', get_the_post_thumbnail_url(get_the_ID(), 'large'), $shareUrl);
 			?>
 			<button
-				class="<?php echo esc_attr(Helpers::getTwPart('icon', $manifest, "{$manifest['componentJsClass']}-link")); ?>"
+				class="<?php echo esc_attr(Helpers::tailwindClasses('icon', $attributes, $manifest, "{$manifest['componentJsClass']}-link")); ?>"
 				data-network="<?php echo esc_attr($networkName); ?>"
 				data-share-url="<?php echo esc_url($shareUrl); ?>"
 				data-page-title="<?php echo esc_attr(get_the_title()); ?>"
@@ -51,7 +51,7 @@ $additionalClass = $attributes['additionalClass'] ?? '';
 		foreach ($shareTargets as $networkName) {
 			?>
 			<a
-				class="<?php echo esc_attr(Helpers::getTwPart('icon', $manifest)); ?>"
+				class="<?php echo esc_attr(Helpers::tailwindClasses('icon', $attributes, $manifest)); ?>"
 				href="<?php echo esc_url($manifest['networks'][$networkName]['url'] ?? ''); ?>"
 				title="<?php echo esc_attr($manifest['networks'][$networkName]['title'] ?? ''); ?>"
 				target="_blank"

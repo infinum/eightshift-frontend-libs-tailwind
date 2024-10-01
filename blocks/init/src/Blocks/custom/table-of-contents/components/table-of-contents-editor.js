@@ -1,6 +1,6 @@
 import { __, sprintf } from '@wordpress/i18n';
 import { RichText } from '@wordpress/block-editor';
-import { checkAttr, getTwPart } from '@eightshift/frontend-libs-tailwind/scripts';
+import { checkAttr, tailwindClasses } from '@eightshift/frontend-libs-tailwind/scripts';
 import { clsx } from '@eightshift/ui-components/utilities';
 import manifest from '../manifest.json';
 
@@ -9,13 +9,13 @@ export const TableOfContentsEditor = ({ attributes, setAttributes }) => {
 	const tableOfContentsHeadingLevels = checkAttr('tableOfContentsHeadingLevels', attributes, manifest);
 
 	return (
-		<div className={getTwPart('container', manifest)}>
+		<div className={tailwindClasses('container', attributes, manifest)}>
 			<RichText
 				placeholder={manifest.attributes.tableOfContentsDescription.default}
 				value={tableOfContentsDescription}
 				onChange={(value) => setAttributes({ [getAttrKey('tableOfContentsDescription', attributes, manifest)]: value })}
 				allowedFormats={[]}
-				className={getTwPart('description', manifest)}
+				className={tailwindClasses('description', attributes, manifest)}
 			/>
 
 			{Object.entries(tableOfContentsHeadingLevels).map(([tag, enabled = false]) => (

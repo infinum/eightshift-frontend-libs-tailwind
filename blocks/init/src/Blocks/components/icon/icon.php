@@ -26,7 +26,7 @@ if (!isset($manifest['icons'][$iconName])) {
 
 $icon = $manifest['icons'][$iconName];
 
-$className = Helpers::getTwClasses($attributes, $manifest, $additionalClass);
+$className = Helpers::tailwindClasses('base', $attributes, $manifest, $additionalClass);
 
 if (!empty($className)) {
 	$icon = str_replace('<svg ', '<svg class="' . htmlspecialchars($className) . '" ', $icon);

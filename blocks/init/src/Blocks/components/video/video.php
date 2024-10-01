@@ -43,7 +43,7 @@ $additionalAttributes = Helpers::classnames([
 ?>
 
 <video
-	class="<?php echo esc_attr(Helpers::getTwPart('video', $manifest)); ?>"
+	class="<?php echo esc_attr(Helpers::tailwindClasses('video', $attributes, $manifest)); ?>"
 	<?php echo esc_attr($additionalAttributes); ?>
 	preload="<?php echo esc_attr($videoPreload); ?>"
 	<?php if ($videoPosterUrl) { ?>

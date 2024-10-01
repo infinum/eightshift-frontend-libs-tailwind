@@ -1,7 +1,7 @@
 import { __ } from '@wordpress/i18n';
 import { useSelect, dispatch } from '@wordpress/data';
 import { createBlock } from '@wordpress/blocks';
-import { BlockInserter, getTwClasses, checkAttr } from '@eightshift/frontend-libs-tailwind/scripts';
+import { BlockInserter, tailwindClasses, checkAttr } from '@eightshift/frontend-libs-tailwind/scripts';
 import { useBlockProps, useInnerBlocksProps } from '@wordpress/block-editor';
 import { Button, RichLabel } from '@eightshift/ui-components';
 import { icons, BlockIcon } from '@eightshift/ui-components/icons';
@@ -66,7 +66,7 @@ export const ColumnsEditor = ({ attributes, setAttributes, clientId }) => {
 
 			<div
 				{...innerBlocksProps}
-				className={getTwClasses(attributes, manifest, '[&>.block-list-appender]:hidden')}
+				className={tailwindClasses(attributes, manifest, '[&>.block-list-appender]:hidden')}
 			/>
 
 			{innerBlockCount > 0 && (
