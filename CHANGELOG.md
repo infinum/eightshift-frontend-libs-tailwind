@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file.
 
 This projects adheres to [Semantic Versioning](https://semver.org/) and [Keep a CHANGELOG](https://keepachangelog.com/).
 
+## [1.4.2] - 2024-10-03
+- Fixed bug with `combinations` output in `tailwindClasses` helper.
+- Fixed CSS `url()` imports for images not working because of Webpack config.
+
 ## [1.4.1] - 2024-10-01
 - `tailwindClasses` check will now work fine even if no `parts` are defined.
 
@@ -63,6 +67,7 @@ This projects adheres to [Semantic Versioning](https://semver.org/) and [Keep a 
 
 [Unreleased]: https://github.com/infinum/eightshift-frontend-libs-tailwind/compare/master...HEAD
 
+[1.4.2]: https://github.com/infinum/eightshift-frontend-libs-tailwind/compare/1.4.1...1.4.2
 [1.4.1]: https://github.com/infinum/eightshift-frontend-libs-tailwind/compare/1.4.0...1.4.1
 [1.4.0]: https://github.com/infinum/eightshift-frontend-libs-tailwind/compare/1.3.3...1.4.0
 [1.3.3]: https://github.com/infinum/eightshift-frontend-libs-tailwind/compare/1.3.2...1.3.3
