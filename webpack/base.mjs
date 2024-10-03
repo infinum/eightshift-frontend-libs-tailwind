@@ -78,29 +78,6 @@ export default (options) => {
 		});
 	}
 
-	// Module for Images.
-	if (!options.overrides.includes('images')) {
-		module.rules.push({
-			test: /\.(png|svg|jpg|jpeg|gif|ico|webp)$/i,
-			use: [
-				{
-					loader: 'url-loader',
-					options: {
-						limit: 8192,
-					},
-				},
-			],
-			type: 'javascript/auto',
-		});
-
-		module.rules.push({
-			test: /\.(png|svg|jpg|jpeg|gif|ico|webp)$/i,
-			exclude: [/fonts/, /node_modules/],
-			use: 'file-loader?name=[name].[ext]',
-			dependency: { not: ['url'] },
-		});
-	}
-
 	// Module for CSS.
 	if (!options.overrides.includes('css')) {
 		module.rules.push({
@@ -125,6 +102,15 @@ export default (options) => {
 					loader: 'css-loader',
 				},
 			],
+		});
+	}
+
+	// Module for Images.
+	if (!options.overrides.includes('images')) {
+		module.rules.push({
+			test: /\.(png|svg|jpg|jpeg|gif|ico|webp)$/i,
+			exclude: [/fonts/, /node_modules/],
+			type: 'asset/resource',
 		});
 	}
 
