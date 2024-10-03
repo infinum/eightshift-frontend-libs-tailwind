@@ -435,12 +435,12 @@ const processCombination = (partName, combo, attributes, manifest) => {
 	for (const [attributeName, allowedValue] of Object.entries(combo?.attributes ?? {})) {
 		const optionValue = checkAttr(attributeName, attributes, manifest, true);
 
-		if (Array.isArray(allowedValue) && !allowedValue.includes(optionValue)) {
+		const isArrayCondition = Array.isArray(allowedValue);
+
+		if (isArrayCondition && !allowedValue.includes(optionValue)) {
 			matches = false;
 			break;
-		}
-
-		if (optionValue !== allowedValue) {
+		} else if (!isArrayCondition && optionValue !== allowedValue) {
 			matches = false;
 			break;
 		}
