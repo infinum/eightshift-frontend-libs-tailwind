@@ -6,6 +6,7 @@ import { ColumnOptions } from './components/column-options';
 export const Column = (props) => {
 	useSelect((select) => {
 		overrideInnerBlockAttributes(select, props.clientId, {
+			wrapperUse: false,
 			wrapperNoWidthControls: true,
 			wrapperWidth: 'none',
 		});
