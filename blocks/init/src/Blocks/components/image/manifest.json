@@ -108,11 +108,11 @@
 			},
 			"imageAspectRatio": {
 				"twClasses": {
-					"square": "aspect-square",
-					"three-two": "aspect-3/2",
-					"five-four": "aspect-5/4",
-					"sixteen-nine": "aspect-video",
-					"twentyone-nine": "aspect-21/9"
+					"square": "aspect-square w-full",
+					"three-two": "aspect-3/2 w-full",
+					"five-four": "aspect-5/4 w-full",
+					"sixteen-nine": "aspect-video w-full",
+					"twentyone-nine": "aspect-21/9 w-full"
 				}
 			},
 			"imageSize": {
