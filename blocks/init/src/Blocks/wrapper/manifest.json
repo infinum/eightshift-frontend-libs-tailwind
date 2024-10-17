@@ -325,9 +325,11 @@
 		]
 	},
 	"tailwind": {
-		"base": {
-			"twClasses": "scroll-my-24",
-			"twClassesEditorOnly": "flow-root"
+		"parts": {
+			"base": {
+				"twClasses": "scroll-my-24",
+				"twClassesEditorOnly": "flow-root"
+			}
 		},
 		"options": {
 			"wrapperBackground": {

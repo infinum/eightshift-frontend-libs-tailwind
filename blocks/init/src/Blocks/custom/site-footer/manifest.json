@@ -35,10 +35,10 @@
 		"share": "share"
 	},
 	"tailwind": {
-		"base": {
-			"twClasses": "pt-8 pb-4"
-		},
 		"parts": {
+			"base": {
+				"twClasses": "pt-8 pb-4"
+			},
 			"topContainer": {
 				"twClasses": "sm:grid sm:grid-cols-[auto,_1fr] sm:gap-x-20 px-2"
 			},

@@ -59,8 +59,10 @@
 		]
 	},
 	"tailwind": {
-		"base": {
-			"twClasses": "font-sans [&>a]:underline font-synthesis-none"
+		"parts": {
+			"base": {
+				"twClasses": "font-sans [&>a]:underline font-synthesis-none"
+			}
 		},
 		"options": {
 			"paragraphSize": {

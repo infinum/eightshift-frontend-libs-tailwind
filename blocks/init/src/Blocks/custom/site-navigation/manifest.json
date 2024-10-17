@@ -38,11 +38,11 @@
 		}
 	},
 	"tailwind": {
-		"base": {
-			"twClasses": "flex items-center justify-between gap-4 max-w-screen-md mx-auto h-full ~sm/md:~px-8/20",
-			"twClassesEditorOnly": "flex items-center justify-between gap-4 p-1"
-		},
 		"parts": {
+			"base": {
+				"twClasses": "flex items-center justify-between gap-4 max-w-screen-md mx-auto h-full ~sm/md:~px-8/20",
+				"twClassesEditorOnly": "flex items-center justify-between gap-4 p-1"
+			},
 			"wrapper": {
 				"twClasses": "bg-white border-b border-b-gray-100 ~sm/md:~h-16/20"
 			},

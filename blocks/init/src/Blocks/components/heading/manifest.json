@@ -57,8 +57,10 @@
 		]
 	},
 	"tailwind": {
-		"base": {
-			"twClasses": "font-display text-balance font-synthesis-none font-soft-50 scroll-m-20"
+		"parts": {
+			"base": {
+				"twClasses": "font-display text-balance font-synthesis-none font-soft-50 scroll-m-20"
+			}
 		},
 		"options": {
 			"headingSize": {

@@ -111,8 +111,10 @@
 		]
 	},
 	"tailwind": {
-		"base": {
-			"twClasses": "font-sans transition duration-300 inline-flex items-center focus-visible:ring focus:outline-none text-sm disabled:shadow-none disabled:grayscale disabled:cursor-default disabled:opacity-85"
+		"parts": {
+			"base": {
+				"twClasses": "font-sans transition duration-300 inline-flex items-center focus-visible:ring focus:outline-none text-sm disabled:shadow-none disabled:grayscale disabled:cursor-default disabled:opacity-85"
+			}
 		},
 		"options": {
 			"buttonVariant": {
