@@ -31,8 +31,10 @@
 		"image": "image"
 	},
 	"tailwind": {
-		"base": {
-			"twClasses": "w-full"
+		"parts": {
+			"base": {
+				"twClasses": "w-full"
+			}
 		}
 	}
 }
