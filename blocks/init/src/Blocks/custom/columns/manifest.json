@@ -529,8 +529,10 @@
 		}
 	],
 	"tailwind": {
-		"base": {
-			"twClasses": "grid"
+		"parts": {
+			"base": {
+				"twClasses": "grid"
+			}
 		},
 		"options": {
 			"columnsNumOfColumns": {

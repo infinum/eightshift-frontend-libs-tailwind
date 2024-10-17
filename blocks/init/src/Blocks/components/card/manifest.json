@@ -75,10 +75,10 @@
 		"button": "button"
 	},
 	"tailwind": {
-		"base": {
-			"twClasses": "w-full sm:max-w-80 rounded-2xl border bg-white shadow-md overflow-hidden"
-		},
 		"parts": {
+			"base": {
+				"twClasses": "w-full sm:max-w-80 rounded-2xl border bg-white shadow-md overflow-hidden"
+			},
 			"image": {
 				"twClasses": "w-full aspect-3/2"
 			},

@@ -105,11 +105,11 @@
 		"image"
 	],
 	"tailwind": {
-		"base": {
-			"twClasses": "grid grid-flow-col justify-items-center auto-cols-[85%] sm:auto-cols-[minmax(20rem,_auto)] *:select-none",
-			"twClassesEditorOnly": "grid grid-flow-col justify-items-center auto-cols-[minmax(20rem,_auto)]"
-		},
 		"parts": {
+			"base": {
+				"twClasses": "grid grid-flow-col justify-items-center auto-cols-[85%] sm:auto-cols-[minmax(20rem,_auto)] *:select-none",
+				"twClassesEditorOnly": "grid grid-flow-col justify-items-center auto-cols-[minmax(20rem,_auto)]"
+			},
 			"container": {
 				"twClasses": "overflow-hidden py-2",
 				"twClassesEditorOnly": "overflow-y-hidden overflow-x-auto w-full has-[>_:empty]:hidden"

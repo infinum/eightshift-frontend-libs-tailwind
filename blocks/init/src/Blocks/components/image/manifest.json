@@ -94,8 +94,10 @@
 		]
 	},
 	"tailwind": {
-		"base": {
-			"twClasses": "object-cover"
+		"parts": {
+			"base": {
+				"twClasses": "object-cover"
+			}
 		},
 		"options": {
 			"imageRoundedCorners": {

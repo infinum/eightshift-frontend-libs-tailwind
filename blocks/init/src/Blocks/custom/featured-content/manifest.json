@@ -109,10 +109,10 @@
 		]
 	},
 	"tailwind": {
-		"base": {
-			"twClasses": "grid gap-6"
-		},
 		"parts": {
+			"base": {
+				"twClasses": "grid gap-6"
+			},
 			"loadMoreContainer": {
 				"twClasses": "flex justify-center w-full mt-6"
 			}

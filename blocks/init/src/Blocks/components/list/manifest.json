@@ -90,9 +90,11 @@
 		]
 	},
 	"tailwind": {
-		"base": {
-			"twClasses": "font-sans [&_a]:underline font-synthesis-none",
-			"twClassesEditorOnly": "font-sans [&>a]:underline font-synthesis-none"
+		"parts": {
+			"base": {
+				"twClasses": "font-sans [&_a]:underline font-synthesis-none",
+				"twClassesEditorOnly": "font-sans [&>a]:underline font-synthesis-none"
+			}
 		},
 		"options": {
 			"listSize": {

@@ -412,8 +412,10 @@
 		]
 	},
 	"tailwind": {
-		"base": {
-			"twClasses": "flex flex-col"
+		"parts": {
+			"base": {
+				"twClasses": "flex flex-col"
+			}
 		},
 		"options": {
 			"columnOffset": {
