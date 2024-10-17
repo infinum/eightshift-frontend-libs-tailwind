@@ -29,5 +29,12 @@
 	},
 	"components": {
 		"image": "image"
+	},
+	"tailwind": {
+		"parts": {
+			"base": {
+				"twClasses": "w-full"
+			}
+		}
 	}
 }
