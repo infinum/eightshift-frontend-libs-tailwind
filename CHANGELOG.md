@@ -6,11 +6,25 @@ This projects adheres to [Semantic Versioning](https://semver.org/) and [Keep a 
 
 ---
 
+## [1.4.4]
+
+### Added
+
+- Support for `supports` key in block manifests during block registration.
+
+### Changed
+
+- Built-in Paragraph block now uses the new block splitting logic from WP 6.6
+- Updated dependencies
+
 ## [1.4.3]
 
 ### Fixed
 
 - Fixing Yoast SEO plugin helpers.
+- Manifests in some default blocks not using `base` as a `part`.
+- Image sizing in the default Image block when set to stretch.
+- Class for gradient *top* direction in wrapper.
 
 ## [1.4.2]
 
@@ -128,6 +142,7 @@ This projects adheres to [Semantic Versioning](https://semver.org/) and [Keep a 
 - Initial release.
 
 [Unreleased]: https://github.com/infinum/eightshift-frontend-libs-tailwind/compare/master...HEAD
+[1.4.4]: https://github.com/infinum/eightshift-frontend-libs-tailwind/compare/1.4.3...1.4.4
 [1.4.3]: https://github.com/infinum/eightshift-frontend-libs-tailwind/compare/1.4.2...1.4.3
 [1.4.2]: https://github.com/infinum/eightshift-frontend-libs-tailwind/compare/1.4.1...1.4.2
 [1.4.1]: https://github.com/infinum/eightshift-frontend-libs-tailwind/compare/1.4.0...1.4.1

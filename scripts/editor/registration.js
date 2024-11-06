@@ -860,6 +860,11 @@ export const registerBlock = (
 		...getExample('', blockManifest),
 	};
 
+	// Block supports.
+	if (typeof blockManifest['supports'] === 'undefined') {
+		blockManifest['supports'] = {};
+	}
+
 	return {
 		blockName: fullBlockName,
 		options: {
@@ -887,7 +892,8 @@ export const registerBlock = (
 				return customName;
 			},
 			supports: {
-				__experimentalMetadata: true,
+				...blockManifest['supports'],
+				__experimentalMetadata: true, // Required for renaming blocks.
 			},
 		},
 	};

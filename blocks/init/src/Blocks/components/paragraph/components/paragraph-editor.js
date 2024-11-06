@@ -9,7 +9,6 @@ export const ParagraphEditor = (attributes) => {
 		placeholder = __('Add content', '%g_textdomain%'),
 		additionalClass,
 
-		onSplit,
 		mergeBlocks,
 		onReplace,
 		onRemove,
@@ -30,7 +29,6 @@ export const ParagraphEditor = (attributes) => {
 			value={paragraphContent}
 			onChange={(value) => setAttributes({ [getAttrKey('paragraphContent', attributes, manifest)]: value })}
 			allowedFormats={['core/bold', 'core/link', 'core/italic']}
-			onSplit={onSplit}
 			onMerge={mergeBlocks}
 			onReplace={onReplace}
 			onRemove={onRemove}
