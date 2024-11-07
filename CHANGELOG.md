@@ -6,6 +6,12 @@ This projects adheres to [Semantic Versioning](https://semver.org/) and [Keep a 
 
 ---
 
+## [1.4.5]
+
+### Fixed
+
+- Image responsive breakpoints render order in the frontend.
+
 ## [1.4.4]
 
 ### Added
