@@ -8,6 +8,10 @@ This projects adheres to [Semantic Versioning](https://semver.org/) and [Keep a 
 
 ## [1.4.5]
 
+### Changed
+
+- `BlockInserter` is now only visible when the block it's assigned to is selected. This behavior can be changed by setting `alwaysVisible`.
+
 ### Fixed
 
 - Image responsive breakpoints render order in the frontend.
