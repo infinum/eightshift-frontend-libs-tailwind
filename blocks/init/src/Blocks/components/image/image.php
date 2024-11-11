@@ -22,10 +22,10 @@ if (!$imageUse || empty($imageData['_default']['url'])) {
 
 $imageAlt = get_post_meta($imageData['_default']['id'], '_wp_attachment_image_alt', true) ?? '';
 
-$isMobileFirst = $imageData['_desktopFirst'] ?? false;
+$isDesktopFirst = $imageData['_desktopFirst'] ?? false;
 
 $breakpointData = Helpers::getSettingsGlobalVariablesBreakpoints();
-$breakpoints = Helpers::getTwBreakpoints($isMobileFirst);
+$breakpoints = Helpers::getTwBreakpoints();
 ?>
 
 <picture
@@ -45,12 +45,12 @@ $breakpoints = Helpers::getTwBreakpoints($isMobileFirst);
 			continue;
 		}
 
-		$breakpointWidth = $breakpointData[str_replace('max-', '', $breakpoint)];
+		$breakpointWidth = $breakpointData[$breakpoint];
 
-		$widthMode = $isMobileFirst ? 'min-width' : 'max-width';
+		$widthMode = $isDesktopFirst ? 'max-width' : 'min-width';
 
 		// phpcs:ignore Eightshift.Security.HelpersEscape.OutputNotEscaped
-		echo '<source srcset="' . esc_url($value) . '" media="(' . $widthMode . ': ' . $breakpointWidth . 'rem)" />';
+		echo '<source srcset="' . esc_url($value) . '" media="(' . $widthMode . ': ' . $breakpointWidth . 'em)" />';
 		?>
 	<?php } ?>
 
@@ -60,3 +60,4 @@ $breakpoints = Helpers::getTwBreakpoints($isMobileFirst);
 		class="<?php echo esc_attr(Helpers::tailwindClasses('base', $attributes, $manifest, $additionalClass['image'] ?? $additionalClass)); ?>"
 	/>
 </picture>
+

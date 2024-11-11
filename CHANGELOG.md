@@ -6,6 +6,16 @@ This projects adheres to [Semantic Versioning](https://semver.org/) and [Keep a 
 
 ---
 
+## [1.4.5]
+
+### Changed
+
+- `BlockInserter` is now only visible when the block it's assigned to is selected. This behavior can be changed by setting `alwaysVisible`.
+
+### Fixed
+
+- Image responsive breakpoints render order in the frontend.
+
 ## [1.4.4]
 
 ### Added
@@ -142,6 +152,7 @@ This projects adheres to [Semantic Versioning](https://semver.org/) and [Keep a 
 - Initial release.
 
 [Unreleased]: https://github.com/infinum/eightshift-frontend-libs-tailwind/compare/master...HEAD
+[1.4.5]: https://github.com/infinum/eightshift-frontend-libs-tailwind/compare/1.4.4...1.4.5
 [1.4.4]: https://github.com/infinum/eightshift-frontend-libs-tailwind/compare/1.4.3...1.4.4
 [1.4.3]: https://github.com/infinum/eightshift-frontend-libs-tailwind/compare/1.4.2...1.4.3
 [1.4.2]: https://github.com/infinum/eightshift-frontend-libs-tailwind/compare/1.4.1...1.4.2
