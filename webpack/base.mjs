@@ -34,7 +34,7 @@ export default (options) => {
 		);
 	}
 
-	// Output css from Js.
+	// Output CSS from JS.
 	if (!options.overrides.includes('miniCssExtractPlugin')) {
 		plugins.push(
 			new MiniCssExtractPlugin({
@@ -94,6 +94,7 @@ export default (options) => {
 			],
 		});
 
+		// Node modules - CSS.
 		module.rules.push({
 			test: /\.css$/,
 			include: /node_modules/,
@@ -102,6 +103,13 @@ export default (options) => {
 					loader: 'css-loader',
 				},
 			],
+		});
+
+		// Node modules - Eightshift package fonts.
+		module.rules.push({
+			test: /\.(woff2|ttf|otf)$/i,
+			type: 'asset/resource',
+			include: /node_modules\/@eightshift/,
 		});
 	}
 
