@@ -108,3 +108,74 @@ export const wpSearchRoute = fetchFromWpRest('search', {
 	searchColumns: 'post_title',
 	fields: 'id,title,type,subtype,url',
 });
+
+/**
+ * Returns a function that fetches data from WordPress REST API.
+ *
+ * @param {string} endpoint - Endpoint to fetch from.
+ * @param {Object} options - Additional options.
+ * @param {number} [options.perPage=30] - Number of items to fetch per page.
+ * @param {string} [options.routePrefix='wp/v2'] - Route prefix for the API.
+ * @param {string} [options.fields='id,title'] - A comma-separated list of field names to fetch from the API. Good to include as it makes the query faster and the output terser.
+ * @param {string} [options.noSearch=false] - If `true`, only the URL will be returned, without the search query support.
+ * @param {SearchColumnsConfig} [options.searchColumns] - Allows narrowing the search scope.
+ *
+ * @returns {Function} The `(searchText) => url: string` function, or URL as `string` if `noSearch` is set.
+ *
+ * @typedef {'post_title' | 'post_excerpt' | 'post_content'} SearchColumnsConfig
+ *
+ * @example
+ * const data = await fetch(buildWpRestUrl('pages'));
+ * const json = await data.json();
+ *
+ * console.log(json);
+ *
+ * @example
+ * <AsyncSelect
+ *  value={loremIpsum}
+ *  onChange={(value) => setAttributes({ [getAttrKey('loremIpsum', attributes, manifest)]: value })}
+ *  fetchUrl={buildWpRestUrl('pages')}
+ * />
+ *
+ */
+export function buildWpRestUrl(endpoint, options = {}) {
+	const {
+		perPage = 30,
+		routePrefix = 'wp/v2',
+		fields = 'id,title',
+		searchColumns,
+		noSearch,
+		...additionalParams
+	} = options;
+
+	let params = {
+		per_page: perPage,
+	};
+
+	if (fields?.length > 0) {
+		params['_fields'] = fields;
+	}
+
+	if (searchColumns?.length > 0) {
+		params.search_columns = Array.isArray(searchColumns) ? searchColumns.join(',') : searchColumns;
+	}
+
+	if (Object.keys(params).length > 0) {
+		params = {
+			...params,
+			...additionalParams,
+		};
+	}
+
+	if (noSearch) {
+		return addQueryArgs(`${routePrefix}/${endpoint}/`, params);
+	}
+
+	return (searchText) => {
+		if (searchText?.length > 0) {
+			params.search = searchText;
+		}
+
+		return addQueryArgs(`${routePrefix}/${endpoint}/`, params);
+	};
+}
