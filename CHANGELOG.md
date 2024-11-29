@@ -10,6 +10,7 @@ This projects adheres to [Semantic Versioning](https://semver.org/) and [Keep a 
 
 ### Changed
 - Tweaked webpack config to properly include font files from `@eightshfit` packages from `node_modules`.
+- Added a new `buildWpRestUrl` helper for easily fetching WP REST URLs. (Similar to `fetchFromWpRest`, but allows you control over how you fetch).
 - Updated dependencies.
 
 ## [1.4.5]
