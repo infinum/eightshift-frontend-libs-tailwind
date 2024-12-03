@@ -25,7 +25,7 @@ $imageAlt = get_post_meta($imageData['_default']['id'], '_wp_attachment_image_al
 $isDesktopFirst = $imageData['_desktopFirst'] ?? false;
 
 $breakpointData = Helpers::getSettingsGlobalVariablesBreakpoints();
-$breakpoints = Helpers::getTwBreakpoints();
+$breakpoints = Helpers::getTwBreakpoints($isDesktopFirst);
 ?>
 
 <picture
@@ -33,7 +33,12 @@ $breakpoints = Helpers::getTwBreakpoints();
 		class="<?php echo esc_attr($additionalClass['picture']); ?>"
 	<?php } ?>
 >
-	<?php foreach ($breakpoints as $breakpoint) { ?>
+	<?php
+	if (!$isDesktopFirst) {
+		$breakpoints = array_reverse($breakpoints);
+	}
+
+	foreach ($breakpoints as $breakpoint) { ?>
 		<?php
 		if (!isset($imageData[$breakpoint])) {
 			continue;
@@ -45,7 +50,7 @@ $breakpoints = Helpers::getTwBreakpoints();
 			continue;
 		}
 
-		$breakpointWidth = $breakpointData[$breakpoint];
+		$breakpointWidth = $breakpointData[str_replace('max-', '', $breakpoint)];
 
 		$widthMode = $isDesktopFirst ? 'max-width' : 'min-width';
 
