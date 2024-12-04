@@ -10,6 +10,7 @@ This projects adheres to [Semantic Versioning](https://semver.org/) and [Keep a 
 
 ### Changed
 - Fixed Image component "image" part tailwind class output if not set.
+- Fix Image component responsive output Co-authored-by: goran.alkovic@infinum.com
 - Updated dependencies.
 
 ## [1.4.6]
