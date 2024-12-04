@@ -26,6 +26,10 @@ $isDesktopFirst = $imageData['_desktopFirst'] ?? false;
 
 $breakpointData = Helpers::getSettingsGlobalVariablesBreakpoints();
 $breakpoints = Helpers::getTwBreakpoints($isDesktopFirst);
+
+if (!$isDesktopFirst) {
+	$breakpoints = array_reverse($breakpoints);
+}
 ?>
 
 <picture
@@ -34,10 +38,6 @@ $breakpoints = Helpers::getTwBreakpoints($isDesktopFirst);
 	<?php } ?>
 >
 	<?php
-	if (!$isDesktopFirst) {
-		$breakpoints = array_reverse($breakpoints);
-	}
-
 	foreach ($breakpoints as $breakpoint) { ?>
 		<?php
 		if (!isset($imageData[$breakpoint])) {
