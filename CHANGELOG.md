@@ -12,6 +12,7 @@ This projects adheres to [Semantic Versioning](https://semver.org/) and [Keep a 
 - Fixed Image component "image" part tailwind class output if not set.
 - Fix Image component responsive output Co-authored-by: goran.alkovic@infinum.com
 - Add "Auto" width to wrapperContent and set is as defaults
+- Add a buttonType attribute to Button component
 - Updated dependencies.
 
 ## [1.4.6]
