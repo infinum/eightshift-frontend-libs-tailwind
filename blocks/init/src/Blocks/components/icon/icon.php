@@ -19,6 +19,7 @@ if (!$iconUse) {
 $additionalClass = $attributes['additionalClass'] ?? '';
 
 $iconName = Helpers::checkAttr('iconName', $attributes, $manifest);
+$iconAriaHidden = Helpers::checkAttr('iconAriaHidden', $attributes, $manifest);
 
 if (!isset($manifest['icons'][$iconName])) {
 	return;
@@ -29,7 +30,29 @@ $icon = $manifest['icons'][$iconName];
 $className = Helpers::tailwindClasses('base', $attributes, $manifest, $additionalClass);
 
 if (!empty($className)) {
-	$icon = str_replace('<svg ', '<svg class="' . htmlspecialchars($className) . '" ', $icon);
+	$icon = str_replace('<svg ', '<svg class="' . esc_attr($className) . '" ', $icon);
+}
+
+if ($iconAriaHidden) {
+	$icon = str_replace('<svg ', '<svg aria-hidden="true" ', $icon);
+} else {
+	$iconTitle = '';
+	$iconOption = array_filter($manifest['options']['iconName'], fn($option) => $option['value'] === $iconName);
+
+	if (!empty($iconOption)) {
+		$iconTitle = reset($iconOption)['label'];
+	}
+
+	if (!empty($iconTitle)) {
+		$uniqueId = Helpers::getUnique();
+		$titleId = esc_attr("{$iconName}_title_{$uniqueId}");
+
+		$ariaLabelledby = 'aria-labelledby="' . $titleId . '"';
+		$titleTag = '<title id="' . $titleId . '">' . esc_html($iconTitle) . '</title>';
+
+		$icon = str_replace('<svg ', '<svg ' . $ariaLabelledby . ' ', $icon);
+		$icon = str_replace('</svg>', $titleTag . '</svg>', $icon);
+	}
 }
 
 // phpcs:ignore Eightshift.Security.HelpersEscape.OutputNotEscaped
