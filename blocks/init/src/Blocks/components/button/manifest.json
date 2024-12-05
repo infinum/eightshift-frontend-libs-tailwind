@@ -20,6 +20,10 @@
 		"buttonId": {
 			"type": "string"
 		},
+		"buttonType": {
+			"type": "string",
+			"default": ""
+		},
 		"buttonColor": {
 			"type": "string",
 			"default": "navy-500"
