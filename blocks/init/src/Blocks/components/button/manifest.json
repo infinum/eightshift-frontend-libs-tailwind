@@ -22,7 +22,7 @@
 		},
 		"buttonType": {
 			"type": "string",
-			"default": "button"
+			"default": ""
 		},
 		"buttonColor": {
 			"type": "string",

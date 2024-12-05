@@ -19,6 +19,7 @@ if (!$buttonUse) {
 $additionalClass = $attributes['additionalClass'] ?? '';
 $additionalAttributes = $attributes['additionalAttributes'] ?? [];
 $buttonId = Helpers::checkAttr('buttonId', $attributes, $manifest);
+$buttonType = Helpers::checkAttr('buttonType', $attributes, $manifest);
 
 $buttonUrl = Helpers::checkAttr('buttonUrl', $attributes, $manifest);
 $buttonIsNewTab = Helpers::checkAttr('buttonIsNewTab', $attributes, $manifest);
@@ -60,8 +61,8 @@ $buttonAttrs['class'] = Helpers::tailwindClasses('base', $attributes, $manifest,
 
 $buttonTag = !empty($buttonUrl) ? 'a' : 'button';
 
-if (empty($buttonUrl)) {
-	$buttonAttrs['type'] = Helpers::checkAttr('buttonType', $attributes, $manifest);
+if (empty($buttonUrl) && !empty($buttonType)) {
+	$buttonAttrs['type'] = $buttonType;
 }
 ?>
 
