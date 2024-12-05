@@ -90,7 +90,7 @@
 		"wrapperContentWidth": {
 			"type": "object",
 			"default": {
-				"_default": "full",
+				"_default": "auto",
 				"_desktopFirst": true
 			}
 		},
@@ -290,6 +290,11 @@
 		],
 		"wrapperContentWidth": [
 			{
+				"label": "Auto",
+				"value": "auto",
+				"separator": "below"
+			},
+			{
 				"label": "Full",
 				"value": "full",
 				"separator": "below"
@@ -439,6 +444,7 @@
 			"wrapperContentWidth": {
 				"responsive": true,
 				"twClasses": {
+					"auto": "w-auto",
 					"full": "w-full",
 					"half": "w-1/2",
 					"one-third": "w-1/3",
