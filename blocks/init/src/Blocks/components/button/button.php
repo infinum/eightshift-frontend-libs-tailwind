@@ -59,6 +59,10 @@ if (!empty($buttonAriaLabel)) {
 $buttonAttrs['class'] = Helpers::tailwindClasses('base', $attributes, $manifest, 'button', $additionalClass);
 
 $buttonTag = !empty($buttonUrl) ? 'a' : 'button';
+
+if (empty($buttonUrl)) {
+	$buttonAttrs['type'] = Helpers::checkAttr('buttonType', $attributes, $manifest);
+}
 ?>
 
 <<?php echo $buttonTag; // phpcs:ignore Eightshift.Security.HelpersEscape.OutputNotEscaped ?>
