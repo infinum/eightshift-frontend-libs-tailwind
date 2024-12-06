@@ -13,7 +13,7 @@ This projects adheres to [Semantic Versioning](https://semver.org/) and [Keep a 
 - Fix Image component responsive output Co-authored-by: goran.alkovic@infinum.com
 - Add "Auto" width to wrapperContent and set is as defaults
 - Add a buttonType attribute to Button component
-- Implement a11y for Icon component either by setting aria-hidden to true or using the existing iconName label from manifest option key
+- Implement a11y for Icon component either by setting aria-hidden to true (default) or using the existing iconName label from manifest options key
 - Updated dependencies.
 
 ## [1.4.6]

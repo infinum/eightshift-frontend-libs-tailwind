@@ -24,7 +24,7 @@
 		},
 		"iconAriaHidden": {
 			"type": "boolean",
-			"default": false
+			"default": true
 		}
 	},
 	"options": {

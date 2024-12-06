@@ -44,13 +44,7 @@ if ($iconAriaHidden) {
 	}
 
 	if (!empty($iconTitle)) {
-		$uniqueId = Helpers::getUnique();
-		$titleId = esc_attr("{$iconName}_title_{$uniqueId}");
-
-		$ariaLabelledby = 'aria-labelledby="' . $titleId . '"';
-		$titleTag = '<title id="' . $titleId . '">' . esc_html($iconTitle) . '</title>';
-
-		$icon = str_replace('<svg ', '<svg ' . $ariaLabelledby . ' ', $icon);
+		$titleTag = '<title>' . esc_html($iconTitle) . '</title>';
 		$icon = str_replace('</svg>', $titleTag . '</svg>', $icon);
 	}
 }
