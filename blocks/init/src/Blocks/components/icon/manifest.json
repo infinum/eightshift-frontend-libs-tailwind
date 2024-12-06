@@ -21,6 +21,10 @@
 		"iconUse": {
 			"type": "boolean",
 			"default": true
+		},
+		"iconAriaHidden": {
+			"type": "boolean",
+			"default": true
 		}
 	},
 	"options": {

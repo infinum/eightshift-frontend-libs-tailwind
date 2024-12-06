@@ -19,6 +19,7 @@ if (!$buttonUse) {
 $additionalClass = $attributes['additionalClass'] ?? '';
 $additionalAttributes = $attributes['additionalAttributes'] ?? [];
 $buttonId = Helpers::checkAttr('buttonId', $attributes, $manifest);
+$buttonType = Helpers::checkAttr('buttonType', $attributes, $manifest);
 
 $buttonUrl = Helpers::checkAttr('buttonUrl', $attributes, $manifest);
 $buttonIsNewTab = Helpers::checkAttr('buttonIsNewTab', $attributes, $manifest);
@@ -59,6 +60,10 @@ if (!empty($buttonAriaLabel)) {
 $buttonAttrs['class'] = Helpers::tailwindClasses('base', $attributes, $manifest, 'button', $additionalClass);
 
 $buttonTag = !empty($buttonUrl) ? 'a' : 'button';
+
+if (empty($buttonUrl) && !empty($buttonType)) {
+	$buttonAttrs['type'] = $buttonType;
+}
 ?>
 
 <<?php echo $buttonTag; // phpcs:ignore Eightshift.Security.HelpersEscape.OutputNotEscaped ?>
