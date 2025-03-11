@@ -123,6 +123,18 @@ export const ManageFileButton = (props) => {
 				replace: __('Select a new Lottie animation', 'eightshift-frontend-libs-tailwind'),
 			},
 		},
+		rive: {
+			buttonTooltip: {
+				browse: __('Select a Rive animation', 'eightshift-frontend-libs-tailwind'),
+				upload: __('Upload a Rive animation', 'eightshift-frontend-libs-tailwind'),
+				replace: __('Replace Rive animation', 'eightshift-frontend-libs-tailwind'),
+			},
+			modalTitle: {
+				browse: __('Select a Rive animation', 'eightshift-frontend-libs-tailwind'),
+				upload: __('Upload a Rive animation', 'eightshift-frontend-libs-tailwind'),
+				replace: __('Select a new Rive animation', 'eightshift-frontend-libs-tailwind'),
+			},
+		},
 		custom: {
 			buttonTooltip: labels?.buttonTooltip,
 			buttonLabel: labels?.buttonLabel,
@@ -174,7 +186,7 @@ export const ManageFileButton = (props) => {
  *
  * @returns {JSX.Element} The FileSelector component.
  *
- * @typedef {'file' | 'image' | 'video' | 'subtitle' | 'geoJson' | 'lottie' | 'custom'} FileKind
+ * @typedef {'file' | 'image' | 'video' | 'subtitle' | 'geoJson' | 'lottie' | 'rive' | 'custom'} FileKind
  *
  * @example
  * <FileSelector
@@ -202,6 +214,7 @@ export const FileSelector = (props) => {
 		subtitle: __('Remove subtitle file', 'eightshift-frontend-libs-tailwind'),
 		geoJson: __('Remove GeoJSON file', 'eightshift-frontend-libs-tailwind'),
 		lottie: __('Remove Lottie animation', 'eightshift-frontend-libs-tailwind'),
+		rive: __('Remove Rive animation', 'eightshift-frontend-libs-tailwind'),
 		custom: labels?.removeTooltip,
 	};
 
@@ -211,6 +224,7 @@ export const FileSelector = (props) => {
 		subtitle: icons.closedCaptions,
 		geoJson: icons.fileMetadata,
 		lottie: icons.animationFile,
+		rive: icons.animationFile,
 		custom: labels?.removeIcon,
 	};
 
@@ -236,7 +250,7 @@ export const FileSelector = (props) => {
 			</FilePlaceholder>
 
 			<AnimatedVisibility
-				visible={fileName}
+				visible={(fileName ?? '').length > 0}
 				noInitial
 			>
 				<HStack noWrap>
