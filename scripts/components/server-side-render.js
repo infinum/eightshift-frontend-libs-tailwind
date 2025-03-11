@@ -30,7 +30,7 @@ export const ServerSideRender = (props) => {
 			block={block}
 			attributes={attributes}
 			className={clsx(
-				'es-uic-pointer-events-none es-uic-rounded-lg es-uic-border es-uic-border-dotted es-uic-border-gray-300 es-uic-p-2 es-uic-flow-root',
+				'es:pointer-events-none es:rounded-lg es:border es:border-dotted es:border-gray-300 es:p-2 es:flow-root',
 				className,
 			)}
 		/>
