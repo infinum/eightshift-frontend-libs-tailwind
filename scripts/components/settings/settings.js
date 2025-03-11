@@ -2,10 +2,9 @@
 
 import { Toaster } from 'sonner';
 import { __ } from '@wordpress/i18n';
-import { Button, HStack } from '@eightshift/ui-components';
+import { Button, OptionsPanelHeader } from '@eightshift/ui-components';
 import { icons } from '@eightshift/ui-components/icons';
 import { createContext } from '@wordpress/element';
-import { clsx } from '@eightshift/ui-components/utilities';
 import { useThemeOptions } from './use-theme-options';
 
 export const EsThemeOptionsContext = createContext(null);
