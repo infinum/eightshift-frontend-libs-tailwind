@@ -2,6 +2,7 @@
  * Helper to set and unset cookies.
  */
 export const cookies = {
+
 	/**
 	 * Set a cookie value
 	 *
@@ -9,7 +10,7 @@ export const cookies = {
 	 * @param {string} value - Cookie value.
 	 * @param {number} time  - Number denoting the expiration of the cookie.
 	 * @param {string} path  - URL path that must exist in the requested URL in order to send the Cookie header.
-	 *
+	 * @param {string?} domain - Cookie domain. Optional.
 	 * @access public
 	 *
 	 * @returns {void}
@@ -19,16 +20,22 @@ export const cookies = {
 	 * cookies.setCookie('gdpr', '2', cookies.setOneDay(), '/');
 	 * ```
 	 */
-	setCookie(key, value, time, path) {
+	setCookie(key, value, time, path, domain) {
 		const expires = new Date();
-		expires.setTime(expires.getTime() + time);
+		expires.setTime(expires.getTime() + (time));
+		
 		let pathValue = '';
+		let domainValue = '';
 
 		if (typeof path !== 'undefined') {
-			pathValue = `path=${path};`;
+			pathValue = `;path=${path}`;
 		}
 
-		document.cookie = `${key}=${value};${pathValue}expires=${expires.toUTCString()}`;
+		if (typeof domain !== 'undefined') {
+			domainValue = `;domain=${domain}`;
+		}
+
+		document.cookie = `${key}=${value}${pathValue}${domainValue};expires=${expires.toUTCString()}`;
 	},
 
 	/**

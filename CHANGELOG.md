@@ -13,6 +13,12 @@ This projects adheres to [Semantic Versioning](https://semver.org/) and [Keep a 
 - Add 'Rive' strings to `FilePicker`.
 - Updated internal components to use ES UIC 2.x/3.x classnames.
 
+## [1.4.8]
+
+### Added
+
+- `domain parameter` to setCookie function.
+
 ## [1.4.7]
 
 ### Changed
@@ -176,7 +182,8 @@ This projects adheres to [Semantic Versioning](https://semver.org/) and [Keep a 
 - Initial release.
 
 [Unreleased]: https://github.com/infinum/eightshift-frontend-libs-tailwind/compare/master...HEAD
-[1.5.0]: https://github.com/infinum/eightshift-frontend-libs-tailwind/compare/1.4.7...1.5.0
+[1.5.0]: https://github.com/infinum/eightshift-frontend-libs-tailwind/compare/1.4.8...1.5.0
+[1.4.8]: https://github.com/infinum/eightshift-frontend-libs-tailwind/compare/1.4.7...1.4.8
 [1.4.7]: https://github.com/infinum/eightshift-frontend-libs-tailwind/compare/1.4.6...1.4.7
 [1.4.6]: https://github.com/infinum/eightshift-frontend-libs-tailwind/compare/1.4.5...1.4.6
 [1.4.5]: https://github.com/infinum/eightshift-frontend-libs-tailwind/compare/1.4.4...1.4.5
