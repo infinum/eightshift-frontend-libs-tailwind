@@ -8,9 +8,11 @@ This projects adheres to [Semantic Versioning](https://semver.org/) and [Keep a 
 
 ## [1.5.0]
 
+### Added
+- Rive-related strings to `FilePicker`.
+
 ### Changed
 - Updated dependencies.
-- Add 'Rive' strings to `FilePicker`.
 - Updated internal components to use ES UIC 2.x/3.x classnames.
 
 ## [1.4.8]
