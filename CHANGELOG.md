@@ -6,6 +6,11 @@ This projects adheres to [Semantic Versioning](https://semver.org/) and [Keep a 
 
 ---
 
+## [2.0.1]
+
+### Changed
+- Updated dependencies.
+
 ## [2.0.0]
 
 ### Removed
