@@ -6,6 +6,15 @@ This projects adheres to [Semantic Versioning](https://semver.org/) and [Keep a 
 
 ---
 
+## [2.0.0]
+
+### Removed
+- All legacy built-in blocks.
+
+### Changed
+- Updated WordPress dependency extraction webpack plugin - React 19 is now supported!
+- Updated dependencies.
+
 ## [1.5.0]
 
 ### Added
@@ -184,6 +193,7 @@ This projects adheres to [Semantic Versioning](https://semver.org/) and [Keep a 
 - Initial release.
 
 [Unreleased]: https://github.com/infinum/eightshift-frontend-libs-tailwind/compare/master...HEAD
+[2.0.0]: https://github.com/infinum/eightshift-frontend-libs-tailwind/compare/1.5.0...2.0.0
 [1.5.0]: https://github.com/infinum/eightshift-frontend-libs-tailwind/compare/1.4.8...1.5.0
 [1.4.8]: https://github.com/infinum/eightshift-frontend-libs-tailwind/compare/1.4.7...1.4.8
 [1.4.7]: https://github.com/infinum/eightshift-frontend-libs-tailwind/compare/1.4.6...1.4.7
