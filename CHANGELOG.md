@@ -8,8 +8,12 @@ This projects adheres to [Semantic Versioning](https://semver.org/) and [Keep a 
 
 ## [2.0.1]
 
+### Removed
+- Some @wordpress packages, they will use the WP-provided ones now.
+
 ### Changed
 - Updated dependencies.
+- Tweaked Webpack config not to externalize "@wordpress-dom-ready"
 
 ## [2.0.0]
 
