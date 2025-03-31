@@ -10,7 +10,6 @@ import path from 'path';
  *
  * @param {string} projectDir Current project directory absolute path.
  * @param {string} projectPathConfig Project path relative to project root.
- * @param {string} assetsPathConfig Assets path after projectPath location.
  * @param {string} blocksAssetsPathConfig Path of the block assets.
  * @param {string} outputPathConfig Public output path after projectPath location.
  * @param {string} blocksManifestSettingsPath Main global settings manifest.json path after projectPath location.
@@ -19,7 +18,6 @@ import path from 'path';
 function getConfig(
 	projectDir,
 	projectPathConfig,
-	assetsPathConfig = 'assets',
 	blocksAssetsPathConfig = 'src/Blocks/assets',
 	outputPathConfig = 'public',
 	blocksManifestSettingsPath = 'src/Blocks/manifest.json',
@@ -38,7 +36,6 @@ function getConfig(
 
 	// Clear all slashes from user config.
 	const projectPathConfigClean = projectPathConfig.replace(/^\/|\/$/g, '');
-	const assetsPathConfigClean = assetsPathConfig.replace(/^\/|\/$/g, '');
 	const blocksAssetsPathConfigClean = blocksAssetsPathConfig.replace(/^\/|\/$/g, '');
 	const outputPathConfigClean = outputPathConfig.replace(/^\/|\/$/g, '');
 	const blocksManifestSettingsPathClean = blocksManifestSettingsPath.replace(/^\/|\/$/g, '');
@@ -56,8 +53,7 @@ function getConfig(
 		publicPath: path.join('/', projectPathConfigClean, outputPathConfigClean, '/'),
 
 		// Source files entries absolute locations.
-		applicationEntry: path.resolve(absolutePath, assetsPathConfigClean, 'application.js'),
-		applicationAdminEntry: path.resolve(absolutePath, assetsPathConfigClean, 'application-admin.js'),
+		applicationAdminEntry: path.resolve(absolutePath, blocksAssetsPathConfigClean, 'application-admin.js'),
 		applicationBlocksEntry: path.resolve(absolutePath, blocksAssetsPathConfigClean, 'application-blocks.js'),
 		applicationBlocksEditorEntry: path.resolve(
 			absolutePath,

@@ -29,6 +29,11 @@
 					"type": "boolean",
 					"description": "Set to 'false' to disable wrapper.",
 					"default": true
+				},
+				"useLegacyComponents": {
+					"type": "boolean",
+					"description": "Set to 'true' to use legacy components.",
+					"default": false
 				}
 			}
 		},
