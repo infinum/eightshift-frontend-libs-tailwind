@@ -116,7 +116,7 @@ export const getOptionColors = (colors) => {
 		return Object.values(coreColors);
 	}
 
-	return colors.map((colorName) => coreColors[colorName]);
+	return colors.map((colorName) => coreColors?.[colorName]);
 };
 
 /**
