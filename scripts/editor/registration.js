@@ -8,6 +8,33 @@ import { createElement } from '@wordpress/element';
 import { blockIcons } from '@eightshift/ui-components/icons';
 import { STORE_NAME, setStoreGlobalWindow, setStore, setConfigFlags } from './store';
 import { camelCase, kebabCase, lowerFirst, upperFirst } from '@eightshift/ui-components/utilities';
+import path from 'path';
+
+export const registerBlocks = ((projectPath) => {
+	const globalManifest = path.resolve(projectPath);
+	const wrapperManifest = path.resolve(projectPath, 'Wrapper', 'manifest.json');
+	const wrapperComponent = path.resolve(projectPath, 'Wrapper', 'Wrapper.js');
+	const componentsManifestPath = path.resolve(projectPath, 'components', 'manifest.json');
+	const blocksManifestPath = path.resolve(projectPath, 'blocks', 'manifest.json');
+	const blocksEditComponentPath = path.resolve(projectPath, 'blocks', 'edit.js');
+	const hooksComponentPath = path.resolve(projectPath, 'blocks', 'hooks.js');
+	const transformsComponentPath = path.resolve(projectPath, 'blocks', 'transforms.js');
+	const deprecationsComponentPath = path.resolve(projectPath, 'blocks', 'deprecations.js');
+	const overridesComponentPath = path.resolve(projectPath, 'blocks', 'overrides.js');
+
+	registerBlocksInternal(
+		globalManifest,
+		wrapperComponent,
+		wrapperManifest,
+		componentsManifestPath,
+		blocksManifestPath,
+		blocksEditComponentPath,
+		hooksComponentPath,
+		transformsComponentPath,
+		deprecationsComponentPath,
+		overridesComponentPath,
+	);
+});
 
 /**
  * Register all Block Editor blocks using WP `registerBlockType` method.
@@ -31,7 +58,7 @@ import { camelCase, kebabCase, lowerFirst, upperFirst } from '@eightshift/ui-com
  * Usage:
  * ```js
  * registerBlocks(
- *   globalSettings,
+ *   globalManifest,
  *   Wrapper,
  *   WrapperManifest,
  *   require.context('./../../components', true, /manifest.json$/),
@@ -45,13 +72,13 @@ import { camelCase, kebabCase, lowerFirst, upperFirst } from '@eightshift/ui-com
  * ```
  */
 
-export const registerBlocks = (
+export const registerBlocksInternal = (
 	globalManifest = {},
 	wrapperComponent = null,
 	wrapperManifest = {},
-	componentsManifestPath,
-	blocksManifestPath,
-	blocksEditComponentPath,
+	componentsManifestPath = null,
+	blocksManifestPath = null,
+	blocksEditComponentPath = null,
 	hooksComponentPath = null,
 	transformsComponentPath = null,
 	deprecationsComponentPath = null,
