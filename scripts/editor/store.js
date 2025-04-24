@@ -10,7 +10,7 @@ const DEFAULT_STATE = {
 	components: {},
 	config: {
 		useWrapper: true,
-		useLegacyComponents: false,
+		useLegacyComponents: true,
 	},
 	wrapper: {},
 	variations: {},
