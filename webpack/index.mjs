@@ -21,7 +21,6 @@ const eightshiftConfig = (mode, optionsData = {}) => {
 	options.config = getConfig(
 		optionsData.config.projectDir,
 		optionsData.config.projectPath,
-		optionsData.config.assetsPath,
 		optionsData.config.blocksAssetsPath,
 		optionsData.config.outputPath,
 		optionsData.config.blocksManifestSettingsPath,

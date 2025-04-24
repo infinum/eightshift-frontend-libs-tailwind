@@ -18,11 +18,6 @@ export default (options) => {
 		library: '[name]',
 	};
 
-	// Load Application Entrypoint.
-	if (!options.overrides.includes('application') && fs.existsSync(options.config.applicationEntry)) {
-		entry.application = options.config.applicationEntry;
-	}
-
 	// Load ApplicationAdmin Entrypoint.
 	if (!options.overrides.includes('applicationAdmin') && fs.existsSync(options.config.applicationAdminEntry)) {
 		entry.applicationAdmin = options.config.applicationAdminEntry;

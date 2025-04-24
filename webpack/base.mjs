@@ -53,11 +53,6 @@ export default (options) => {
 		plugins.push(
 			new DependencyExtractionWebpackPlugin({
 				outputFormat: 'json',
-				requestToExternal: function (request) {
-					if (request === '@wordpress/dom-ready') {
-						return '';
-					}
-				},
 			}),
 		);
 	}

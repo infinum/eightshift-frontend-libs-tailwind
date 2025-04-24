@@ -6,21 +6,36 @@ This projects adheres to [Semantic Versioning](https://semver.org/) and [Keep a 
 
 ---
 
+## [2.0.1]
+
+### Removed
+
+- Some @wordpress packages, they will use the WP-provided ones now.
+
+### Changed
+
+- Updated dependencies.
+- Tweaked Webpack config not to externalize "@wordpress-dom-ready"
+
 ## [2.0.0]
 
 ### Removed
+
 - All legacy built-in blocks.
 
 ### Changed
+
 - Updated WordPress dependency extraction webpack plugin - React 19 is now supported!
 - Updated dependencies.
 
 ## [1.5.0]
 
 ### Added
+
 - Rive-related strings to `FilePicker`.
 
 ### Changed
+
 - Updated dependencies.
 - Updated internal components to use ES UIC 2.x/3.x classnames.
 
@@ -33,6 +48,7 @@ This projects adheres to [Semantic Versioning](https://semver.org/) and [Keep a 
 ## [1.4.7]
 
 ### Changed
+
 - Fixed Image component "image" part tailwind class output if not set.
 - Fix Image component responsive output Co-authored-by: goran.alkovic@infinum.com
 - Add "Auto" width to wrapperContent and set is as defaults
@@ -43,6 +59,7 @@ This projects adheres to [Semantic Versioning](https://semver.org/) and [Keep a 
 ## [1.4.6]
 
 ### Changed
+
 - Tweaked webpack config to properly include font files from `@eightshfit` packages from `node_modules`.
 - Added a new `buildWpRestUrl` helper for easily fetching WP REST URLs. (Similar to `fetchFromWpRest`, but allows you control over how you fetch).
 - Updated dependencies.
@@ -75,7 +92,7 @@ This projects adheres to [Semantic Versioning](https://semver.org/) and [Keep a 
 - Fixing Yoast SEO plugin helpers.
 - Manifests in some default blocks not using `base` as a `part`.
 - Image sizing in the default Image block when set to stretch.
-- Class for gradient *top* direction in wrapper.
+- Class for gradient _top_ direction in wrapper.
 
 ## [1.4.2]
 
@@ -193,6 +210,7 @@ This projects adheres to [Semantic Versioning](https://semver.org/) and [Keep a 
 - Initial release.
 
 [Unreleased]: https://github.com/infinum/eightshift-frontend-libs-tailwind/compare/master...HEAD
+[2.0.1]: https://github.com/infinum/eightshift-frontend-libs-tailwind/compare/2.0.0...2.0.1
 [2.0.0]: https://github.com/infinum/eightshift-frontend-libs-tailwind/compare/1.5.0...2.0.0
 [1.5.0]: https://github.com/infinum/eightshift-frontend-libs-tailwind/compare/1.4.8...1.5.0
 [1.4.8]: https://github.com/infinum/eightshift-frontend-libs-tailwind/compare/1.4.7...1.4.8

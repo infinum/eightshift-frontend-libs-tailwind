@@ -31,7 +31,7 @@ import { camelCase, kebabCase, lowerFirst, upperFirst } from '@eightshift/ui-com
  * Usage:
  * ```js
  * registerBlocks(
- *   globalSettings,
+ *   globalManifest,
  *   Wrapper,
  *   WrapperManifest,
  *   require.context('./../../components', true, /manifest.json$/),
@@ -49,9 +49,9 @@ export const registerBlocks = (
 	globalManifest = {},
 	wrapperComponent = null,
 	wrapperManifest = {},
-	componentsManifestPath,
-	blocksManifestPath,
-	blocksEditComponentPath,
+	componentsManifestPath = null,
+	blocksManifestPath = null,
+	blocksEditComponentPath = null,
 	hooksComponentPath = null,
 	transformsComponentPath = null,
 	deprecationsComponentPath = null,
@@ -225,9 +225,6 @@ export const registerVariations = (
 	overridesComponentPath = null,
 ) => {
 	const variationsManifests = variationsManifestPath.keys().map(variationsManifestPath);
-
-	// Set all store values.
-	dispatch(STORE_NAME).setVariations(variationsManifests);
 
 	// Iterate blocks to register.
 	variationsManifests.map((variationManifest) => {
