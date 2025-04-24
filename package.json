@@ -27,7 +27,7 @@
 	},
 	"scripts": {
 		"lintStyle": "stylelint **/*.css",
-		"lintJs": "npx eslint",
+		"lintJs": "bunx eslint",
 		"lint": "npm run lintJs && npm run lintStyle",
 		"prepare": "husky"
 	},

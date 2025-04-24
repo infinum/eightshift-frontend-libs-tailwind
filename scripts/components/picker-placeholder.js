@@ -64,7 +64,7 @@ export const PickerPlaceholder = (props) => {
 			<RichLabel
 				icon={icon}
 				label={title}
-				className='col-span-2 mb-2 font-medium !text-gray-400 select-none'
+				className='col-span-2 mb-2 select-none font-medium !text-gray-400'
 			/>
 
 			<span className='es:col-span-2 es:select-none es:justify-self-center'>{presetsHeading}</span>
