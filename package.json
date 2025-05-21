@@ -34,7 +34,7 @@
 	"homepage": "https://github.com/infinum/eightshift-frontend-libs-tailwind#readme",
 	"license": "MIT",
 	"dependencies": {
-		"@eightshift/ui-components": "^3.0.1",
+		"@eightshift/ui-components": "^5.0.1",
 		"@stylistic/eslint-plugin-js": "^4.2.0",
 		"@stylistic/stylelint-plugin": "^3.1.2",
 		"@swc/core": "^1.11.29",
@@ -64,8 +64,8 @@
 		"webpack-merge": "^6.0.1"
 	},
 	"devDependencies": {
-		"lint-staged": "^15.5.2",
-		"@wordpress/api-fetch": "^7.23.0"
+		"@wordpress/api-fetch": "^7.23.0",
+		"lint-staged": "^15.5.2"
 	},
 	"sideEffects": false,
 	"lint-staged": {
