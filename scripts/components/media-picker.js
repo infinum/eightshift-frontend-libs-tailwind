@@ -93,7 +93,7 @@ export const MediaPicker = (props) => {
 					<MediaButton
 						type='replace'
 						onChange={onChange}
-						imageId={imageId}
+						currentId={imageId}
 						allowedTypes={allowedTypes}
 					/>
 					{!noDelete && (
