@@ -8,6 +8,8 @@ This projects adheres to [Semantic Versioning](https://semver.org/) and [Keep a 
 
 ## [2.0.3]
 
+Co-authored with @piquisy
+
 ### Changed
 - Updated dependencies.
 
