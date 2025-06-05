@@ -6,6 +6,14 @@ This projects adheres to [Semantic Versioning](https://semver.org/) and [Keep a 
 
 ---
 
+## [2.0.3]
+
+### Changed
+- Updated dependencies.
+
+### Fixed
+- Prop not being passed in Media picker causing 'Replace' to not highlight existing selection.
+
 ## [2.0.2]
 
 ### Fixed
@@ -216,6 +224,7 @@ This projects adheres to [Semantic Versioning](https://semver.org/) and [Keep a 
 - Initial release.
 
 [Unreleased]: https://github.com/infinum/eightshift-frontend-libs-tailwind/compare/master...HEAD
+[2.0.3]: https://github.com/infinum/eightshift-frontend-libs-tailwind/compare/2.0.2...2.0.3
 [2.0.2]: https://github.com/infinum/eightshift-frontend-libs-tailwind/compare/2.0.1...2.0.2
 [2.0.1]: https://github.com/infinum/eightshift-frontend-libs-tailwind/compare/2.0.0...2.0.1
 [2.0.0]: https://github.com/infinum/eightshift-frontend-libs-tailwind/compare/1.5.0...2.0.0
