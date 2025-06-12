@@ -1,7 +1,7 @@
 import React from 'react';
 import { dispatch } from '@wordpress/data';
 import { InspectorControls, BlockControls } from '@wordpress/block-editor';
-import { ContainerPanel } from '@eightshift/ui-components';
+import { ContainerPanel, PortalProvider } from '@eightshift/ui-components';
 import { upperFirst } from '@eightshift/ui-components/utilities';
 
 /**
@@ -88,6 +88,7 @@ export const lockIfUndefined = (blockClientId, attributeKey, value) => {
  * @param {JSX.Element?} [props.options] - Options component
  * @param {JSX.Element?} [props.toolbar] - Toolbar component
  * @param {JSX.Element?} [props.editor] - Editor component
+ * @param {JSX.Element?} [props.portalElement] - Portal override element to use for toolbar and editor view. Set to `false` to disable.
  * @param {boolean} [props.noOptionsContainer] - If `true`, the options component will not be wrapped in a container.
  * @param {string} props.title - Block name. Will fall back to a name generated from the `blockName` attribute.
  *
@@ -110,6 +111,8 @@ export const GutenbergBlock = (props) => {
 		toolbar: ToolbarComponent,
 		editor: EditorComponent,
 		noOptionsContainer = false,
+		portalElement = document.querySelector('.block-editor-iframe__scale-container > iframe')?.contentWindow?.document
+			?.body,
 		title,
 	} = props;
 
@@ -126,13 +129,27 @@ export const GutenbergBlock = (props) => {
 				</InspectorControls>
 			)}
 
-			{ToolbarComponent && (
+			{ToolbarComponent && portalElement !== false && (
+				<PortalProvider portalElement={portalElement}>
+					<BlockControls>
+						<ToolbarComponent {...props} />
+					</BlockControls>
+				</PortalProvider>
+			)}
+
+			{ToolbarComponent && portalElement === false && (
 				<BlockControls>
 					<ToolbarComponent {...props} />
 				</BlockControls>
 			)}
 
-			{EditorComponent && <EditorComponent {...props} />}
+			{EditorComponent && portalElement !== false && (
+				<PortalProvider portalElement={portalElement}>
+					<EditorComponent {...props} />
+				</PortalProvider>
+			)}
+
+			{EditorComponent && portalElement === false && <EditorComponent {...props} />}
 		</>
 	);
 };
