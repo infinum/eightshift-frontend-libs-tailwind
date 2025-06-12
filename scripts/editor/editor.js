@@ -132,7 +132,7 @@ export const GutenbergBlock = (props) => {
 				</InspectorControls>
 			)}
 
-			{ToolbarComponent && toolbarPortalElement !== false && (
+			{ToolbarComponent && toolbarPortalElement && (
 				<PortalProvider portalElement={toolbarPortalElement}>
 					<BlockControls>
 						<ToolbarComponent {...props} />
@@ -140,19 +140,19 @@ export const GutenbergBlock = (props) => {
 				</PortalProvider>
 			)}
 
-			{ToolbarComponent && toolbarPortalElement === false && (
+			{ToolbarComponent && !toolbarPortalElement && (
 				<BlockControls>
 					<ToolbarComponent {...props} />
 				</BlockControls>
 			)}
 
-			{EditorComponent && editorPortalElement !== false && (
+			{EditorComponent && editorPortalElement && (
 				<PortalProvider portalElement={editorPortalElement}>
 					<EditorComponent {...props} />
 				</PortalProvider>
 			)}
 
-			{EditorComponent && editorPortalElement === false && <EditorComponent {...props} />}
+			{EditorComponent && !editorPortalElement && <EditorComponent {...props} />}
 		</>
 	);
 };
