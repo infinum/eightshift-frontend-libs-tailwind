@@ -135,6 +135,7 @@ export const GutenbergBlock = (props) => {
 			{ToolbarComponent && toolbarPortalElement && (
 				<PortalProvider portalElement={toolbarPortalElement}>
 					<BlockControls>
+						<span>ok</span>
 						<ToolbarComponent {...props} />
 					</BlockControls>
 				</PortalProvider>
@@ -148,6 +149,7 @@ export const GutenbergBlock = (props) => {
 
 			{EditorComponent && editorPortalElement && (
 				<PortalProvider portalElement={editorPortalElement}>
+					<span>ok</span>
 					<EditorComponent {...props} />
 				</PortalProvider>
 			)}
