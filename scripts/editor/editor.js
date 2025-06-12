@@ -119,8 +119,6 @@ export const GutenbergBlock = (props) => {
 		title,
 	} = props;
 
-	console.log('GutenbergBlock', title ?? props?.attributes?.blockName, toolbarPortalElement, editorPortalElement);
-
 	return (
 		<>
 			{OptionsComponent && (
