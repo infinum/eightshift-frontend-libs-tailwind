@@ -1,7 +1,7 @@
 import React from 'react';
 import { dispatch } from '@wordpress/data';
 import { InspectorControls, BlockControls } from '@wordpress/block-editor';
-import { ContainerPanel } from '@eightshift/ui-components';
+import { ContainerPanel, PortalProvider } from '@eightshift/ui-components';
 import { upperFirst } from '@eightshift/ui-components/utilities';
 
 /**
@@ -88,6 +88,8 @@ export const lockIfUndefined = (blockClientId, attributeKey, value) => {
  * @param {JSX.Element?} [props.options] - Options component
  * @param {JSX.Element?} [props.toolbar] - Toolbar component
  * @param {JSX.Element?} [props.editor] - Editor component
+ * @param {JSX.Element?} [props.toolbarPortalElement] - Portal override element to use for toolbar. Set to `false` to disable.
+ * @param {JSX.Element?} [props.editorPortalElement] - Portal override element to use for editor view. Set to `false` to disable.
  * @param {boolean} [props.noOptionsContainer] - If `true`, the options component will not be wrapped in a container.
  * @param {string} props.title - Block name. Will fall back to a name generated from the `blockName` attribute.
  *
@@ -110,6 +112,10 @@ export const GutenbergBlock = (props) => {
 		toolbar: ToolbarComponent,
 		editor: EditorComponent,
 		noOptionsContainer = false,
+		toolbarPortalElement = document.querySelector('.block-editor-iframe__scale-container > iframe')?.contentWindow
+			?.document?.body,
+		editorPortalElement = document.querySelector('.block-editor-iframe__scale-container > iframe')?.contentWindow
+			?.document?.body,
 		title,
 	} = props;
 
@@ -126,13 +132,27 @@ export const GutenbergBlock = (props) => {
 				</InspectorControls>
 			)}
 
-			{ToolbarComponent && (
+			{ToolbarComponent && toolbarPortalElement && (
+				<PortalProvider portalElement={toolbarPortalElement}>
+					<BlockControls>
+						<ToolbarComponent {...props} />
+					</BlockControls>
+				</PortalProvider>
+			)}
+
+			{ToolbarComponent && !toolbarPortalElement && (
 				<BlockControls>
 					<ToolbarComponent {...props} />
 				</BlockControls>
 			)}
 
-			{EditorComponent && <EditorComponent {...props} />}
+			{EditorComponent && editorPortalElement && (
+				<PortalProvider portalElement={editorPortalElement}>
+					<EditorComponent {...props} />
+				</PortalProvider>
+			)}
+
+			{EditorComponent && !editorPortalElement && <EditorComponent {...props} />}
 		</>
 	);
 };
