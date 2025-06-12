@@ -119,6 +119,8 @@ export const GutenbergBlock = (props) => {
 		title,
 	} = props;
 
+	console.log('GutenbergBlock', title ?? props?.attributes?.blockName, toolbarPortalElement, editorPortalElement);
+
 	return (
 		<>
 			{OptionsComponent && (
@@ -135,7 +137,6 @@ export const GutenbergBlock = (props) => {
 			{ToolbarComponent && toolbarPortalElement && (
 				<PortalProvider portalElement={toolbarPortalElement}>
 					<BlockControls>
-						<span>ok</span>
 						<ToolbarComponent {...props} />
 					</BlockControls>
 				</PortalProvider>
@@ -149,7 +150,6 @@ export const GutenbergBlock = (props) => {
 
 			{EditorComponent && editorPortalElement && (
 				<PortalProvider portalElement={editorPortalElement}>
-					<span>ok</span>
 					<EditorComponent {...props} />
 				</PortalProvider>
 			)}
