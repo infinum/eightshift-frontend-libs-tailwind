@@ -88,7 +88,8 @@ export const lockIfUndefined = (blockClientId, attributeKey, value) => {
  * @param {JSX.Element?} [props.options] - Options component
  * @param {JSX.Element?} [props.toolbar] - Toolbar component
  * @param {JSX.Element?} [props.editor] - Editor component
- * @param {JSX.Element?} [props.portalElement] - Portal override element to use for toolbar and editor view. Set to `false` to disable.
+ * @param {JSX.Element?} [props.toolbarPortalElement] - Portal override element to use for toolbar. Set to `false` to disable.
+ * @param {JSX.Element?} [props.editorPortalElement] - Portal override element to use for editor view. Set to `false` to disable.
  * @param {boolean} [props.noOptionsContainer] - If `true`, the options component will not be wrapped in a container.
  * @param {string} props.title - Block name. Will fall back to a name generated from the `blockName` attribute.
  *
@@ -111,8 +112,10 @@ export const GutenbergBlock = (props) => {
 		toolbar: ToolbarComponent,
 		editor: EditorComponent,
 		noOptionsContainer = false,
-		portalElement = document.querySelector('.block-editor-iframe__scale-container > iframe')?.contentWindow?.document
-			?.body,
+		toolbarPortalElement = document.querySelector('.block-editor-iframe__scale-container > iframe')?.contentWindow
+			?.document?.body,
+		editorPortalElement = document.querySelector('.block-editor-iframe__scale-container > iframe')?.contentWindow
+			?.document?.body,
 		title,
 	} = props;
 
@@ -129,27 +132,27 @@ export const GutenbergBlock = (props) => {
 				</InspectorControls>
 			)}
 
-			{ToolbarComponent && portalElement !== false && (
-				<PortalProvider portalElement={portalElement}>
+			{ToolbarComponent && toolbarPortalElement !== false && (
+				<PortalProvider portalElement={toolbarPortalElement}>
 					<BlockControls>
 						<ToolbarComponent {...props} />
 					</BlockControls>
 				</PortalProvider>
 			)}
 
-			{ToolbarComponent && portalElement === false && (
+			{ToolbarComponent && toolbarPortalElement === false && (
 				<BlockControls>
 					<ToolbarComponent {...props} />
 				</BlockControls>
 			)}
 
-			{EditorComponent && portalElement !== false && (
-				<PortalProvider portalElement={portalElement}>
+			{EditorComponent && editorPortalElement !== false && (
+				<PortalProvider portalElement={editorPortalElement}>
 					<EditorComponent {...props} />
 				</PortalProvider>
 			)}
 
-			{EditorComponent && portalElement === false && <EditorComponent {...props} />}
+			{EditorComponent && editorPortalElement === false && <EditorComponent {...props} />}
 		</>
 	);
 };
