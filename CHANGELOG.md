@@ -10,7 +10,7 @@ This projects adheres to [Semantic Versioning](https://semver.org/) and [Keep a 
 
 ### Changed
 - Updated dependencies.
-- `GutenbergBlock` now overrides the ES UI components portal, after Core changed editor to be iframed. This can be disabled by passing `toolbarPortalElement={false}` and `editorPortalElement={false}`.
+- `GutenbergBlock` now overrides the ES UI components portal, after Core changed editor to be iframed. This can be disabled by passing `toolbarPortalElement={false}` and `editorPortalElement={false}`. Override only happens if the editor is iframed.
 
 ## [2.0.4]
 
