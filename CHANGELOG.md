@@ -6,6 +6,10 @@ This projects adheres to [Semantic Versioning](https://semver.org/) and [Keep a 
 
 ---
 
+## [2.0.6]
+### Changed
+- Updated dependencies.
+
 ## [2.0.5]
 
 ### Changed
@@ -237,6 +241,7 @@ Co-authored with @piqusy
 - Initial release.
 
 [Unreleased]: https://github.com/infinum/eightshift-frontend-libs-tailwind/compare/master...HEAD
+[2.0.6]: https://github.com/infinum/eightshift-frontend-libs-tailwind/compare/2.0.5...2.0.6
 [2.0.5]: https://github.com/infinum/eightshift-frontend-libs-tailwind/compare/2.0.4...2.0.5
 [2.0.4]: https://github.com/infinum/eightshift-frontend-libs-tailwind/compare/2.0.3...2.0.4
 [2.0.3]: https://github.com/infinum/eightshift-frontend-libs-tailwind/compare/2.0.2...2.0.3
