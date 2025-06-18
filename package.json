@@ -64,8 +64,7 @@
 	},
 	"devDependencies": {
 		"lint-staged": "^15.5.2",
-		"@wordpress/api-fetch": "^7.25.0",
-		"@eightshift/ui-components": "^5.0.7"
+		"@wordpress/api-fetch": "^7.25.0"
 	},
 	"peerDependencies": {
 		"@eightshift/ui-components": "^5.0.0"
