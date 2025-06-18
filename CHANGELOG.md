@@ -9,6 +9,7 @@ This projects adheres to [Semantic Versioning](https://semver.org/) and [Keep a 
 ## [2.0.6]
 ### Changed
 - Updated dependencies.
+- Package will now use your project's version of ES UI components, instead of bundling one. `peerDependencies` should automatically install it, if not please install `@eightshift/ui-components` yourself.
 
 ## [2.0.5]
 
