@@ -131,17 +131,9 @@ export default (options) => {
 		symlinks: false,
 	};
 
-	const externals = {
-		...(options?.overrides?.customExternals ?? {}),
-		...(options?.overrides?.includes('uic-externals')
-			? {}
-			: { '@eightshift/ui-components': '@eightshift/ui-components' }),
-	};
-
 	return {
 		plugins,
 		module,
 		resolve,
-		externals,
 	};
 };
