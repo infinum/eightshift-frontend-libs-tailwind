@@ -6,7 +6,13 @@ This projects adheres to [Semantic Versioning](https://semver.org/) and [Keep a 
 
 ---
 
+## [2.0.7]
+
+### Added
+-  Output block/component title in `tailwindClasses` if WP_DEBUG is true. Depends on Eightshift Libs v10.11.2 `addEditorBodyDebugClass` method.
+
 ## [2.0.6]
+
 ### Changed
 - Updated dependencies.
 - Package will now use your project's version of ES UI components, instead of bundling one. `peerDependencies` should automatically install it, if not please install `@eightshift/ui-components` yourself.
@@ -242,6 +248,7 @@ Co-authored with @piqusy
 - Initial release.
 
 [Unreleased]: https://github.com/infinum/eightshift-frontend-libs-tailwind/compare/master...HEAD
+[2.0.7]: https://github.com/infinum/eightshift-frontend-libs-tailwind/compare/2.0.6...2.0.7
 [2.0.6]: https://github.com/infinum/eightshift-frontend-libs-tailwind/compare/2.0.5...2.0.6
 [2.0.5]: https://github.com/infinum/eightshift-frontend-libs-tailwind/compare/2.0.4...2.0.5
 [2.0.4]: https://github.com/infinum/eightshift-frontend-libs-tailwind/compare/2.0.3...2.0.4
