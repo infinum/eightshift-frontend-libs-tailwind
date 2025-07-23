@@ -547,7 +547,10 @@ export const tailwindClasses = (part, attributes, manifest, ...custom) => {
 		combinationClasses = [...combinationClasses, processCombination(partName, combo, attributes, manifest)];
 	}
 
+	const partPrefix = manifest.title.replace(/[^a-zA-Z]+/g, '-').toLowerCase();
+
 	return clsx(
+		document.body.classList.contains('es-wp-debug') && `_es__${partPrefix}/${part}`,
 		unifyClasses(baseBaseClasses),
 		unifyClasses(baseEditorClasses),
 		...optionClasses,
