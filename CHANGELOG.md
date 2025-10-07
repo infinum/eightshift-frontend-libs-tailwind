@@ -6,6 +6,14 @@ This projects adheres to [Semantic Versioning](https://semver.org/) and [Keep a 
 
 ---
 
+## [2.1.0]
+
+### Changed
+
+- New design for Media and File pickers.
+- `ManageFileButton` now has a prop passthrough for the button inside (`buttonProps`).
+- Updated dependencies.
+
 ## [2.0.7]
 
 ### Added
@@ -248,6 +256,7 @@ Co-authored with @piqusy
 - Initial release.
 
 [Unreleased]: https://github.com/infinum/eightshift-frontend-libs-tailwind/compare/master...HEAD
+[2.1.0]: https://github.com/infinum/eightshift-frontend-libs-tailwind/compare/2.0.7...2.1.0
 [2.0.7]: https://github.com/infinum/eightshift-frontend-libs-tailwind/compare/2.0.6...2.0.7
 [2.0.6]: https://github.com/infinum/eightshift-frontend-libs-tailwind/compare/2.0.5...2.0.6
 [2.0.5]: https://github.com/infinum/eightshift-frontend-libs-tailwind/compare/2.0.4...2.0.5
