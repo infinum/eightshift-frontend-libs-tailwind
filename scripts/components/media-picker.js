@@ -79,7 +79,7 @@ export const MediaPicker = (props) => {
 				type='glass'
 				hidden={noDelete}
 			>
-				{__('Remove', 'infobip')}
+				{__('Remove', 'eightshift-frontend-libs-tailwind')}
 			</Button>
 		</FilePickerShell>
 	);
