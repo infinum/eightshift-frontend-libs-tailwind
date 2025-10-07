@@ -1,7 +1,6 @@
-import React from 'react';
 import { __ } from '@wordpress/i18n';
 import { MediaUpload, MediaUploadCheck } from '@wordpress/block-editor';
-import { Button, HStack, VStack, FilePlaceholder, AnimatedVisibility } from '@eightshift/ui-components';
+import { Button, FilePickerShell } from '@eightshift/ui-components';
 import { icons } from '@eightshift/ui-components/icons';
 
 /**
@@ -16,6 +15,8 @@ import { icons } from '@eightshift/ui-components/icons';
  * @param {string[]} props.allowedTypes - Determines types of files which are allowed to be uploaded.
  * @param {ManageFileButtonKind} [props.kind] - The kind of file to manage. Controls labels and icons on the buttons.
  * @param {Object} [props.labels] - Custom UI labels for the buttons. Applies only if `kind` is set to `custom`.
+ * @param {Object} [props.buttonProps] - Props to pass to the trigger button.
+ * @param {boolean} [props.hidden] - If `true`, the component will not be rendered.
  *
  * @returns {JSX.Element} The ManageFileButton component.
  *
@@ -38,7 +39,15 @@ export const ManageFileButton = (props) => {
 		kind = 'file',
 
 		compact = false,
+
+		buttonProps,
+
+		hidden,
 	} = props;
+
+	if (hidden) {
+		return null;
+	}
 
 	const strings = {
 		file: {
@@ -160,7 +169,7 @@ export const ManageFileButton = (props) => {
 					<Button
 						onPress={open}
 						icon={compact && buttonIcon}
-						tooltip={buttonTooltip}
+						{...buttonProps}
 					>
 						{!compact && buttonLabel}
 					</Button>
@@ -229,46 +238,34 @@ export const FileSelector = (props) => {
 	};
 
 	return (
-		<VStack noWrap>
-			<FilePlaceholder
-				icon={fileIcons[kind] ?? icons.file}
-				fileName={fileName}
-			>
-				<HStack
-					noWrap
-					className='es:pl-1'
-				>
+		<FilePickerShell
+			icon={fileIcons[kind]}
+			fileName={fileName}
+			url={fileName}
+			noUrlContent={
+				<>
 					<ManageFileButton {...commonManageFileButtonProps} />
-					{!noUpload && (
-						<ManageFileButton
-							{...commonManageFileButtonProps}
-							type='upload'
-							compact
-						/>
-					)}
-				</HStack>
-			</FilePlaceholder>
 
-			<AnimatedVisibility
-				visible={(fileName ?? '').length > 0}
-				noInitial
-			>
-				<HStack noWrap>
 					<ManageFileButton
 						{...commonManageFileButtonProps}
-						currentId={fileId}
-						type='replace'
+						type='upload'
+						hidden={noUpload}
 					/>
-					{!noDelete && (
-						<Button
-							icon={icons.trash}
-							tooltip={removeTooltips[kind] ?? removeTooltips.file}
-							onPress={() => onChange({ id: undefined, url: undefined })}
-							type='danger'
-						/>
-					)}
-				</HStack>
-			</AnimatedVisibility>
-		</VStack>
+				</>
+			}
+		>
+			<ManageFileButton
+				{...commonManageFileButtonProps}
+				currentId={fileId}
+				type='replace'
+			/>
+
+			<Button
+				onPress={() => onChange({ id: undefined, url: undefined })}
+				hidden={noDelete}
+			>
+				{__('Remove', 'eightshift-frontend-libs-tailwind')}
+			</Button>
+		</FilePickerShell>
 	);
 };
