@@ -64,23 +64,37 @@ export const MediaPicker = (props) => {
 			}
 			className={className}
 		>
-			<MediaButton
-				type='replace'
-				onChange={onChange}
-				currentId={imageId}
-				allowedTypes={allowedTypes}
-				buttonProps={{
-					type: 'glass',
-				}}
-			/>
+			{({ isDark, isTransparent }) => {
+				let buttonType = 'default';
 
-			<Button
-				onPress={() => onChange({ id: undefined, url: undefined })}
-				type='glass'
-				hidden={noDelete}
-			>
-				{__('Remove', 'eightshift-frontend-libs-tailwind')}
-			</Button>
+				if (!isTransparent) {
+					buttonType = isDark ? 'glass' : 'glassDark';
+				}
+
+				return (
+					<>
+						<MediaButton
+							type='replace'
+							onChange={onChange}
+							currentId={imageId}
+							allowedTypes={allowedTypes}
+							buttonProps={{
+								type: buttonType,
+								className: 'es:grow',
+							}}
+						/>
+
+						<Button
+							onPress={() => onChange({ id: undefined, url: undefined })}
+							className='es:grow'
+							type={buttonType}
+							hidden={noDelete}
+						>
+							{__('Remove', 'eightshift-frontend-libs-tailwind')}
+						</Button>
+					</>
+				);
+			}}
 		</FilePickerShell>
 	);
 };
