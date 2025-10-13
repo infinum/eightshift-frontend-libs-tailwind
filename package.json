@@ -1,6 +1,6 @@
 {
 	"name": "@eightshift/frontend-libs-tailwind",
-	"version": "2.1.0",
+	"version": "2.1.1",
 	"description": "A framework for creating modern Gutenberg themes with styling provided by Tailwind CSS.",
 	"author": {
 		"name": "Eightshift team",
@@ -67,7 +67,7 @@
 		"@wordpress/api-fetch": "^7.32.0"
 	},
 	"peerDependencies": {
-		"@eightshift/ui-components": "^5.4.0"
+		"@eightshift/ui-components": "^5.5.0"
 	},
 	"sideEffects": false,
 	"lint-staged": {

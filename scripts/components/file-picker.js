@@ -51,11 +51,6 @@ export const ManageFileButton = (props) => {
 
 	const strings = {
 		file: {
-			buttonTooltip: {
-				browse: __('Select a file from Media library', 'eightshift-frontend-libs-tailwind'),
-				upload: __('Upload a file', 'eightshift-frontend-libs-tailwind'),
-				replace: __('Replace file', 'eightshift-frontend-libs-tailwind'),
-			},
 			buttonLabel: {
 				browse: __('Select', 'eightshift-frontend-libs-tailwind'),
 				upload: __('Upload', 'eightshift-frontend-libs-tailwind'),
@@ -73,11 +68,6 @@ export const ManageFileButton = (props) => {
 			},
 		},
 		video: {
-			buttonTooltip: {
-				browse: __('Select a video from Media library', 'eightshift-frontend-libs-tailwind'),
-				upload: __('Upload a video', 'eightshift-frontend-libs-tailwind'),
-				replace: __('Replace video', 'eightshift-frontend-libs-tailwind'),
-			},
 			modalTitle: {
 				browse: __('Select a video', 'eightshift-frontend-libs-tailwind'),
 				upload: __('Upload a video', 'eightshift-frontend-libs-tailwind'),
@@ -85,11 +75,6 @@ export const ManageFileButton = (props) => {
 			},
 		},
 		image: {
-			buttonTooltip: {
-				browse: __('Select an image from Media library', 'eightshift-frontend-libs-tailwind'),
-				upload: __('Upload an image', 'eightshift-frontend-libs-tailwind'),
-				replace: __('Replace image', 'eightshift-frontend-libs-tailwind'),
-			},
 			modalTitle: {
 				browse: __('Select an image', 'eightshift-frontend-libs-tailwind'),
 				upload: __('Upload an image', 'eightshift-frontend-libs-tailwind'),
@@ -97,11 +82,6 @@ export const ManageFileButton = (props) => {
 			},
 		},
 		subtitle: {
-			buttonTooltip: {
-				browse: __('Select a subtitle file', 'eightshift-frontend-libs-tailwind'),
-				upload: __('Upload a subtitle file', 'eightshift-frontend-libs-tailwind'),
-				replace: __('Replace subtitle file', 'eightshift-frontend-libs-tailwind'),
-			},
 			modalTitle: {
 				browse: __('Select a subtitle file', 'eightshift-frontend-libs-tailwind'),
 				upload: __('Upload a subtitle file', 'eightshift-frontend-libs-tailwind'),
@@ -109,11 +89,6 @@ export const ManageFileButton = (props) => {
 			},
 		},
 		geoJson: {
-			buttonTooltip: {
-				browse: __('Select a GeoJSON file', 'eightshift-frontend-libs-tailwind'),
-				upload: __('Upload a GeoJSON file', 'eightshift-frontend-libs-tailwind'),
-				replace: __('Replace GeoJSON file', 'eightshift-frontend-libs-tailwind'),
-			},
 			modalTitle: {
 				browse: __('Select a GeoJSON file', 'eightshift-frontend-libs-tailwind'),
 				upload: __('Upload a GeoJSON file', 'eightshift-frontend-libs-tailwind'),
@@ -121,11 +96,6 @@ export const ManageFileButton = (props) => {
 			},
 		},
 		lottie: {
-			buttonTooltip: {
-				browse: __('Select a Lottie animation', 'eightshift-frontend-libs-tailwind'),
-				upload: __('Upload a Lottie animation', 'eightshift-frontend-libs-tailwind'),
-				replace: __('Replace Lottie animation', 'eightshift-frontend-libs-tailwind'),
-			},
 			modalTitle: {
 				browse: __('Select a Lottie animation', 'eightshift-frontend-libs-tailwind'),
 				upload: __('Upload a Lottie animation', 'eightshift-frontend-libs-tailwind'),
@@ -133,11 +103,6 @@ export const ManageFileButton = (props) => {
 			},
 		},
 		rive: {
-			buttonTooltip: {
-				browse: __('Select a Rive animation', 'eightshift-frontend-libs-tailwind'),
-				upload: __('Upload a Rive animation', 'eightshift-frontend-libs-tailwind'),
-				replace: __('Replace Rive animation', 'eightshift-frontend-libs-tailwind'),
-			},
 			modalTitle: {
 				browse: __('Select a Rive animation', 'eightshift-frontend-libs-tailwind'),
 				upload: __('Upload a Rive animation', 'eightshift-frontend-libs-tailwind'),
@@ -145,14 +110,12 @@ export const ManageFileButton = (props) => {
 			},
 		},
 		custom: {
-			buttonTooltip: labels?.buttonTooltip,
 			buttonLabel: labels?.buttonLabel,
 			modalTitle: labels?.modalTitle,
 			buttonIcon: labels?.buttonIcon,
 		},
 	};
 
-	const buttonTooltip = strings?.[kind]?.buttonTooltip?.[type] ?? strings.file.buttonTooltip?.[type];
 	const buttonLabel = strings?.[kind]?.buttonLabel?.[type] ?? strings.file.buttonLabel?.[type];
 	const buttonIcon = strings?.[kind]?.buttonIcon?.[type] ?? strings.file.buttonIcon?.[type];
 	const modalTitle = strings?.[kind]?.modalTitle?.[type] ?? strings.file.modalTitle?.[type];
@@ -216,17 +179,6 @@ export const FileSelector = (props) => {
 		labels,
 	};
 
-	const removeTooltips = {
-		file: __('Remove file', 'eightshift-frontend-libs-tailwind'),
-		image: __('Remove image', 'eightshift-frontend-libs-tailwind'),
-		video: __('Remove video', 'eightshift-frontend-libs-tailwind'),
-		subtitle: __('Remove subtitle file', 'eightshift-frontend-libs-tailwind'),
-		geoJson: __('Remove GeoJSON file', 'eightshift-frontend-libs-tailwind'),
-		lottie: __('Remove Lottie animation', 'eightshift-frontend-libs-tailwind'),
-		rive: __('Remove Rive animation', 'eightshift-frontend-libs-tailwind'),
-		custom: labels?.removeTooltip,
-	};
-
 	const fileIcons = {
 		image: icons.imageFile,
 		video: icons.videoFile,
@@ -256,12 +208,14 @@ export const FileSelector = (props) => {
 		>
 			<ManageFileButton
 				{...commonManageFileButtonProps}
+				buttonProps={{ className: 'es:grow' }}
 				currentId={fileId}
 				type='replace'
 			/>
 
 			<Button
 				onPress={() => onChange({ id: undefined, url: undefined })}
+				className='es:grow'
 				hidden={noDelete}
 			>
 				{__('Remove', 'eightshift-frontend-libs-tailwind')}
