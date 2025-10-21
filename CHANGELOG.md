@@ -6,6 +6,17 @@ This projects adheres to [Semantic Versioning](https://semver.org/) and [Keep a 
 
 ---
 
+## [2.2.0]
+
+### Added
+
+- Default portalling for `Options` components in `GutenbergBlock` (`document.body` by default). Can be disabled by passing `optionsPortalElement={false}`.
+
+### Changed
+
+- Updated dependencies.
+
+
 ## [2.1.1]
 
 ### Changed
@@ -262,6 +273,7 @@ Co-authored with @piqusy
 - Initial release.
 
 [Unreleased]: https://github.com/infinum/eightshift-frontend-libs-tailwind/compare/master...HEAD
+[2.2.0]: https://github.com/infinum/eightshift-frontend-libs-tailwind/compare/2.1.1...2.2.0
 [2.1.1]: https://github.com/infinum/eightshift-frontend-libs-tailwind/compare/2.1.0...2.1.1
 [2.1.0]: https://github.com/infinum/eightshift-frontend-libs-tailwind/compare/2.0.7...2.1.0
 [2.0.7]: https://github.com/infinum/eightshift-frontend-libs-tailwind/compare/2.0.6...2.0.7
