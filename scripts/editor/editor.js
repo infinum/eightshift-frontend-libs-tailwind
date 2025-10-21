@@ -90,6 +90,7 @@ export const lockIfUndefined = (blockClientId, attributeKey, value) => {
  * @param {JSX.Element?} [props.editor] - Editor component
  * @param {JSX.Element?} [props.toolbarPortalElement] - Portal override element to use for toolbar. Set to `false` to disable.
  * @param {JSX.Element?} [props.editorPortalElement] - Portal override element to use for editor view. Set to `false` to disable.
+ * @param {JSX.Element?} [props.optionsPortalElement] - Portal override element to use for options view. Set to `false` to disable.
  * @param {boolean} [props.noOptionsContainer] - If `true`, the options component will not be wrapped in a container.
  * @param {string} props.title - Block name. Will fall back to a name generated from the `blockName` attribute.
  *
@@ -116,12 +117,26 @@ export const GutenbergBlock = (props) => {
 			?.document?.body,
 		editorPortalElement = document.querySelector('.block-editor-iframe__scale-container > iframe')?.contentWindow
 			?.document?.body,
+		optionsPortalElement = document?.body,
 		title,
 	} = props;
 
 	return (
 		<>
-			{OptionsComponent && (
+			{OptionsComponent && optionsPortalElement && (
+				<PortalProvider portalElement={optionsPortalElement}>
+					<InspectorControls>
+						{!noOptionsContainer && (
+							<ContainerPanel title={title ?? upperFirst(props?.attributes?.blockName)}>
+								<OptionsComponent {...props} />
+							</ContainerPanel>
+						)}
+						{noOptionsContainer && <OptionsComponent {...props} />}
+					</InspectorControls>
+				</PortalProvider>
+			)}
+
+			{OptionsComponent && !optionsPortalElement && (
 				<InspectorControls>
 					{!noOptionsContainer && (
 						<ContainerPanel title={title ?? upperFirst(props?.attributes?.blockName)}>
