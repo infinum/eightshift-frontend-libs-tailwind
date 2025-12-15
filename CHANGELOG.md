@@ -6,6 +6,17 @@ This projects adheres to [Semantic Versioning](https://semver.org/) and [Keep a 
 
 ---
 
+## [2.3.0]
+
+### Added
+
+- Re-added React ESLint rules.
+
+### Updated
+
+- Fixed ESLint configs.
+- Updated dependencies.
+
 ## [2.2.0]
 
 ### Added
@@ -273,6 +284,7 @@ Co-authored with @piqusy
 - Initial release.
 
 [Unreleased]: https://github.com/infinum/eightshift-frontend-libs-tailwind/compare/master...HEAD
+[2.3.0]: https://github.com/infinum/eightshift-frontend-libs-tailwind/compare/2.2.0...2.3.0
 [2.2.0]: https://github.com/infinum/eightshift-frontend-libs-tailwind/compare/2.1.1...2.2.0
 [2.1.1]: https://github.com/infinum/eightshift-frontend-libs-tailwind/compare/2.1.0...2.1.1
 [2.1.0]: https://github.com/infinum/eightshift-frontend-libs-tailwind/compare/2.0.7...2.1.0
