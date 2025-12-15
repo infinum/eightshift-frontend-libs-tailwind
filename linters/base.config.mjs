@@ -61,7 +61,6 @@ export default [
 				},
 			],
 			// React-specific.
-			// Note: React rules are temporarily disabled until the plugin gets full compatibility with ESLint 9.
 			'consistent-return': 'warn',
 			'no-param-reassign': 'warn',
 			'react-hooks/rules-of-hooks': 'error',
