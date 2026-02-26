@@ -6,6 +6,17 @@ This projects adheres to [Semantic Versioning](https://semver.org/) and [Keep a 
 
 ---
 
+## [2.4.0]
+
+### Added
+
+- Option to try out `__SmartImageNext` in the `MediaPicker` component (via the `__useSmartImageNext` prop).
+
+### Updated
+
+- Updated dependencies.
+- Bumped min. version of `@eightshift/ui-components` to 6.1.0.
+
 ## [2.3.0]
 
 ### Added
@@ -284,6 +295,7 @@ Co-authored with @piqusy
 - Initial release.
 
 [Unreleased]: https://github.com/infinum/eightshift-frontend-libs-tailwind/compare/master...HEAD
+[2.4.0]: https://github.com/infinum/eightshift-frontend-libs-tailwind/compare/2.3.0...2.4.0
 [2.3.0]: https://github.com/infinum/eightshift-frontend-libs-tailwind/compare/2.2.0...2.3.0
 [2.2.0]: https://github.com/infinum/eightshift-frontend-libs-tailwind/compare/2.1.1...2.2.0
 [2.1.1]: https://github.com/infinum/eightshift-frontend-libs-tailwind/compare/2.1.0...2.1.1
