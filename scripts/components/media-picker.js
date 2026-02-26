@@ -24,6 +24,7 @@ const MediaButton = (props) => {
  * @param {boolean} [props.hidden] - If `true`, the component will be hidden.
  * @param {string[]} [props.allowedTypes=['image']] - Determines types of files which are allowed to be uploaded.
  * @param {string} [props.className] - Classes to add to the button wrapper.
+ * @param {boolean} [props.__useSmartImageNext] - If `true`, the component will use the `__SmartImageNext` for image preview and processing.
  *
  * @returns {JSX.Element} The MediaPicker component.
  *
@@ -37,7 +38,17 @@ const MediaButton = (props) => {
  *
  */
 export const MediaPicker = (props) => {
-	const { onChange, imageId, imageUrl, noDelete, noUpload, hidden, allowedTypes = ['image'], className } = props;
+	const {
+		onChange,
+		imageId,
+		imageUrl,
+		noDelete,
+		noUpload,
+		hidden,
+		allowedTypes = ['image'],
+		className,
+		__useSmartImageNext,
+	} = props;
 
 	if (hidden) {
 		return null;
@@ -63,6 +74,7 @@ export const MediaPicker = (props) => {
 				</>
 			}
 			className={className}
+			__useSmartImageNext={__useSmartImageNext}
 		>
 			{({ isDark, isTransparent }) => {
 				let buttonType = 'default';
