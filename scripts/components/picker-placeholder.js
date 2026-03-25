@@ -1,6 +1,6 @@
 import { __ } from '@wordpress/i18n';
 import { RichLabel, Button } from '@eightshift/ui-components';
-import { icons, blockIcons, BlockIcon } from '@eightshift/ui-components/icons';
+import { blockIcons, BlockIcon, componentGeneric, Icon } from '@eightshift/ui-components/icons';
 import { dispatch } from '@wordpress/data';
 import { createBlock } from '@wordpress/blocks';
 import { BlockInserter } from '@eightshift/frontend-libs-tailwind/scripts';
@@ -13,7 +13,7 @@ import { BlockInserter } from '@eightshift/frontend-libs-tailwind/scripts';
  * @param {string|JSX.Element} [props.title] - Block name. Overrides manifest value (if provided).
  * @param {Array} [props.presets] - Presets to show the user.
  * @param {string} props.presets.name - Preset name.
- * @param {string} props.presets.icon - Icon name. (See `icons` object in `@eightshift/ui-components/icons`).
+ * @param {string} props.presets.icon - Icon name. (from `@eightshift/ui-components/icons`).
  * @param {array} [props.presets.blocks] - Inner blocks to be added by the preset.
  * @param {object} [props.presets.attributes] - Attributes to set to the current block.
  * @param {string|JSX.Element} [props.blockIcon] - Block icon to show next to the title. Can either be a string (icon/block icon name - block icons have precedence), or a JSX element.
@@ -47,13 +47,12 @@ export const PickerPlaceholder = (props) => {
 	const blockIcon = rawBlockIcon ?? manifest?.icon?.src;
 	const presets = rawPresets ?? manifest?.layoutPresets;
 
-	let icon = blockIcon ?? icons.componentGeneric;
-
-	if (blockIcon in blockIcons) {
-		icon = <BlockIcon iconName={blockIcon} />;
-	} else if (blockIcon in icons) {
-		icon = icons[blockIcon];
-	}
+	let icon = (
+		<Icon
+			icon={blockIcon}
+			fallback={blockIcon in blockIcons ? <BlockIcon iconName={blockIcon} /> : componentGeneric}
+		/>
+	);
 
 	if (hidden) {
 		return null;
@@ -64,7 +63,7 @@ export const PickerPlaceholder = (props) => {
 			<RichLabel
 				icon={icon}
 				label={title}
-				className='col-span-2 mb-2 select-none font-medium !text-gray-400'
+				className='col-span-2 mb-2 font-medium !text-gray-400 select-none'
 			/>
 
 			<span className='es:col-span-2 es:select-none es:justify-self-center'>{presetsHeading}</span>
@@ -82,7 +81,7 @@ export const PickerPlaceholder = (props) => {
 
 							await dispatch('core/block-editor').insertBlocks(blocksToInsert, 0, clientId);
 						}}
-						icon={icons?.[icon]}
+						icon={<Icon icon={icon} />}
 						size='large'
 					>
 						{name}

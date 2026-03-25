@@ -2,7 +2,7 @@ import { useCallback } from 'react';
 import { __ } from '@wordpress/i18n';
 import { RichText } from '@wordpress/block-editor';
 import { Button } from '@eightshift/ui-components';
-import { icons } from '@eightshift/ui-components/icons';
+import { add } from '@eightshift/ui-components/icons';
 
 /**
  * Link section editor.
@@ -292,7 +292,7 @@ export const LinkSectionEditor = (props) => {
 
 						<Button
 							size='small'
-							icon={icons.add}
+							icon={add}
 							tooltip={__('Add link', 'eightshift-frontend-libs')}
 							onPress={({ target }) => {
 								updateItem(index, {
@@ -316,7 +316,7 @@ export const LinkSectionEditor = (props) => {
 						target?.previousElementSibling?.querySelector('[contenteditable="true"]')?.focus();
 					}, 20);
 				}}
-				icon={icons.add}
+				icon={add}
 				tooltip={__('Add a section', 'eightshift-frontend-libs')}
 				className='justify-self-start'
 			>

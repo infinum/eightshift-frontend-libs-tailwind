@@ -3,7 +3,7 @@
 import { Toaster } from 'sonner';
 import { __ } from '@wordpress/i18n';
 import { Button, OptionsPanelHeader } from '@eightshift/ui-components';
-import { icons } from '@eightshift/ui-components/icons';
+import { save } from '@eightshift/ui-components/icons';
 import { createContext } from '@wordpress/element';
 import { useThemeOptions } from './use-theme-options';
 
@@ -25,8 +25,8 @@ export const ThemeOptionsPage = ({
 					actions={
 						<Button
 							onPress={() => saveSettings()}
-							disabled={isLoading}
-							icon={isLoading ? icons.moreH : icons.save}
+							pending={isLoading}
+							icon={save}
 						>
 							{isLoading
 								? __('Saving...', 'eightshift-frontend-libs-tailwind')
