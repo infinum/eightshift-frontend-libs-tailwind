@@ -1,7 +1,16 @@
 import { __ } from '@wordpress/i18n';
 import { MediaUpload, MediaUploadCheck } from '@wordpress/block-editor';
 import { Button, FilePickerShell } from '@eightshift/ui-components';
-import { icons } from '@eightshift/ui-components/icons';
+import {
+	animationFile,
+	closedCaptions,
+	fileMetadata,
+	imageFile,
+	itemSelect,
+	swap,
+	upload,
+	videoFile,
+} from '@eightshift/ui-components/icons';
 
 /**
  * A customizable button for managing files from the Media library.
@@ -62,9 +71,9 @@ export const ManageFileButton = (props) => {
 				replace: __('Select a new file', 'eightshift-frontend-libs-tailwind'),
 			},
 			buttonIcon: {
-				browse: icons.itemSelect,
-				upload: icons.upload,
-				replace: icons.swap,
+				browse: itemSelect,
+				upload: upload,
+				replace: swap,
 			},
 		},
 		video: {
@@ -180,12 +189,12 @@ export const FileSelector = (props) => {
 	};
 
 	const fileIcons = {
-		image: icons.imageFile,
-		video: icons.videoFile,
-		subtitle: icons.closedCaptions,
-		geoJson: icons.fileMetadata,
-		lottie: icons.animationFile,
-		rive: icons.animationFile,
+		image: imageFile,
+		video: videoFile,
+		subtitle: closedCaptions,
+		geoJson: fileMetadata,
+		lottie: animationFile,
+		rive: animationFile,
 		custom: labels?.removeIcon,
 	};
 

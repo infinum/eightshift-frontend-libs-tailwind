@@ -1,6 +1,6 @@
 {
 	"name": "@eightshift/frontend-libs-tailwind",
-	"version": "2.4.0",
+	"version": "3.0.0",
 	"description": "A framework for creating modern Gutenberg themes with styling provided by Tailwind CSS.",
 	"author": {
 		"name": "Eightshift team",
@@ -34,42 +34,42 @@
 	"homepage": "https://github.com/infinum/eightshift-frontend-libs-tailwind#readme",
 	"license": "MIT",
 	"dependencies": {
-		"@stylistic/eslint-plugin": "^5.8.0",
-		"@stylistic/stylelint-plugin": "^4.0.1",
-		"@swc/core": "^1.15.11",
-		"@wordpress/dependency-extraction-webpack-plugin": "^6.39.0",
+		"@stylistic/eslint-plugin": "^5.10.0",
+		"@stylistic/stylelint-plugin": "^5.0.1",
+		"@swc/core": "^1.15.18",
+		"@wordpress/dependency-extraction-webpack-plugin": "^6.41.0",
 		"browserslist": "^4.28.1",
 		"css-loader": "^7.1.4",
-		"css-minimizer-webpack-plugin": "^7.0.4",
-		"eslint": "^9.39.2",
+		"css-minimizer-webpack-plugin": "^8.0.0",
+		"eslint": "^10.0.3",
 		"eslint-config-prettier": "^10.1.8",
 		"eslint-plugin-prettier": "^5.5.5",
-		"globals": "^16.5.0",
+		"globals": "^17.4.0",
 		"husky": "^9.1.7",
-		"lightningcss": "^1.31.1",
-		"mini-css-extract-plugin": "^2.10.0",
-		"postcss": "^8.5.6",
+		"lightningcss": "^1.32.0",
+		"mini-css-extract-plugin": "^2.10.1",
+		"postcss": "^8.5.8",
 		"postcss-loader": "^8.2.1",
 		"prettier": "^3.8.1",
 		"prettier-plugin-tailwindcss": "^0.7.2",
 		"sonner": "^2.0.7",
-		"stylelint": "^16.26.1",
-		"stylelint-config-standard": "^39.0.1",
+		"stylelint": "^17.4.0",
+		"stylelint-config-standard": "^40.0.0",
 		"swc-loader": "^0.2.7",
-		"terser-webpack-plugin": "^5.3.16",
-		"webpack": "^5.105.2",
-		"webpack-cli": "^6.0.1",
+		"terser-webpack-plugin": "^5.4.0",
+		"webpack": "^5.105.4",
+		"webpack-cli": "^7.0.2",
 		"webpack-manifest-plugin": "^6.0.1",
 		"webpack-merge": "^6.0.1",
 		"eslint-plugin-react": "^7.37.5",
 		"eslint-plugin-react-hooks": "^7.0.1"
 	},
 	"devDependencies": {
-		"lint-staged": "^16.2.7",
-		"@wordpress/api-fetch": "^7.39.0"
+		"lint-staged": "^16.4.0",
+		"@wordpress/api-fetch": "^7.41.0"
 	},
 	"peerDependencies": {
-		"@eightshift/ui-components": "^6.1.0"
+		"@eightshift/ui-components": "^7.0.0"
 	},
 	"sideEffects": false,
 	"lint-staged": {
