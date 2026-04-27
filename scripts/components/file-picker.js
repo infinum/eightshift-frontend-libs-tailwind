@@ -164,6 +164,7 @@ export const ManageFileButton = (props) => {
  * @param {string[]} props.allowedTypes - Determines types of files which are allowed to be uploaded.
  * @param {FileKind} [props.kind] - The kind of file to manage.
  * @param {Object} [props.labels] - Custom UI labels for the buttons. Applies only if `kind` is set to `custom`.
+ * Additional props are passed to the `FilePickerShell` component.
  *
  * @returns {JSX.Element} The FileSelector component.
  *
@@ -179,7 +180,17 @@ export const ManageFileButton = (props) => {
  *
  */
 export const FileSelector = (props) => {
-	const { onChange, fileId, fileName, noDelete, noUpload, labels, allowedTypes, kind = 'file' } = props;
+	const {
+		onChange,
+		fileId,
+		fileName,
+		noDelete,
+		noUpload,
+		labels,
+		allowedTypes,
+		kind = 'file',
+		...filePickerShellProps
+	} = props;
 
 	const commonManageFileButtonProps = {
 		onChange,
@@ -214,6 +225,7 @@ export const FileSelector = (props) => {
 					/>
 				</>
 			}
+			{...filePickerShellProps}
 		>
 			<ManageFileButton
 				{...commonManageFileButtonProps}

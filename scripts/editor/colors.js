@@ -14,7 +14,7 @@ import { upperFirst } from '@eightshift/ui-components/utilities';
  * getPaletteColors()
  * ```
  */
-export const getPaletteColors = () =>
+export const usePaletteColors = () =>
 	useSelect((select) => {
 		const colors = select(STORE_NAME).getSettings()?.globalVariables?.colors;
 
@@ -26,6 +26,8 @@ export const getPaletteColors = () =>
 			{},
 		);
 	});
+
+export const getPaletteColors = usePaletteColors;
 
 export const getColorData = (themeColors) =>
 	Object.entries(themeColors ?? {})?.reduce((curr, [name, value]) => {

@@ -1,4 +1,3 @@
-import React from 'react';
 import { dispatch } from '@wordpress/data';
 import { InspectorControls, BlockControls } from '@wordpress/block-editor';
 import { ContainerPanel, PortalProvider } from '@eightshift/ui-components';
