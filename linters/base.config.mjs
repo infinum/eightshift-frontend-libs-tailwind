@@ -34,6 +34,17 @@ export default [
 			'no-mixed-spaces-and-tabs': ['error', 'smart-tabs'],
 			'no-nested-ternary': 'error',
 			'no-underscore-dangle': ['error', { allowAfterThis: true }],
+			'no-unused-vars': [
+				'error',
+				{
+					args: 'after-used',
+					argsIgnorePattern: '^_',
+					caughtErrors: 'all',
+					caughtErrorsIgnorePattern: '^_',
+					ignoreRestSiblings: true,
+					varsIgnorePattern: '^_',
+				},
+			],
 			'no-void': 'error',
 			'@stylistic/semi': 'error',
 			'max-len': [
