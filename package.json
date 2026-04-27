@@ -26,16 +26,14 @@
 		"url": "https://github.com/infinum/eightshift-frontend-libs-tailwind/issues"
 	},
 	"scripts": {
-		"lintStyle": "stylelint **/*.css --allow-empty-input",
 		"lintJs": "bunx eslint",
-		"lint": "npm run lintJs && npm run lintStyle",
+		"lint": "npm run lintJs",
 		"prepare": "husky"
 	},
 	"homepage": "https://github.com/infinum/eightshift-frontend-libs-tailwind#readme",
 	"license": "MIT",
 	"dependencies": {
 		"@stylistic/eslint-plugin": "^5.10.0",
-		"@stylistic/stylelint-plugin": "^5.1.0",
 		"@swc/core": "^1.15.30",
 		"@wordpress/dependency-extraction-webpack-plugin": "^6.44.0",
 		"browserslist": "^4.28.2",
@@ -53,8 +51,6 @@
 		"prettier": "^3.8.3",
 		"prettier-plugin-tailwindcss": "^0.7.2",
 		"sonner": "^2.0.7",
-		"stylelint": "^17.8.0",
-		"stylelint-config-standard": "^40.0.0",
 		"swc-loader": "^0.2.7",
 		"terser-webpack-plugin": "^5.4.0",
 		"webpack": "^5.106.2",
@@ -73,9 +69,6 @@
 	},
 	"sideEffects": false,
 	"lint-staged": {
-		"*.css": [
-			"npm run lintStyle"
-		],
 		"*.js": [
 			"npm run lintJs"
 		],
