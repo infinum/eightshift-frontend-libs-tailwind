@@ -318,6 +318,7 @@ Co-authored with @piqusy
 - Initial release.
 
 [Unreleased]: https://github.com/infinum/eightshift-frontend-libs-tailwind/compare/master...HEAD
+[3.1.0]: https://github.com/infinum/eightshift-frontend-libs-tailwind/compare/3.0.0...3.1.0
 [3.0.0]: https://github.com/infinum/eightshift-frontend-libs-tailwind/compare/2.4.0...3.0.0
 [2.4.0]: https://github.com/infinum/eightshift-frontend-libs-tailwind/compare/2.3.0...2.4.0
 [2.3.0]: https://github.com/infinum/eightshift-frontend-libs-tailwind/compare/2.2.0...2.3.0
