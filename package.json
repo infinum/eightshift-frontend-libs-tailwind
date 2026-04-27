@@ -27,7 +27,7 @@
 	},
 	"scripts": {
 		"lintJs": "bunx eslint",
-		"lint": "npm run lintJs",
+		"lint": "bun run lintJs",
 		"prepare": "husky"
 	},
 	"homepage": "https://github.com/infinum/eightshift-frontend-libs-tailwind#readme",
@@ -71,7 +71,7 @@
 	"sideEffects": false,
 	"lint-staged": {
 		"*.js": [
-			"npm run lintJs"
+			"bun run lintJs"
 		],
 		"*.php": [
 			"composer test"

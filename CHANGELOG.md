@@ -11,6 +11,7 @@ This projects adheres to [Semantic Versioning](https://semver.org/) and [Keep a 
 ### Updated
 
 - Updated dependencies.
+- Updated package scripts to use Bun instead of npm.
 - Updated ESLint rules so unused variables and imports throw errors.
 - `FileSelector` now passes additional props to `FilePickerShell`.
 
