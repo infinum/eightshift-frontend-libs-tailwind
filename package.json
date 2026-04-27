@@ -26,7 +26,7 @@
 		"url": "https://github.com/infinum/eightshift-frontend-libs-tailwind/issues"
 	},
 	"scripts": {
-		"lintStyle": "stylelint **/*.css",
+		"lintStyle": "stylelint **/*.css --allow-empty-input",
 		"lintJs": "bunx eslint",
 		"lint": "npm run lintJs && npm run lintStyle",
 		"prepare": "husky"

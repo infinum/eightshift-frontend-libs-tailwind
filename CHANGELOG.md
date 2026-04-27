@@ -12,6 +12,7 @@ This projects adheres to [Semantic Versioning](https://semver.org/) and [Keep a 
 
 - Updated dependencies.
 - Updated ESLint rules so unused variables and imports throw errors.
+- Updated the Stylelint script to allow packages without CSS files.
 - `FileSelector` now passes additional props to `FilePickerShell`.
 
 ## [3.0.0]
