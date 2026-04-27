@@ -211,7 +211,6 @@ export const FileSelector = (props) => {
 
 	return (
 		<FilePickerShell
-			{...filePickerShellProps}
 			icon={fileIcons[kind]}
 			fileName={fileName}
 			url={fileName}
@@ -226,6 +225,7 @@ export const FileSelector = (props) => {
 					/>
 				</>
 			}
+			{...filePickerShellProps}
 		>
 			<ManageFileButton
 				{...commonManageFileButtonProps}
