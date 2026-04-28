@@ -6,6 +6,12 @@ This projects adheres to [Semantic Versioning](https://semver.org/) and [Keep a 
 
 ---
 
+## [3.1.1]
+
+### Fixed
+
+- Re-added missing `stylelint` dependencies.
+
 ## [3.1.0]
 
 ### Updated
@@ -319,6 +325,7 @@ Co-authored with @piqusy
 - Initial release.
 
 [Unreleased]: https://github.com/infinum/eightshift-frontend-libs-tailwind/compare/master...HEAD
+[3.1.1]: https://github.com/infinum/eightshift-frontend-libs-tailwind/compare/3.1.0...3.1.1
 [3.1.0]: https://github.com/infinum/eightshift-frontend-libs-tailwind/compare/3.0.0...3.1.0
 [3.0.0]: https://github.com/infinum/eightshift-frontend-libs-tailwind/compare/2.4.0...3.0.0
 [2.4.0]: https://github.com/infinum/eightshift-frontend-libs-tailwind/compare/2.3.0...2.4.0
