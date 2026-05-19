@@ -14,6 +14,7 @@ const eightshiftConfig = (mode, optionsData = {}) => {
 	const options = {
 		config: {},
 		overrides: [],
+		tailwindBreakpoints: ['sm', 'md'],
 		...optionsData,
 	};
 
