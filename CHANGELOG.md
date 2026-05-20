@@ -6,6 +6,21 @@ This projects adheres to [Semantic Versioning](https://semver.org/) and [Keep a 
 
 ---
 
+## [3.2.0]
+
+### Added
+
+- Built-in Tailwind responsive class compiler: scans every `manifest.json`, extracts classes from `twClasses`, `twClassesEditor` and `twClassesEditorOnly`, expands `responsive: true` blocks across all configured breakpoints, and writes `es-tw-frontend-classes.txt` and `es-tw-editor-classes.txt` at the project root. Runs before each build and on manifest changes in watch mode.
+- New `tailwindBreakpoints` option on `eightshiftConfig` (defaults to `['sm', 'md']`).
+
+### Changed
+
+- **Breaking:** default CSS rule now uses `@tailwindcss/webpack` instead of `postcss-loader`. Projects that previously set `overrides: ['css']` and re-declared their own CSS rule and `esTwResponsiveCompiler` plugin should remove that boilerplate and rely on the libs defaults.
+
+### Removed
+
+- `postcss` and `postcss-loader` dependencies.
+
 ## [3.1.2]
 
 ### Fixed
@@ -331,6 +346,7 @@ Co-authored with @piqusy
 - Initial release.
 
 [Unreleased]: https://github.com/infinum/eightshift-frontend-libs-tailwind/compare/master...HEAD
+[3.2.0]: https://github.com/infinum/eightshift-frontend-libs-tailwind/compare/3.1.2...3.2.0
 [3.1.2]: https://github.com/infinum/eightshift-frontend-libs-tailwind/compare/3.1.1...3.1.2
 [3.1.1]: https://github.com/infinum/eightshift-frontend-libs-tailwind/compare/3.1.0...3.1.1
 [3.1.0]: https://github.com/infinum/eightshift-frontend-libs-tailwind/compare/3.0.0...3.1.0

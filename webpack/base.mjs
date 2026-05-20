@@ -7,6 +7,7 @@ import webpack from 'webpack';
 import MiniCssExtractPlugin from 'mini-css-extract-plugin';
 import { WebpackManifestPlugin } from 'webpack-manifest-plugin';
 import DependencyExtractionWebpackPlugin from '@wordpress/dependency-extraction-webpack-plugin';
+import { esTwResponsiveCompiler } from './responsive-compiler.mjs';
 
 export default (options) => {
 	// All Plugins used in production and development build.
@@ -47,6 +48,16 @@ export default (options) => {
 		);
 	}
 
+	// Generate Tailwind manifest class sources before every build.
+	if (!options.overrides.includes('responsiveCompiler')) {
+		plugins.push(
+			esTwResponsiveCompiler({
+				projectDir: options.config.absolutePath,
+				breakpoints: options.tailwindBreakpoints,
+			}),
+		);
+	}
+
 	// All module used in production and development build.
 	const module = {
 		rules: [],
@@ -78,26 +89,14 @@ export default (options) => {
 		module.rules.push({
 			test: /\.css$/,
 			exclude: /node_modules/,
-			use: [
-				MiniCssExtractPlugin.loader,
-				{
-					loader: 'css-loader',
-				},
-				{
-					loader: 'postcss-loader',
-				},
-			],
+			use: [MiniCssExtractPlugin.loader, 'css-loader', '@tailwindcss/webpack'],
 		});
 
 		// Node modules - CSS.
 		module.rules.push({
 			test: /\.css$/,
 			include: /node_modules/,
-			use: [
-				{
-					loader: 'css-loader',
-				},
-			],
+			use: [MiniCssExtractPlugin.loader, 'css-loader'],
 		});
 
 		// Node modules - Eightshift package fonts.
