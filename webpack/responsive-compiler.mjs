@@ -18,8 +18,7 @@ const DEFAULT_MANIFEST_GLOB = 'src/**/manifest.json';
 const FRONTEND_CLASS_KEYS = new Set(['twClasses']);
 const EDITOR_CLASS_KEYS = new Set(['twClasses', 'twClassesEditor', 'twClassesEditorOnly']);
 
-const isResponsiveToken = (token, breakpoints) =>
-	breakpoints.some((bp) => token.startsWith(`${bp}:`) || token.startsWith(`max-${bp}:`));
+const isResponsiveToken = (token, breakpoints) => breakpoints.some((bp) => token.startsWith(`${bp}:`) || token.startsWith(`max-${bp}:`));
 
 const addClasses = (value, breakpoints, output, isResponsive = false) => {
 	if (!value) {
@@ -123,12 +122,7 @@ const runPreprocess = ({ projectDir, breakpoints, manifestGlob, outputFrontend, 
  * @param {string} [options.manifestGlob] Glob (relative to `projectDir`) used to find manifests. Defaults to `src/**\/manifest.json`.
  * @param {{ frontend?: string, editor?: string }} [options.output] Override absolute output paths.
  */
-export const esTwResponsiveCompiler = ({
-	projectDir,
-	breakpoints = DEFAULT_BREAKPOINTS,
-	manifestGlob = DEFAULT_MANIFEST_GLOB,
-	output = {},
-} = {}) => {
+export const esTwResponsiveCompiler = ({ projectDir, breakpoints = DEFAULT_BREAKPOINTS, manifestGlob = DEFAULT_MANIFEST_GLOB, output = {} } = {}) => {
 	if (!projectDir) {
 		throw new Error('esTwResponsiveCompiler: `projectDir` is required.');
 	}

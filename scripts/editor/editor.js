@@ -112,10 +112,8 @@ export const GutenbergBlock = (props) => {
 		toolbar: ToolbarComponent,
 		editor: EditorComponent,
 		noOptionsContainer = false,
-		toolbarPortalElement = document.querySelector('.block-editor-iframe__scale-container > iframe')?.contentWindow
-			?.document?.body,
-		editorPortalElement = document.querySelector('.block-editor-iframe__scale-container > iframe')?.contentWindow
-			?.document?.body,
+		toolbarPortalElement = document.querySelector('.block-editor-iframe__scale-container > iframe')?.contentWindow?.document?.body,
+		editorPortalElement = document.querySelector('.block-editor-iframe__scale-container > iframe')?.contentWindow?.document?.body,
 		optionsPortalElement = document?.body,
 		title,
 	} = props;

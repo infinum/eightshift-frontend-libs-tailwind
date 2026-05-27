@@ -26,8 +26,7 @@ export const getTwPart = (part, manifest, ...custom) => {
 		return clsx(...custom);
 	}
 
-	let partClasses =
-		manifest?.tailwind?.parts?.[part]?.twClassesEditor ?? manifest?.tailwind?.parts?.[part]?.twClasses ?? '';
+	let partClasses = manifest?.tailwind?.parts?.[part]?.twClassesEditor ?? manifest?.tailwind?.parts?.[part]?.twClasses ?? '';
 
 	if (Array.isArray(partClasses)) {
 		partClasses = partClasses.join(' ');
@@ -62,53 +61,49 @@ export const getTwDynamicPart = (part, attributes, manifest, ...custom) => {
 		return clsx(...custom);
 	}
 
-	const baseClasses =
-		manifest?.tailwind?.parts?.[part]?.twClassesEditor ?? manifest?.tailwind?.parts?.[part]?.twClasses ?? '';
+	const baseClasses = manifest?.tailwind?.parts?.[part]?.twClassesEditor ?? manifest?.tailwind?.parts?.[part]?.twClasses ?? '';
 
-	const mainClasses = Object.entries(manifest?.tailwind?.options ?? {}).reduce(
-		(current, [attributeName, { responsive, twClasses, twClassesEditor, part: partName }]) => {
-			if (partName !== part) {
-				return current;
+	const mainClasses = Object.entries(manifest?.tailwind?.options ?? {}).reduce((current, [attributeName, { responsive, twClasses, twClassesEditor, part: partName }]) => {
+		if (partName !== part) {
+			return current;
+		}
+
+		const value = checkAttr(attributeName, attributes, manifest, true);
+
+		if (!value) {
+			return current;
+		}
+
+		if (!responsive) {
+			const currentClasses = twClassesEditor?.[value] ?? twClasses?.[value];
+
+			if (Array.isArray(currentClasses)) {
+				return [...current, ...currentClasses];
 			}
 
-			const value = checkAttr(attributeName, attributes, manifest, true);
+			return [...current, currentClasses];
+		}
 
-			if (!value) {
-				return current;
+		const responsiveClasses = Object.keys(value).reduce((curr, breakpoint) => {
+			if (breakpoint === '_desktopFirst') {
+				return curr;
 			}
 
-			if (!responsive) {
-				const currentClasses = twClassesEditor?.[value] ?? twClasses?.[value];
+			let currentClasses = twClassesEditor?.[value[breakpoint]] ?? twClasses?.[value[breakpoint]];
 
-				if (Array.isArray(currentClasses)) {
-					return [...current, ...currentClasses];
-				}
-
-				return [...current, currentClasses];
+			if (!Array.isArray(currentClasses)) {
+				currentClasses = [currentClasses];
 			}
 
-			const responsiveClasses = Object.keys(value).reduce((curr, breakpoint) => {
-				if (breakpoint === '_desktopFirst') {
-					return curr;
-				}
+			if (breakpoint === '_default') {
+				return [...curr, ...currentClasses];
+			}
 
-				let currentClasses = twClassesEditor?.[value[breakpoint]] ?? twClasses?.[value[breakpoint]];
+			return [...curr, ...currentClasses.split(' ').map((currentClass) => `${breakpoint}:${currentClass}`)];
+		}, []);
 
-				if (!Array.isArray(currentClasses)) {
-					currentClasses = [currentClasses];
-				}
-
-				if (breakpoint === '_default') {
-					return [...curr, ...currentClasses];
-				}
-
-				return [...curr, ...currentClasses.split(' ').map((currentClass) => `${breakpoint}:${currentClass}`)];
-			}, []);
-
-			return [...current, ...responsiveClasses];
-		},
-		[],
-	);
+		return [...current, ...responsiveClasses];
+	}, []);
 
 	return clsx(baseClasses, ...mainClasses, ...custom);
 };
@@ -142,50 +137,47 @@ export const getTwClasses = (attributes, manifest, ...custom) => {
 		baseClasses = baseClasses.join(' ');
 	}
 
-	const mainClasses = Object.entries(manifest?.tailwind?.options ?? {}).reduce(
-		(current, [attributeName, { responsive, twClasses, twClassesEditor, part: partName }]) => {
-			if (partName) {
-				return current;
+	const mainClasses = Object.entries(manifest?.tailwind?.options ?? {}).reduce((current, [attributeName, { responsive, twClasses, twClassesEditor, part: partName }]) => {
+		if (partName) {
+			return current;
+		}
+
+		const value = checkAttr(attributeName, attributes, manifest, true);
+
+		if (!value) {
+			return current;
+		}
+
+		if (!responsive) {
+			let currentClasses = twClassesEditor?.[value] ?? twClasses?.[value];
+
+			if (Array.isArray(currentClasses)) {
+				currentClasses = currentClasses.join(' ');
 			}
 
-			const value = checkAttr(attributeName, attributes, manifest, true);
+			return [...current, currentClasses];
+		}
 
-			if (!value) {
-				return current;
+		const responsiveClasses = Object.keys(value).reduce((curr, breakpoint) => {
+			if (breakpoint === '_desktopFirst') {
+				return curr;
 			}
 
-			if (!responsive) {
-				let currentClasses = twClassesEditor?.[value] ?? twClasses?.[value];
+			let currentClasses = twClassesEditor?.[value[breakpoint]] ?? twClasses?.[value[breakpoint]];
 
-				if (Array.isArray(currentClasses)) {
-					currentClasses = currentClasses.join(' ');
-				}
-
-				return [...current, currentClasses];
+			if (!Array.isArray(currentClasses)) {
+				currentClasses = [currentClasses];
 			}
 
-			const responsiveClasses = Object.keys(value).reduce((curr, breakpoint) => {
-				if (breakpoint === '_desktopFirst') {
-					return curr;
-				}
+			if (breakpoint === '_default') {
+				return [...curr, ...currentClasses];
+			}
 
-				let currentClasses = twClassesEditor?.[value[breakpoint]] ?? twClasses?.[value[breakpoint]];
+			return [...curr, ...currentClasses.map((currentClass) => `${breakpoint}:${currentClass}`)];
+		}, []);
 
-				if (!Array.isArray(currentClasses)) {
-					currentClasses = [currentClasses];
-				}
-
-				if (breakpoint === '_default') {
-					return [...curr, ...currentClasses];
-				}
-
-				return [...curr, ...currentClasses.map((currentClass) => `${breakpoint}:${currentClass}`)];
-			}, []);
-
-			return [...current, ...responsiveClasses];
-		},
-		[],
-	);
+		return [...current, ...responsiveClasses];
+	}, []);
 
 	const combinationClasses =
 		manifest?.tailwind?.combinations?.reduce((current, { attributes: conditions, twClasses, twClassesEditor }) => {
@@ -316,14 +308,14 @@ export const generateOptionsFromValue = (value, getLabel = (v) => v) => {
 
 // Utilities
 function* extractKeys(obj, parentKey = '', isResponsive = false) {
-	isResponsive = obj['responsive'] === true ? true : isResponsive;
-	let resultKey = isResponsive ? 'responsive' : 'regular';
+	const responsive = obj['responsive'] === true ? true : isResponsive;
+	let resultKey = responsive ? 'responsive' : 'regular';
 
 	for (let key in obj) {
 		let newKey = parentKey ? `${parentKey}.${key}` : key;
 
 		if (typeof obj[key] === 'object' && obj[key] !== null) {
-			yield* extractKeys(obj[key], newKey, isResponsive);
+			yield* extractKeys(obj[key], newKey, responsive);
 		} else if (newKey.includes('twClasses')) {
 			if (typeof obj[key] === 'object') {
 				for (let subKey in obj[key]) {
@@ -374,15 +366,9 @@ const processOption = (partName, optionValue, defs) => {
 
 	// Non-responsive options.
 	if (!isResponsive) {
-		const rawValueBase =
-			defs?.twClassesEditorOnly?.[optionValue] ??
-			defs?.twClasses?.[optionValue] ??
-			defs?.[partName]?.twClassesEditorOnly?.[optionValue] ??
-			defs?.[partName]?.twClasses?.[optionValue] ??
-			'';
+		const rawValueBase = defs?.twClassesEditorOnly?.[optionValue] ?? defs?.twClasses?.[optionValue] ?? defs?.[partName]?.twClassesEditorOnly?.[optionValue] ?? defs?.[partName]?.twClasses?.[optionValue] ?? '';
 
-		const rawValueEditor =
-			defs?.twClassesEditor?.[optionValue] ?? defs?.[partName]?.twClassesEditor?.[optionValue] ?? '';
+		const rawValueEditor = defs?.twClassesEditor?.[optionValue] ?? defs?.[partName]?.twClassesEditor?.[optionValue] ?? '';
 
 		return clsx(unifyClasses(rawValueBase), unifyClasses(rawValueEditor));
 	}
@@ -397,15 +383,9 @@ const processOption = (partName, optionValue, defs) => {
 			continue;
 		}
 
-		const rawValueBase =
-			defs?.twClassesEditorOnly?.[breakpointValue] ??
-			defs?.twClasses?.[breakpointValue] ??
-			defs?.[partName]?.twClassesEditorOnly?.[breakpointValue] ??
-			defs?.[partName]?.twClasses?.[breakpointValue] ??
-			'';
+		const rawValueBase = defs?.twClassesEditorOnly?.[breakpointValue] ?? defs?.twClasses?.[breakpointValue] ?? defs?.[partName]?.twClassesEditorOnly?.[breakpointValue] ?? defs?.[partName]?.twClasses?.[breakpointValue] ?? '';
 
-		const rawValueEditor =
-			defs?.twClassesEditor?.[breakpointValue] ?? defs?.[partName]?.twClassesEditor?.[breakpointValue] ?? '';
+		const rawValueEditor = defs?.twClassesEditor?.[breakpointValue] ?? defs?.[partName]?.twClassesEditor?.[breakpointValue] ?? '';
 
 		if (breakpoint === '_default') {
 			optionClasses = [...optionClasses, unifyClasses(rawValueBase), unifyClasses(rawValueEditor)];
@@ -457,25 +437,16 @@ const processCombination = (partName, combo, attributes, manifest) => {
 		return '';
 	}
 
-	const rawValueBase =
-		combo?.output?.[partName]?.twClassesEditorOnly ??
-		combo?.output?.[partName]?.twClasses ??
-		combo?.twClassesEditorOnly ??
-		combo?.twClasses ??
-		'';
+	const rawValueBase = combo?.output?.[partName]?.twClassesEditorOnly ?? combo?.output?.[partName]?.twClasses ?? combo?.twClassesEditorOnly ?? combo?.twClasses ?? '';
 
 	const rawValueEditor = combo?.output?.[partName]?.twClassesEditor ?? combo?.twClassesEditor ?? '';
 
 	if (!Array.isArray(rawValueBase) && typeof rawValueBase !== 'string') {
-		throw new Error(
-			'Combination classes/editor-only classes were not defined correctly. Please check the combination definition in the manifest.',
-		);
+		throw new Error('Combination classes/editor-only classes were not defined correctly. Please check the combination definition in the manifest.');
 	}
 
 	if (!Array.isArray(rawValueEditor) && typeof rawValueEditor !== 'string') {
-		throw new Error(
-			'Combination editor classes were not defined correctly. Please check the combination definition in the manifest.',
-		);
+		throw new Error('Combination editor classes were not defined correctly. Please check the combination definition in the manifest.');
 	}
 
 	return clsx(unifyClasses(rawValueBase), unifyClasses(rawValueEditor));
@@ -508,24 +479,15 @@ export const tailwindClasses = (part, attributes, manifest, ...custom) => {
 
 	let partName = 'base';
 
-	if (
-		part !== 'base' &&
-		part?.length > 0 &&
-		typeof manifest?.tailwind?.parts?.[part] !== 'undefined' &&
-		allParts.includes(part)
-	) {
+	if (part !== 'base' && part?.length > 0 && typeof manifest?.tailwind?.parts?.[part] !== 'undefined' && allParts.includes(part)) {
 		partName = part;
 	} else if (part !== 'base') {
 		throw new Error(`Part '${part}' is not defined in the manifest.`);
 	}
 
 	// Base classes.
-	const baseBaseClasses = manifest?.tailwind?.parts?.[partName]?.twClassesEditorOnly ??
-		manifest?.tailwind?.parts?.[partName]?.twClasses ??
-		manifest?.tailwind?.base?.twClassesEditorOnly ??
-		manifest?.tailwind?.base?.twClasses ?? [''];
-	const baseEditorClasses = manifest?.tailwind?.parts?.[partName]?.twClassesEditor ??
-		manifest?.tailwind?.base?.twClassesEditor ?? [''];
+	const baseBaseClasses = manifest?.tailwind?.parts?.[partName]?.twClassesEditorOnly ?? manifest?.tailwind?.parts?.[partName]?.twClasses ?? manifest?.tailwind?.base?.twClassesEditorOnly ?? manifest?.tailwind?.base?.twClasses ?? [''];
+	const baseEditorClasses = manifest?.tailwind?.parts?.[partName]?.twClassesEditor ?? manifest?.tailwind?.base?.twClassesEditor ?? [''];
 
 	// Option classes.
 	const options = manifest?.tailwind?.options ?? {};
@@ -549,12 +511,5 @@ export const tailwindClasses = (part, attributes, manifest, ...custom) => {
 
 	const partPrefix = manifest.title.replace(/[^a-zA-Z]+/g, '-').toLowerCase();
 
-	return clsx(
-		document.body.classList.contains('es-wp-debug') && `_es__${partPrefix}/${part}`,
-		unifyClasses(baseBaseClasses),
-		unifyClasses(baseEditorClasses),
-		...optionClasses,
-		...combinationClasses,
-		...custom,
-	);
+	return clsx(document.body.classList.contains('es-wp-debug') && `_es__${partPrefix}/${part}`, unifyClasses(baseBaseClasses), unifyClasses(baseEditorClasses), ...optionClasses, ...combinationClasses, ...custom);
 };
