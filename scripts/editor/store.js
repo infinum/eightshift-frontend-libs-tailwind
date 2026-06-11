@@ -10,7 +10,6 @@ const DEFAULT_STATE = {
 	components: {},
 	config: {
 		useWrapper: true,
-		useLegacyComponents: true,
 	},
 	wrapper: {},
 	variations: {},
@@ -44,9 +43,6 @@ const selectors = {
 	},
 	getConfigUseWrapper(state) {
 		return state.config.useWrapper;
-	},
-	getConfigUseLegacyComponents(state) {
-		return state.config.useLegacyComponents;
 	},
 	getWrapper(state) {
 		return state.wrapper;
@@ -91,12 +87,6 @@ const actions = {
 	setConfigUseWrapper(config) {
 		return {
 			type: 'SET_CONFIG_USE_WRAPPER',
-			config,
-		};
-	},
-	setConfigUseLegacyComponents(config) {
-		return {
-			type: 'SET_CONFIG_USE_LEGACY_COMPONENTS',
 			config,
 		};
 	},
@@ -147,15 +137,6 @@ const reducer = (state = DEFAULT_STATE, action) => {
 				config: {
 					...state.config,
 					useWrapper: action.config,
-				},
-			};
-		}
-		case 'SET_CONFIG_USE_LEGACY_COMPONENTS': {
-			return {
-				...state,
-				config: {
-					...state.config,
-					useLegacyComponents: action.config,
 				},
 			};
 		}

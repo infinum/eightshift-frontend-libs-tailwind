@@ -8,7 +8,7 @@ module.exports = {
 		'@stylistic/max-empty-lines': 2,
 		'@stylistic/max-line-length': 250,
 
-		'@stylistic/color-hex-case': 'upper',
+		'@stylistic/color-hex-case': 'lower',
 
 		'@stylistic/no-eol-whitespace': true,
 

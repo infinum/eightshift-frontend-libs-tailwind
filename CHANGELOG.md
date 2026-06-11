@@ -6,6 +6,23 @@ This projects adheres to [Semantic Versioning](https://semver.org/) and [Keep a 
 
 ---
 
+## [3.3.0]
+
+### Changed
+
+- Updated dependencies (`eslint`, `@swc/core`, `@tailwindcss/webpack`, `@wordpress/dependency-extraction-webpack-plugin`, `stylelint`, `terser-webpack-plugin`, `prettier-plugin-tailwindcss`, `@wordpress/api-fetch`, `globals`).
+- Updated Prettier `printWidth` to 300 and reformatted source files accordingly.
+- Updated `lintJs` script to call `eslint` directly and removed the redundant `lint` alias.
+- Updated Husky `pre-commit` hook to run `bun lint-staged --quiet` directly.
+
+### Removed
+
+- Removed `*.php` entry from `lint-staged` config.
+
+### Fixed
+
+- Fixed `no-param-reassign` ESLint warnings in block/variation registration and the Tailwind responsive key extractor.
+
 ## [3.2.0]
 
 ### Added
@@ -89,7 +106,6 @@ This projects adheres to [Semantic Versioning](https://semver.org/) and [Keep a 
 
 - Updated dependencies.
 
-
 ## [2.1.1]
 
 ### Changed
@@ -107,23 +123,27 @@ This projects adheres to [Semantic Versioning](https://semver.org/) and [Keep a 
 ## [2.0.7]
 
 ### Added
--  Output block/component title in `tailwindClasses` if WP_DEBUG is true. Depends on Eightshift Libs v10.11.2 `addEditorBodyDebugClass` method.
+
+- Output block/component title in `tailwindClasses` if WP_DEBUG is true. Depends on Eightshift Libs v10.11.2 `addEditorBodyDebugClass` method.
 
 ## [2.0.6]
 
 ### Changed
+
 - Updated dependencies.
 - Package will now use your project's version of ES UI components, instead of bundling one. `peerDependencies` should automatically install it, if not please install `@eightshift/ui-components` yourself.
 
 ## [2.0.5]
 
 ### Changed
+
 - Updated dependencies.
 - `GutenbergBlock` now overrides the ES UI components portal, after Core changed editor to be iframed. This can be disabled by passing `toolbarPortalElement={false}` and `editorPortalElement={false}`. Override only happens if the editor is iframed.
 
 ## [2.0.4]
 
 ### Changed
+
 - Updated dependencies.
 
 ## [2.0.3]
@@ -131,9 +151,11 @@ This projects adheres to [Semantic Versioning](https://semver.org/) and [Keep a 
 Co-authored with @piqusy
 
 ### Changed
+
 - Updated dependencies.
 
 ### Fixed
+
 - Prop not being passed in Media picker causing 'Replace' to not highlight existing selection.
 
 ## [2.0.2]
@@ -346,6 +368,7 @@ Co-authored with @piqusy
 - Initial release.
 
 [Unreleased]: https://github.com/infinum/eightshift-frontend-libs-tailwind/compare/master...HEAD
+[3.3.0]: https://github.com/infinum/eightshift-frontend-libs-tailwind/compare/3.2.0...3.3.0
 [3.2.0]: https://github.com/infinum/eightshift-frontend-libs-tailwind/compare/3.1.2...3.2.0
 [3.1.2]: https://github.com/infinum/eightshift-frontend-libs-tailwind/compare/3.1.1...3.1.2
 [3.1.1]: https://github.com/infinum/eightshift-frontend-libs-tailwind/compare/3.1.0...3.1.1

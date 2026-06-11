@@ -38,19 +38,7 @@ import apiFetch from '@wordpress/api-fetch';
  *
  */
 export function fetchFromWpRest(endpoint, options = {}) {
-	const {
-		processId = ({ id }) => id,
-		labelProp = 'title',
-		processLabel = (item) => item[labelProp],
-		processMetadata = () => null,
-		perPage = 30,
-		routePrefix = 'wp/v2',
-		fields = 'id,title',
-		searchColumns,
-		noUnescapeTitle = false,
-		truncateTitle = 32,
-		...additionalParams
-	} = options;
+	const { processId = ({ id }) => id, labelProp = 'title', processLabel = (item) => item[labelProp], processMetadata = () => null, perPage = 30, routePrefix = 'wp/v2', fields = 'id,title', searchColumns, noUnescapeTitle = false, truncateTitle = 32, ...additionalParams } = options;
 
 	return async (searchText = '', abortSignal) => {
 		let params = {
@@ -83,8 +71,7 @@ export function fetchFromWpRest(endpoint, options = {}) {
 
 		return newData.map((item) => {
 			const rawLabel = !noUnescapeTitle ? unescapeHTML(processLabel(item)) : processLabel(item);
-			const truncatedLabel =
-				Number.isInteger(truncateTitle) && truncateTitle > 0 ? truncate(rawLabel, truncateTitle) : rawLabel;
+			const truncatedLabel = Number.isInteger(truncateTitle) && truncateTitle > 0 ? truncate(rawLabel, truncateTitle) : rawLabel;
 
 			return {
 				label: truncatedLabel,
@@ -139,14 +126,7 @@ export const wpSearchRoute = fetchFromWpRest('search', {
  *
  */
 export function buildWpRestUrl(endpoint, options = {}) {
-	const {
-		perPage = 30,
-		routePrefix = 'wp/v2',
-		fields = 'id,title',
-		searchColumns,
-		noSearch,
-		...additionalParams
-	} = options;
+	const { perPage = 30, routePrefix = 'wp/v2', fields = 'id,title', searchColumns, noSearch, ...additionalParams } = options;
 
 	let params = {
 		per_page: perPage,

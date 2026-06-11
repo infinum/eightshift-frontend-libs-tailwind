@@ -1,6 +1,6 @@
 {
 	"name": "@eightshift/frontend-libs-tailwind",
-	"version": "3.2.0",
+	"version": "3.3.0",
 	"description": "A framework for creating modern Gutenberg themes with styling provided by Tailwind CSS.",
 	"author": {
 		"name": "Eightshift team",
@@ -26,46 +26,45 @@
 		"url": "https://github.com/infinum/eightshift-frontend-libs-tailwind/issues"
 	},
 	"scripts": {
-		"lintJs": "bunx eslint",
-		"lint": "bun run lintJs",
+		"lintJs": "eslint",
 		"prepare": "husky"
 	},
 	"homepage": "https://github.com/infinum/eightshift-frontend-libs-tailwind#readme",
 	"license": "MIT",
 	"dependencies": {
 		"@stylistic/eslint-plugin": "^5.10.0",
-		"@stylistic/stylelint-plugin": "^5.1.0",
-		"@swc/core": "^1.15.30",
-		"@tailwindcss/webpack": "^4.2.4",
-		"@wordpress/dependency-extraction-webpack-plugin": "^6.44.0",
+		"@stylistic/stylelint-plugin": "^5.2.0",
+		"@swc/core": "^1.15.40",
+		"@tailwindcss/webpack": "^4.3.0",
+		"@wordpress/dependency-extraction-webpack-plugin": "^6.47.0",
 		"browserslist": "^4.28.2",
 		"css-loader": "^7.1.4",
 		"css-minimizer-webpack-plugin": "^8.0.0",
-		"eslint": "^10.2.1",
+		"eslint": "^10.4.1",
 		"eslint-config-prettier": "^10.1.8",
-		"eslint-plugin-prettier": "^5.5.5",
+		"eslint-plugin-prettier": "^5.5.6",
 		"eslint-plugin-react": "^7.37.5",
 		"eslint-plugin-react-hooks": "^7.1.1",
 		"eslint-plugin-unused-imports": "^4.4.1",
 		"glob": "^13.0.6",
-		"globals": "^17.5.0",
+		"globals": "^17.6.0",
 		"husky": "^9.1.7",
 		"lightningcss": "^1.32.0",
 		"mini-css-extract-plugin": "^2.10.2",
 		"prettier": "^3.8.3",
-		"prettier-plugin-tailwindcss": "^0.7.2",
+		"prettier-plugin-tailwindcss": "^0.7.4",
 		"sonner": "^2.0.7",
-		"stylelint": "^17.8.0",
+		"stylelint": "^17.12.0",
 		"stylelint-config-standard": "^40.0.0",
 		"swc-loader": "^0.2.7",
-		"terser-webpack-plugin": "^5.4.0",
-		"webpack": "^5.106.2",
-		"webpack-cli": "^7.0.2",
+		"terser-webpack-plugin": "^5.6.1",
+		"webpack": "^5.107.2",
+		"webpack-cli": "^7.0.3",
 		"webpack-manifest-plugin": "^6.0.1",
 		"webpack-merge": "^6.0.1"
 	},
 	"devDependencies": {
-		"@wordpress/api-fetch": "^7.44.0",
+		"@wordpress/api-fetch": "^7.47.0",
 		"lint-staged": "^16.4.0"
 	},
 	"peerDependencies": {
@@ -75,9 +74,6 @@
 	"lint-staged": {
 		"*.js": [
 			"bun run lintJs"
-		],
-		"*.php": [
-			"composer test"
 		]
 	}
 }

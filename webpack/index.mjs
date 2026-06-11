@@ -19,13 +19,7 @@ const eightshiftConfig = (mode, optionsData = {}) => {
 	};
 
 	// Append project config using getConfig helper.
-	options.config = getConfig(
-		optionsData.config.projectDir,
-		optionsData.config.projectPath,
-		optionsData.config.blocksAssetsPath,
-		optionsData.config.outputPath,
-		optionsData.config.blocksManifestSettingsPath,
-	);
+	options.config = getConfig(optionsData.config.projectDir, optionsData.config.projectPath, optionsData.config.blocksAssetsPath, optionsData.config.outputPath, optionsData.config.blocksManifestSettingsPath);
 
 	options.config.mode = mode;
 	options.config.filesOutput = mode === 'production' ? '[name]-[contenthash]' : '[name]';

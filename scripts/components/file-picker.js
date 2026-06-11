@@ -1,16 +1,7 @@
 import { __ } from '@wordpress/i18n';
 import { MediaUpload, MediaUploadCheck } from '@wordpress/block-editor';
 import { Button, FilePickerShell } from '@eightshift/ui-components';
-import {
-	animationFile,
-	closedCaptions,
-	fileMetadata,
-	imageFile,
-	itemSelect,
-	swap,
-	upload,
-	videoFile,
-} from '@eightshift/ui-components/icons';
+import { animationFile, closedCaptions, fileMetadata, imageFile, itemSelect, swap, upload, videoFile } from '@eightshift/ui-components/icons';
 
 /**
  * A customizable button for managing files from the Media library.
@@ -180,17 +171,7 @@ export const ManageFileButton = (props) => {
  *
  */
 export const FileSelector = (props) => {
-	const {
-		onChange,
-		fileId,
-		fileName,
-		noDelete,
-		noUpload,
-		labels,
-		allowedTypes,
-		kind = 'file',
-		...filePickerShellProps
-	} = props;
+	const { onChange, fileId, fileName, noDelete, noUpload, labels, allowedTypes, kind = 'file', ...filePickerShellProps } = props;
 
 	const commonManageFileButtonProps = {
 		onChange,

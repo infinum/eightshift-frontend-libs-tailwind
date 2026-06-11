@@ -9,11 +9,7 @@ import { useThemeOptions } from './use-theme-options';
 
 export const EsThemeOptionsContext = createContext(null);
 
-export const ThemeOptionsPage = ({
-	title = __('Theme options', 'eightshift-frontend-libs-tailwind'),
-	children,
-	settingName = 'eightshift-theme-options',
-}) => {
+export const ThemeOptionsPage = ({ title = __('Theme options', 'eightshift-frontend-libs-tailwind'), children, settingName = 'eightshift-theme-options' }) => {
 	const themeOptions = useThemeOptions(settingName);
 	const { isLoading, saveSettings } = themeOptions;
 
@@ -28,9 +24,7 @@ export const ThemeOptionsPage = ({
 							pending={isLoading}
 							icon={save}
 						>
-							{isLoading
-								? __('Saving...', 'eightshift-frontend-libs-tailwind')
-								: __('Save', 'eightshift-frontend-libs-tailwind')}
+							{isLoading ? __('Saving...', 'eightshift-frontend-libs-tailwind') : __('Save', 'eightshift-frontend-libs-tailwind')}
 						</Button>
 					}
 				/>

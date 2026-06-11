@@ -109,20 +109,15 @@ export const checkAttr = (key, attributes, manifest, undefinedAllowed = false) =
 	let tipOutput = '';
 
 	if ('components' in manifest) {
-		tipOutput =
-			' If you are using additional components, check if you used the correct block/component prefix in your attribute name.';
+		tipOutput = ' If you are using additional components, check if you used the correct block/component prefix in your attribute name.';
 	}
 
 	// Bailout if key is missing.
 	if (typeof manifestKey === 'undefined') {
 		if ('blockName' in manifest) {
-			throw Error(
-				`${key} key does not exist in the ${manifest.blockName} block manifest. Please check your implementation.${tipOutput}`,
-			);
+			throw Error(`${key} key does not exist in the ${manifest.blockName} block manifest. Please check your implementation.${tipOutput}`);
 		} else {
-			throw Error(
-				`${key} key does not exist in the ${manifest.componentName} component manifest. Please check your implementation.${tipOutput}`,
-			);
+			throw Error(`${key} key does not exist in the ${manifest.componentName} component manifest. Please check your implementation.${tipOutput}`);
 		}
 	}
 
@@ -231,21 +226,7 @@ export const props = (newName, attributes, manual = {}) => {
 	const output = {};
 
 	// Check which attributes we need to include.
-	const includes = [
-		'blockName',
-		'blockClientId',
-		'blockTopLevelId',
-		'blockFullName',
-		'blockClass',
-		'blockJsClass',
-		'componentJsClass',
-		'selectorClass',
-		'additionalClass',
-		'setAttributes',
-		'uniqueWrapperId',
-		'options',
-		'clientId',
-	];
+	const includes = ['blockName', 'blockClientId', 'blockTopLevelId', 'blockFullName', 'blockClass', 'blockJsClass', 'componentJsClass', 'selectorClass', 'additionalClass', 'setAttributes', 'uniqueWrapperId', 'options', 'clientId'];
 
 	// Check if in test mode and use different setting.
 	const blockName = process.env.NODE_ENV === 'test' ? attributes.blockName.default : attributes.blockName;
