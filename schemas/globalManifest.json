@@ -29,13 +29,12 @@
 					"type": "boolean",
 					"description": "Set to 'false' to disable wrapper.",
 					"default": true
-				},
-				"useLegacyComponents": {
-					"type": "boolean",
-					"description": "Set to 'true' to use legacy components.",
-					"default": false
 				}
 			}
+		},
+		"blockOptions": {
+			"type": "object",
+			"description": "Blocks object represents all blocks in your project. You can set global block settings here that will be used in every block manifest.json only used in Block Editor. You can override this in every block manifest.json."
 		},
 		"globalVariables": {
 			"type": "object",
@@ -64,15 +63,8 @@
 					}
 				}
 			},
-			"required": [
-				"breakpoints"
-			]
+			"required": ["breakpoints"]
 		}
 	},
-	"required": [
-		"namespace",
-		"background",
-		"foreground",
-		"globalVariables"
-	]
+	"required": ["namespace", "background", "foreground", "globalVariables"]
 }

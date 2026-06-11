@@ -786,15 +786,11 @@ export const registerBlock = (globalManifest = {}, wrapperManifest = {}, compone
 		...getExample('', blockManifest),
 	};
 
-	// Block supports.
-	if (typeof blockManifest['supports'] === 'undefined') {
-		blockManifest['supports'] = {};
-	}
-
 	return {
 		blockName: fullBlockName,
 		options: {
 			...blockManifest,
+			apiVersion: 3,
 			blockName: fullBlockName,
 			edit: getEditCallback(blockComponent, wrapperComponent),
 			save: getSaveCallback(blockManifest),
@@ -817,10 +813,8 @@ export const registerBlock = (globalManifest = {}, wrapperManifest = {}, compone
 
 				return customName;
 			},
-			supports: {
-				...blockManifest['supports'],
-				__experimentalMetadata: true, // Required for renaming blocks.
-			},
+			__experimentalMetadata: true,
+			...(globalManifest?.blockOptions ?? {}),
 		},
 	};
 };
