@@ -18,6 +18,10 @@ This projects adheres to [Semantic Versioning](https://semver.org/) and [Keep a 
 
 - Legacy `getTwPart`, `getTwDynamicPart`, `getTwClasses` functions (deprecated since 1.4.0).
 
+### Updated
+
+- Updated dependencies.
+
 ## [3.3.0]
 
 ### Changed
