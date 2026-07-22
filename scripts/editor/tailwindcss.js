@@ -348,7 +348,9 @@ const unifyClasses = (classes) => {
 	return classes.trim();
 };
 
-const processOption = (partName, optionValue, defs) => {
+const processOption = (partName, optionValue, defs, options) => {
+	const { ignoreEditorClasses } = options;
+
 	let optionClasses = [];
 
 	const isResponsive = defs?.responsive === true;
@@ -365,12 +367,18 @@ const processOption = (partName, optionValue, defs) => {
 	}
 
 	// Non-responsive options.
-	if (!isResponsive) {
+	if (!isResponsive && !ignoreEditorClasses) {
 		const rawValueBase = defs?.twClassesEditorOnly?.[optionValue] ?? defs?.twClasses?.[optionValue] ?? defs?.[partName]?.twClassesEditorOnly?.[optionValue] ?? defs?.[partName]?.twClasses?.[optionValue] ?? '';
 
 		const rawValueEditor = defs?.twClassesEditor?.[optionValue] ?? defs?.[partName]?.twClassesEditor?.[optionValue] ?? '';
 
 		return clsx(unifyClasses(rawValueBase), unifyClasses(rawValueEditor));
+	}
+
+	if (!isResponsive && ignoreEditorClasses) {
+		const rawValueBase = defs?.twClasses?.[optionValue] ?? defs?.[partName]?.twClasses?.[optionValue] ?? '';
+
+		return unifyClasses(rawValueBase);
 	}
 
 	// Responsive options.
@@ -383,9 +391,15 @@ const processOption = (partName, optionValue, defs) => {
 			continue;
 		}
 
-		const rawValueBase = defs?.twClassesEditorOnly?.[breakpointValue] ?? defs?.twClasses?.[breakpointValue] ?? defs?.[partName]?.twClassesEditorOnly?.[breakpointValue] ?? defs?.[partName]?.twClasses?.[breakpointValue] ?? '';
+		let rawValueBase = '';
+		let rawValueEditor = '';
 
-		const rawValueEditor = defs?.twClassesEditor?.[breakpointValue] ?? defs?.[partName]?.twClassesEditor?.[breakpointValue] ?? '';
+		if (ignoreEditorClasses) {
+			rawValueBase = defs?.twClasses?.[breakpointValue] ?? defs?.[partName]?.twClasses?.[breakpointValue] ?? '';
+		} else {
+			rawValueBase = defs?.twClassesEditorOnly?.[breakpointValue] ?? defs?.twClasses?.[breakpointValue] ?? defs?.[partName]?.twClassesEditorOnly?.[breakpointValue] ?? defs?.[partName]?.twClasses?.[breakpointValue] ?? '';
+			rawValueEditor = defs?.twClassesEditor?.[breakpointValue] ?? defs?.[partName]?.twClassesEditor?.[breakpointValue] ?? '';
+		}
 
 		if (breakpoint === '_default') {
 			optionClasses = [...optionClasses, unifyClasses(rawValueBase), unifyClasses(rawValueEditor)];
@@ -409,7 +423,9 @@ const processOption = (partName, optionValue, defs) => {
 	return unifyClasses(optionClasses);
 };
 
-const processCombination = (partName, combo, attributes, manifest) => {
+const processCombination = (partName, combo, attributes, manifest, options) => {
+	const { ignoreEditorClasses } = options;
+
 	let matches = true;
 
 	for (const [attributeName, allowedValue] of Object.entries(combo?.attributes ?? {})) {
@@ -437,9 +453,15 @@ const processCombination = (partName, combo, attributes, manifest) => {
 		return '';
 	}
 
-	const rawValueBase = combo?.output?.[partName]?.twClassesEditorOnly ?? combo?.output?.[partName]?.twClasses ?? combo?.twClassesEditorOnly ?? combo?.twClasses ?? '';
+	let rawValueBase = '';
+	let rawValueEditor = '';
 
-	const rawValueEditor = combo?.output?.[partName]?.twClassesEditor ?? combo?.twClassesEditor ?? '';
+	if (ignoreEditorClasses) {
+		rawValueBase = combo?.output?.[partName]?.twClasses ?? combo?.twClasses ?? '';
+	} else {
+		rawValueBase = combo?.output?.[partName]?.twClassesEditorOnly ?? combo?.output?.[partName]?.twClasses ?? combo?.twClassesEditorOnly ?? combo?.twClasses ?? '';
+		rawValueEditor = combo?.output?.[partName]?.twClassesEditor ?? combo?.twClassesEditor ?? '';
+	}
 
 	if (!Array.isArray(rawValueBase) && typeof rawValueBase !== 'string') {
 		throw new Error('Combination classes/editor-only classes were not defined correctly. Please check the combination definition in the manifest.');
@@ -462,6 +484,14 @@ const processCombination = (partName, combo, attributes, manifest) => {
  *
  * @returns {string} Output classes
  *
+ * ### Note
+ * `_twcOptions` can be passed in the `attributes` object to customize the behavior of this function.
+ *
+ * Options include:
+ * - `ignoreEditorClasses` (boolean): If true, editor/editor-only classes will be ignored. Default: `false`.
+ * - `noPartDebug` (boolean): If true, debug classes for parts will not be added. Default: `false`.
+ * - `ssr` (boolean): If true, indicates server-side rendering. Default: determined by checking if `window` is `undefined`.
+ *
  * @example
  * const classes = tailwindClasses(attributes, manifest);
  *
@@ -470,6 +500,11 @@ const processCombination = (partName, combo, attributes, manifest) => {
  *
  */
 export const tailwindClasses = (part, attributes, manifest, ...custom) => {
+	// eslint-disable-next-line no-underscore-dangle
+	const twcOptions = attributes?._twcOptions ?? {};
+
+	const { ignoreEditorClasses = false, noPartDebug = false, ssr = typeof window === 'undefined' } = twcOptions;
+
 	// If nothing is set, return custom classes as a fallback.
 	if (!attributes || !manifest || !manifest?.tailwind || Object.keys(manifest?.tailwind ?? {}).length === 0) {
 		return clsx(...custom);
@@ -486,8 +521,15 @@ export const tailwindClasses = (part, attributes, manifest, ...custom) => {
 	}
 
 	// Base classes.
-	const baseBaseClasses = manifest?.tailwind?.parts?.[partName]?.twClassesEditorOnly ?? manifest?.tailwind?.parts?.[partName]?.twClasses ?? manifest?.tailwind?.base?.twClassesEditorOnly ?? manifest?.tailwind?.base?.twClasses ?? [''];
-	const baseEditorClasses = manifest?.tailwind?.parts?.[partName]?.twClassesEditor ?? manifest?.tailwind?.base?.twClassesEditor ?? [''];
+	let baseBaseClasses = '';
+	let baseEditorClasses = '';
+
+	if (ignoreEditorClasses) {
+		baseBaseClasses = manifest?.tailwind?.parts?.[partName]?.twClasses ?? manifest?.tailwind?.base?.twClasses ?? [''];
+	} else {
+		baseBaseClasses = manifest?.tailwind?.parts?.[partName]?.twClassesEditorOnly ?? manifest?.tailwind?.parts?.[partName]?.twClasses ?? manifest?.tailwind?.base?.twClassesEditorOnly ?? manifest?.tailwind?.base?.twClasses ?? [''];
+		baseEditorClasses = manifest?.tailwind?.parts?.[partName]?.twClassesEditor ?? manifest?.tailwind?.base?.twClassesEditor ?? [''];
+	}
 
 	// Option classes.
 	const options = manifest?.tailwind?.options ?? {};
@@ -497,7 +539,7 @@ export const tailwindClasses = (part, attributes, manifest, ...custom) => {
 	for (const [attributeName, defs] of Object.entries(options)) {
 		const optionValue = checkAttr(attributeName, attributes, manifest, true);
 
-		optionClasses = [...optionClasses, processOption(partName, optionValue, defs)];
+		optionClasses = [...optionClasses, processOption(partName, optionValue, defs, twcOptions)];
 	}
 
 	// Combinations.
@@ -506,10 +548,16 @@ export const tailwindClasses = (part, attributes, manifest, ...custom) => {
 	let combinationClasses = [];
 
 	for (const combo of combinations) {
-		combinationClasses = [...combinationClasses, processCombination(partName, combo, attributes, manifest)];
+		combinationClasses = [...combinationClasses, processCombination(partName, combo, attributes, manifest, twcOptions)];
 	}
 
 	const partPrefix = manifest.title.replace(/[^a-zA-Z]+/g, '-').toLowerCase();
 
-	return clsx(document.body.classList.contains('es-wp-debug') && `_es__${partPrefix}/${part}`, unifyClasses(baseBaseClasses), unifyClasses(baseEditorClasses), ...optionClasses, ...combinationClasses, ...custom);
+	let extras = [];
+
+	if (!ssr && !noPartDebug) {
+		extras = [...extras, document?.body?.classList?.contains('es-wp-debug') && `_es__${partPrefix}/${part}`];
+	}
+
+	return clsx(...extras, unifyClasses(baseBaseClasses), unifyClasses(baseEditorClasses), ...optionClasses, ...combinationClasses, ...custom);
 };
