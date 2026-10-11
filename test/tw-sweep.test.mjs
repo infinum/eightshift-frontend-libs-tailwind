@@ -31,6 +31,8 @@ test('reports unknown and non-canonical classes from manifests, PHP calls, class
 		'src/Blocks/custom/card/card.php unknown text-xs',
 		'src/Blocks/custom/card/card.php w-[16px] → w-4',
 		'src/Blocks/custom/card/card.php w-[16px] → w-4',
+		'src/Blocks/custom/card/card.php w-[16px] → w-4',
+		'src/Blocks/custom/card/card.php w-[16px] → w-4',
 		'src/Blocks/custom/card/manifest.json aspect-[5/3] → aspect-5/3',
 		'src/Blocks/custom/card/manifest.json unknown text-sm',
 		'src/Blocks/custom/card/manifest.json w-[16px] → w-4',

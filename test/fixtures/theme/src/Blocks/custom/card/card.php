@@ -8,6 +8,9 @@ $third = Helpers::tailwindClasses(
 	'w-[16px]',
 );
 $notAClass = 'text-unknown-after';
+$foreign = FormsHelper::getTwPart($data, 'field', 'label-icon', 'item-inner');
+$nested = Helpers::clsx([Helpers::selector($isRequired, $component, '', 'is-required'), 'w-[16px]']);
+$compared = Helpers::clsx([$layout === 'layout-grid-half' ? 'w-[16px]' : 'h-full', 'layout-other' !== $layout ? 'flex' : '']);
 $other = Helpers::clsx(['h-full w-full', 'text-xs' => $isSmall]);
 ?>
 <div class="card__wrap aspect-[5/3]">

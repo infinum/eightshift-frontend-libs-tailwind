@@ -152,6 +152,11 @@ function phpStrings(content, from, to, { skipKeys }) {
 			continue;
 		}
 
+		// Comparison operands (`$type === 'layout-grid'`) are values, not classes.
+		if (/(===|!==|==|!=|<>)\s*$/.test(content.slice(Math.max(0, m.index - 8), m.index)) || /^\s*(===|!==|==|!=|<>)/.test(content.slice(re.lastIndex, re.lastIndex + 8))) {
+			continue;
+		}
+
 		out.push({ value, start: m.index + 1 });
 	}
 
@@ -198,6 +203,42 @@ function callArgs(content, open, close) {
 	return args;
 }
 
+// Parenthesised spans inside [from, to): nested calls and groupings. Their
+// literals belong to another function (`Helpers::selector($c, '', 'is-on')`),
+// not to the helper being scanned.
+function nestedParenRanges(content, from, to) {
+	const ranges = [];
+	let quote = null;
+
+	for (let i = from; i < to; i++) {
+		const char = content[i];
+
+		if (quote) {
+			if (char === '\\') {
+				i++;
+			} else if (char === quote) {
+				quote = null;
+			}
+			continue;
+		}
+
+		const skipTo = commentEnd(content, i);
+
+		if (skipTo !== -1) {
+			i = skipTo;
+		} else if (char === '"' || char === "'") {
+			quote = char;
+		} else if (char === '(') {
+			const close = findClose(content, i);
+
+			ranges.push([i, close]);
+			i = close;
+		}
+	}
+
+	return ranges;
+}
+
 // helper name → number of leading arguments that are not classes.
 const PHP_HELPERS = {
 	tailwindClasses: 1, // (part, attributes, manifest, ...custom)
@@ -222,7 +263,9 @@ function extractClassAttributes(content, groups) {
 }
 
 function extractPhp(content, groups) {
-	const helperRe = new RegExp(`\\b(${Object.keys(PHP_HELPERS).join('|')})\\s*\\(`, 'g');
+	// Only the Eightshift helpers: `Helpers::name(` or an unqualified `name(`.
+	// Same-named methods on other classes (`FormsHelper::getTwPart`) differ.
+	const helperRe = new RegExp(`(?:\\bHelpers::|(?<![\\w$>:]))(${Object.keys(PHP_HELPERS).join('|')})\\s*\\(`, 'g');
 
 	for (const m of content.matchAll(helperRe)) {
 		const open = m.index + m[0].length - 1;
@@ -232,7 +275,13 @@ function extractPhp(content, groups) {
 		const skipKeys = m[1] !== 'clsx' && m[1] !== 'classnames';
 
 		for (const arg of args) {
+			const nested = nestedParenRanges(content, arg.start, arg.end);
+
 			for (const literal of phpStrings(content, arg.start, arg.end, { skipKeys })) {
+				if (nested.some(([open, close]) => literal.start > open && literal.start < close)) {
+					continue;
+				}
+
 				pushGroup(groups, 'php-call', literal.value, literal.start);
 			}
 		}
