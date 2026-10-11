@@ -112,6 +112,30 @@ function offsetToLineCol(content, offset) {
 	return { line, col: offset - before.lastIndexOf('\n') };
 }
 
+// CSS.escape (CSSOM spec), which Tailwind also uses for class selectors.
+function cssEscape(value) {
+	let out = '';
+
+	for (let i = 0; i < value.length; i++) {
+		const code = value.charCodeAt(i);
+		const char = value[i];
+
+		if (code === 0) {
+			out += '\uFFFD';
+		} else if ((code >= 0x1 && code <= 0x1f) || code === 0x7f || (i === 0 && code >= 0x30 && code <= 0x39) || (i === 1 && code >= 0x30 && code <= 0x39 && value.charCodeAt(0) === 0x2d)) {
+			out += `\\${code.toString(16)} `;
+		} else if (i === 0 && value.length === 1 && char === '-') {
+			out += `\\${char}`;
+		} else if (code >= 0x80 || char === '-' || char === '_' || /[0-9A-Za-z]/.test(char)) {
+			out += char;
+		} else {
+			out += `\\${char}`;
+		}
+	}
+
+	return out;
+}
+
 async function main() {
 	const args = parseArgs(process.argv.slice(2));
 
@@ -161,6 +185,22 @@ async function main() {
 	const ds = await __unstable__loadDesignSystem(await readFile(entryPath, 'utf8'), { base: resolve(entryPath, '..') });
 	const verdicts = new Map();
 
+	// Selectors and at-rule preludes of a class's CSS, with the class name
+	// replaced by a placeholder. Values may legitimately change under
+	// canonicalization (16px → calc(var(--spacing) * 16) with a 1px spacing
+	// token); selectors must not. Canonicalizing arbitrary variants can drop
+	// `\_` escapes or wrap the selector in :where(), which changes the result.
+	const selectorShape = (className) => {
+		const css = ds.candidatesToCss([className])[0] ?? '';
+
+		return css
+			.replaceAll(`.${cssEscape(className)}`, '.X')
+			.split('{')
+			.slice(0, -1)
+			.map((part) => part.split(/[;}]/).pop().trim())
+			.join(' { ');
+	};
+
 	// One class at a time: batches drop unknown classes and merge pairs
 	// (top-0 bottom-0 → inset-y-0), which would break token alignment.
 	const judge = (className) => {
@@ -171,7 +211,9 @@ async function main() {
 				verdicts.set(className, { unknown: true });
 			} else {
 				const [canonical] = ds.canonicalizeCandidates([className], { rem: args.rootFontSize });
-				verdicts.set(className, canonical && canonical !== className ? { canonical } : { ok: true });
+				const safe = canonical && canonical !== className && selectorShape(canonical) === selectorShape(className);
+
+				verdicts.set(className, safe ? { canonical } : { ok: true });
 			}
 		}
 

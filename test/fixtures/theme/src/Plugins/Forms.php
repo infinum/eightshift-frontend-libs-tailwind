@@ -4,6 +4,7 @@ $outside = ['text-unknown-outside'];
 $selectors['field-wrap']['parts']['label-inner'] = [
 	// The plugin's own comment must not open a string.
 	'text-xl',
+	'[.es-field\_\_content-wrap_&]:rounded-none',
 	'w-[16px]',
 ];
 $map = ['select-choices' => 'text-body-sm'];
