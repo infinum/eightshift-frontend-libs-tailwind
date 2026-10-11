@@ -74,3 +74,19 @@ test('an invalid ignore pattern is a usage error naming the pattern', () => {
 		rmSync(dir, { recursive: true, force: true });
 	}
 });
+
+test('a tailwind.css that does not import tailwindcss is not used as the entry', () => {
+	const dir = mkdtempSync(join(tmpdir(), 'tw-sweep-'));
+
+	try {
+		cpSync(fixture, dir, { recursive: true });
+		writeFileSync(join(dir, 'tailwind.css'), '@theme {\n\t--text-body-sm: 0.875rem;\n}\n');
+
+		const { code, err } = run(dir);
+
+		assert.equal(code, 2);
+		assert.match(err, /imports 'tailwindcss'/);
+	} finally {
+		rmSync(dir, { recursive: true, force: true });
+	}
+});

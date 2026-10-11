@@ -6,7 +6,7 @@
 // @tailwindcss/node against the project's own Tailwind entry.
 
 import { readFile, writeFile } from 'node:fs/promises';
-import { existsSync, readdirSync } from 'node:fs';
+import { existsSync, readdirSync, readFileSync } from 'node:fs';
 import { resolve, relative } from 'node:path';
 import process from 'node:process';
 import { glob } from 'glob';
@@ -61,8 +61,9 @@ Usage:
   tw-sweep [flags] [file...]
 
 Flags:
-  --entry <path>           Tailwind CSS entry (default: ./tailwind.css, tailwind-frontend.css
-                           or tailwind-editor.css, searched upward, then wp-content/themes/*).
+  --entry <path>           Tailwind CSS entry. Default: the first ./tailwind.css, tailwind-frontend.css
+                           or tailwind-editor.css that imports 'tailwindcss', searched upward,
+                           then wp-content/themes/*. Files without that import are skipped.
   --include <glob,...>     Globs to scan (default: src/Blocks/**/manifest.json, src/**/*.php).
   --exclude <glob,...>     Extra globs to skip (always skipped: public, node_modules, vendor*).
   --ignore-file <path>     Unknown-class ignore list, a JSON array of regex strings
@@ -76,11 +77,18 @@ Flags:
 
 Sources: manifest twClasses* strings; PHP class="…" attributes; string arguments of
 tailwindClasses/getTwPart (after the part name), getTwClasses, clsx and classnames;
-and every non-key string literal between // ${REGION_START} and // ${REGION_END}.
+and every non-key string literal between // ${REGION_START}. and // ${REGION_END}.
 Values that contain PHP, $ interpolation or % placeholders are skipped.
 
 Exit codes: 0 clean, 1 violations, 2 usage error.
 `);
+}
+
+// A usable entry imports Tailwind itself. Projects often keep theme tokens in a
+// tailwind.css that the real (prefixed) entry imports; using that file would
+// report every class as unknown.
+function importsTailwind(path) {
+	return existsSync(path) && /@import\s+(['"])tailwindcss\1/.test(readFileSync(path, 'utf8'));
 }
 
 function findDefaultEntry(cwd) {
@@ -88,7 +96,7 @@ function findDefaultEntry(cwd) {
 
 	for (let dir = cwd; ; dir = resolve(dir, '..')) {
 		for (const name of candidates) {
-			if (existsSync(resolve(dir, name))) return resolve(dir, name);
+			if (importsTailwind(resolve(dir, name))) return resolve(dir, name);
 		}
 
 		const wpThemes = resolve(dir, 'wp-content/themes');
@@ -96,7 +104,7 @@ function findDefaultEntry(cwd) {
 		if (existsSync(wpThemes)) {
 			for (const theme of readdirSync(wpThemes)) {
 				for (const name of candidates) {
-					if (existsSync(resolve(wpThemes, theme, name))) return resolve(wpThemes, theme, name);
+					if (importsTailwind(resolve(wpThemes, theme, name))) return resolve(wpThemes, theme, name);
 				}
 			}
 		}
@@ -148,7 +156,7 @@ async function main() {
 	const entryPath = args.entry ? resolve(cwd, args.entry) : findDefaultEntry(cwd);
 
 	if (!entryPath || !existsSync(entryPath)) {
-		console.error(entryPath ? `Entry CSS not found: ${entryPath}` : 'Could not locate a Tailwind CSS entry. Pass --entry <path>.');
+		console.error(entryPath ? `Entry CSS not found: ${entryPath}` : "Could not locate a Tailwind CSS entry that imports 'tailwindcss'. Pass --entry <path>.");
 		return EXIT_USAGE;
 	}
 

@@ -50,9 +50,9 @@ Two tools check classes against your project's own Tailwind entry: oxlint for JS
 `tw-sweep` reports unknown and non-canonical classes; `tw-sweep --write` rewrites the non-canonical ones. In PHP it reads static `class="…"` attributes and the string arguments of `tailwindClasses`, `getTwPart`, `getTwClasses`, `clsx` and `classnames`. For class maps that no helper wraps, such as selectors returned from a filter, mark the code:
 
 ```php
-// tw-sweep-classes-start
+// tw-sweep-classes-start.
 $selectors['field']['parts']['label'] = ['flex items-center text-body-sm'];
-// tw-sweep-classes-end
+// tw-sweep-classes-end.
 ```
 
 Every string literal between the markers that is not an array key is checked. Run `tw-sweep --help` for all flags.
