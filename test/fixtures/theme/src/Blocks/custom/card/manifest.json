@@ -1,0 +1,12 @@
+{
+	"blockName": "card",
+	"tailwind": {
+		"base": { "twClasses": "flex text-sm js-card" },
+		"parts": {
+			"title": { "twClasses": ["aspect-[5/3]", "text-body-sm"] }
+		},
+		"options": {
+			"size": { "large": { "twClasses": "card__large w-[16px]" } }
+		}
+	}
+}
