@@ -27,7 +27,11 @@
 	},
 	"scripts": {
 		"lintJs": "eslint",
+		"lint:tw": "node bin/tw-sweep.mjs",
 		"prepare": "husky"
+	},
+	"bin": {
+		"tw-sweep": "bin/tw-sweep.mjs"
 	},
 	"homepage": "https://github.com/infinum/eightshift-frontend-libs-tailwind#readme",
 	"license": "MIT",
@@ -35,6 +39,7 @@
 		"@stylistic/eslint-plugin": "^5.10.0",
 		"@stylistic/stylelint-plugin": "^5.2.1",
 		"@swc/core": "^1.15.43",
+		"@tailwindcss/node": "^4.3.3",
 		"@tailwindcss/webpack": "^4.3.3",
 		"@wordpress/dependency-extraction-webpack-plugin": "^6.51.0",
 		"browserslist": "^4.28.6",
