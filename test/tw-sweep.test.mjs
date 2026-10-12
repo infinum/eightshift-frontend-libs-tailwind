@@ -21,7 +21,7 @@ const reported = (out) =>
 		.filter(Boolean)
 		.map((line) => line.replace(/:\d+:\d+/, '').replace(/\s+/g, ' '));
 
-test('reports unknown and non-canonical classes from manifests, PHP calls, class attributes and regions only', () => {
+test('reports unknown and non-canonical classes from manifests, PHP calls, class attributes and regions, once each and outside comments', () => {
 	const { code, out } = run(fixture);
 
 	assert.equal(code, 1);
@@ -36,6 +36,8 @@ test('reports unknown and non-canonical classes from manifests, PHP calls, class
 		'src/Blocks/custom/card/manifest.json aspect-[5/3] → aspect-5/3',
 		'src/Blocks/custom/card/manifest.json unknown text-sm',
 		'src/Blocks/custom/card/manifest.json w-[16px] → w-4',
+		'src/Plugins/Forms.php aspect-[5/3] → aspect-5/3',
+		'src/Plugins/Forms.php h-[16px] → h-4',
 		'src/Plugins/Forms.php unknown text-xl',
 		'src/Plugins/Forms.php w-[16px] → w-4',
 	]);
@@ -49,10 +51,13 @@ test('--write rewrites non-canonical classes, keeps unknown ones and still fails
 
 		const { code } = run(dir, '--write', '--entry', resolve(fixture, 'tailwind.css'));
 		const php = readFileSync(join(dir, 'src/Blocks/custom/card/card.php'), 'utf8');
+		const forms = readFileSync(join(dir, 'src/Plugins/Forms.php'), 'utf8');
 
 		assert.equal(code, 1);
 		assert.match(php, /'text-lg w-4'/);
 		assert.match(php, /class="card__wrap aspect-5\/3"/);
+		assert.match(forms, /\$single = \['aspect-5\/3'\];\n/);
+		assert.match(forms, /\$wrapped = Helpers::getTwClasses\(\$attributes, \$manifest, 'h-4'\);\n\/\/ tw-sweep-classes-end/);
 		assert.deepEqual(reported(run(dir, '--no-unknown', '--entry', resolve(fixture, 'tailwind.css')).out), []);
 	} finally {
 		rmSync(dir, { recursive: true, force: true });

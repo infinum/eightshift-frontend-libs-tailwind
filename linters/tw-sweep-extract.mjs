@@ -127,6 +127,93 @@ function extractManifest(content, groups) {
 
 // ---- PHP -------------------------------------------------------------------
 
+// A literal alone in brackets that follow an expression is an index
+// (`$map['key']`, `get()['key']`). After `(`, `,`, `=` or a keyword such as
+// `return`, the brackets open an array value (`['w-[16px]']`).
+function isArrayIndex(content, literalStart, literalEnd) {
+	if (!/^\s*\]/.test(content.slice(literalEnd, literalEnd + 4))) {
+		return false;
+	}
+
+	const before = content.slice(Math.max(0, literalStart - 64), literalStart).match(/(?:(\w+)|[\])}])\s*\[\s*$/);
+
+	return Boolean(before) && !/^(return|yield|echo|print|case|and|or|xor|else)$/i.test(before[1] ?? '');
+}
+
+// Comment spans [start, end) in a PHP file. Outside `<?php … ?>` only HTML
+// comments count. Inside, PHP comments outside strings count, and a `//` or `#`
+// comment ends at the newline or at `?>`, as in PHP.
+function phpCommentRanges(content) {
+	const ranges = [];
+	let inPhp = false;
+	let quote = null;
+
+	for (let i = 0; i < content.length; i++) {
+		const char = content[i];
+
+		if (!inPhp) {
+			if (content.startsWith('<?', i)) {
+				inPhp = true;
+				i++;
+			} else if (content.startsWith('<!--', i)) {
+				const close = content.indexOf('-->', i + 4);
+				const end = close === -1 ? content.length : close + 3;
+
+				ranges.push([i, end]);
+				i = end - 1;
+			}
+			continue;
+		}
+
+		if (quote) {
+			if (char === '\\') {
+				i++;
+			} else if (char === quote) {
+				quote = null;
+			}
+			continue;
+		}
+
+		if (content.startsWith('?>', i)) {
+			inPhp = false;
+			i++;
+			continue;
+		}
+
+		if (char === '"' || char === "'") {
+			quote = char;
+			continue;
+		}
+
+		const skipTo = commentEnd(content, i);
+
+		if (skipTo === -1) {
+			continue;
+		}
+
+		let end = skipTo + 1;
+
+		if (!content.startsWith('/*', i)) {
+			const tagClose = content.indexOf('?>', i);
+
+			if (tagClose !== -1 && tagClose < end) {
+				end = tagClose;
+			}
+		}
+
+		ranges.push([i, end]);
+		i = end - 1;
+	}
+
+	return ranges;
+}
+
+function htmlCommentRanges(content) {
+	return [...content.matchAll(/<!--[\s\S]*?(?:-->|$)/g)].map((m) => [m.index, m.index + m[0].length]);
+}
+
+const inRanges = (ranges, offset) => ranges.some(([start, end]) => offset >= start && offset < end);
+
 // PHP string literals in [from, to). Comments are skipped, because an
 // apostrophe in one would otherwise open a string. Double-quoted strings with
 // `$` are interpolated, so they are not static classes. With `skipKeys`,
@@ -148,7 +235,7 @@ function phpStrings(content, from, to, { skipKeys }) {
 			continue;
 		}
 
-		if (skipKeys && /^\s*(\]|=>)/.test(content.slice(re.lastIndex, re.lastIndex + 4))) {
+		if (skipKeys && (/^\s*=>/.test(content.slice(re.lastIndex, re.lastIndex + 4)) || isArrayIndex(content, m.index, re.lastIndex))) {
 			continue;
 		}
 
@@ -248,10 +335,14 @@ const PHP_HELPERS = {
 	classnames: 0,
 };
 
-// Static class attributes. Values containing PHP or format placeholders are
-// built at runtime and skipped.
-function extractClassAttributes(content, groups) {
+// Static class attributes outside comments. Values containing PHP or format
+// placeholders are built at runtime and skipped.
+function extractClassAttributes(content, groups, comments) {
 	for (const m of content.matchAll(/\bclass\s*=\s*(?:"([^"]*)"|'([^']*)')/g)) {
+		if (inRanges(comments, m.index)) {
+			continue;
+		}
+
 		const value = m[1] ?? m[2];
 
 		if (/<\?|\$|%|\{/.test(value)) {
@@ -263,11 +354,16 @@ function extractClassAttributes(content, groups) {
 }
 
 function extractPhp(content, groups) {
+	const comments = phpCommentRanges(content);
 	// Only the Eightshift helpers: `Helpers::name(` or an unqualified `name(`.
 	// Same-named methods on other classes (`FormsHelper::getTwPart`) differ.
 	const helperRe = new RegExp(`(?:\\bHelpers::|(?<![\\w$>:]))(${Object.keys(PHP_HELPERS).join('|')})\\s*\\(`, 'g');
 
 	for (const m of content.matchAll(helperRe)) {
+		if (inRanges(comments, m.index)) {
+			continue;
+		}
+
 		const open = m.index + m[0].length - 1;
 		const close = findClose(content, open);
 		const args = callArgs(content, open, close).slice(PHP_HELPERS[m[1]]);
@@ -287,7 +383,7 @@ function extractPhp(content, groups) {
 		}
 	}
 
-	extractClassAttributes(content, groups);
+	extractClassAttributes(content, groups, comments);
 
 	// Opt-in regions: every string literal that is not an array key is a class
 	// source. For class maps no helper call wraps, e.g. Eightshift Forms
@@ -313,6 +409,32 @@ function extractJs(content, groups) {
 	}
 }
 
+// A literal can match more than one source, e.g. a helper call inside a marked
+// region. The first source to claim a character range keeps it, so each class
+// is reported once and `--write` edits it once.
+function dropOverlappingTokens(groups, contentLength) {
+	const claimed = new Uint8Array(contentLength);
+	const kept = [];
+
+	for (const group of groups) {
+		const tokens = group.tokens.filter(({ start, end }) => {
+			if (claimed.subarray(start, end).includes(1)) {
+				return false;
+			}
+
+			claimed.fill(1, start, end);
+
+			return true;
+		});
+
+		if (tokens.length) {
+			kept.push({ ...group, tokens });
+		}
+	}
+
+	return kept;
+}
+
 export function extractGroups(content, file) {
 	const groups = [];
 
@@ -321,10 +443,10 @@ export function extractGroups(content, file) {
 	} else if (file.endsWith('.php')) {
 		extractPhp(content, groups);
 	} else if (file.endsWith('.html')) {
-		extractClassAttributes(content, groups);
+		extractClassAttributes(content, groups, htmlCommentRanges(content));
 	} else if (/\.(m?js|jsx|tsx?)$/.test(file)) {
 		extractJs(content, groups);
 	}
 
-	return groups;
+	return dropOverlappingTokens(groups, content.length);
 }
