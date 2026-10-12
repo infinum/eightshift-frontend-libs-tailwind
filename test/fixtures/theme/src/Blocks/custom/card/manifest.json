@@ -3,7 +3,8 @@
 	"tailwind": {
 		"base": { "twClasses": "flex text-sm js-card" },
 		"parts": {
-			"title": { "twClasses": ["aspect-[5/3]", "text-body-sm"] }
+			"title": { "twClasses": ["aspect-[5/3]", "text-body-sm"] },
+			"icon": { "twClassesEditor": "h-[16px]\nh-full\t[.card\\_\\_icon_&]:w-[16px] [&_.card\\_icon]:w-[16px] \u0068-0" }
 		},
 		"options": {
 			"size": { "large": { "twClasses": "card__large w-[16px]" } }

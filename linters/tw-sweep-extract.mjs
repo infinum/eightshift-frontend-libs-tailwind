@@ -108,10 +108,103 @@ function jsonStrings(content, from, to) {
 	return out;
 }
 
+// String literal syntaxes. `decode(raw, i)` reads one character or escape at
+// `i` of a raw literal body and returns [decoded, sourceLength]; `encode(text)`
+// writes a class back so it decodes to `text`. PHP keeps unknown escapes as
+// written (`'\_'` and `"\_"` are a backslash and `_`), so its encoders escape a
+// backslash only where PHP would otherwise read an escape.
+const JSON_STRING = {
+	decode: (raw, i) => {
+		if (raw[i] !== '\\') {
+			return [raw[i], 1];
+		}
+
+		const length = raw[i + 1] === 'u' ? 6 : 2;
+
+		return [JSON.parse(`"${raw.slice(i, i + length)}"`), length];
+	},
+	encode: (text) => JSON.stringify(text).slice(1, -1),
+};
+
+const PHP_SINGLE = {
+	decode: (raw, i) => (raw[i] === '\\' && (raw[i + 1] === '\\' || raw[i + 1] === "'") ? [raw[i + 1], 2] : [raw[i], 1]),
+	encode: (text) => text.replace(/'|\\(?=[\\']|$)/g, '\\$&'),
+};
+
+const PHP_DOUBLE_ESCAPES = { n: '\n', t: '\t', r: '\r', v: '\v', f: '\f', e: '\x1b', '\\': '\\', $: '$', '"': '"' };
+
+const PHP_DOUBLE = {
+	decode: (raw, i) => (raw[i] === '\\' && Object.hasOwn(PHP_DOUBLE_ESCAPES, raw[i + 1] ?? '') ? [PHP_DOUBLE_ESCAPES[raw[i + 1]], 2] : [raw[i], 1]),
+	encode: (text) => text.replace(/["$]|\\(?=[nrtvfe\\$"0-7xu]|$)/g, '\\$&'),
+};
+
+const JS_ESCAPES = { n: '\n', t: '\t', r: '\r', v: '\v', f: '\f', b: '\b', 0: '\0', '\n': '' };
+
+// JS drops the backslash of unknown escapes (`'\_'` is `_`).
+const jsString = (quote) => ({
+	decode: (raw, i) => {
+		if (raw[i] !== '\\') {
+			return [raw[i], 1];
+		}
+
+		const next = raw[i + 1];
+
+		if (next === 'x') {
+			return [String.fromCharCode(parseInt(raw.slice(i + 2, i + 4), 16)), 4];
+		}
+
+		if (next === 'u') {
+			const braced = raw[i + 2] === '{';
+			const end = braced ? raw.indexOf('}', i) + 1 : i + 6;
+
+			return [String.fromCodePoint(parseInt(raw.slice(i + (braced ? 3 : 2), braced ? end - 1 : end), 16)), end - i];
+		}
+
+		return [JS_ESCAPES[next] ?? next, 2];
+	},
+	encode: (text) => text.replace(new RegExp(`[\\\\${quote}]`, 'g'), '\\$&'),
+});
+
+// Splits a raw literal body (escapes intact) into tokens. Class names are
+// decoded, so an escaped newline separates classes; offsets stay on the raw
+// source, and `encode` lets `--write` re-escape the replacement.
+function pushEscapedGroup(groups, kind, raw, rawStart, syntax) {
+	const tokens = [];
+	let current = null;
+
+	const finish = () => {
+		if (current && /[-:]/.test(current.className)) {
+			tokens.push(current);
+		}
+
+		current = null;
+	};
+
+	for (let i = 0; i < raw.length;) {
+		const [char, length] = syntax.decode(raw, i);
+
+		if (/\s/.test(char)) {
+			finish();
+		} else {
+			current ??= { className: '', start: rawStart + i, encode: syntax.encode };
+			current.className += char;
+			current.end = rawStart + i + length;
+		}
+
+		i += length;
+	}
+
+	finish();
+
+	if (tokens.length) {
+		groups.push({ kind, tokens });
+	}
+}
+
 function extractManifest(content, groups) {
 	// "twClasses": "a b", "twClassesEditor": "a b", ...
 	for (const m of content.matchAll(/"(twClasses\w*)"\s*:\s*"((?:[^"\\]|\\.)*)"/g)) {
-		pushGroup(groups, 'manifest', m[2], m.index + m[0].length - m[2].length - 1);
+		pushEscapedGroup(groups, 'manifest', m[2], m.index + m[0].length - m[2].length - 1, JSON_STRING);
 	}
 
 	// "twClasses": { "variant": ["a", "b"] } and "twClasses*": ["a", "b"]
@@ -120,7 +213,7 @@ function extractManifest(content, groups) {
 		const close = findClose(content, open);
 
 		for (const literal of jsonStrings(content, open + 1, close)) {
-			pushGroup(groups, 'manifest', literal.value, literal.start);
+			pushEscapedGroup(groups, 'manifest', literal.value, literal.start, JSON_STRING);
 		}
 	}
 }
@@ -244,7 +337,7 @@ function phpStrings(content, from, to, { skipKeys }) {
 			continue;
 		}
 
-		out.push({ value, start: m.index + 1 });
+		out.push({ value, start: m.index + 1, syntax: m[1] === undefined ? PHP_DOUBLE : PHP_SINGLE });
 	}
 
 	return out;
@@ -378,7 +471,7 @@ function extractPhp(content, groups) {
 					continue;
 				}
 
-				pushGroup(groups, 'php-call', literal.value, literal.start);
+				pushEscapedGroup(groups, 'php-call', literal.value, literal.start, literal.syntax);
 			}
 		}
 	}
@@ -394,7 +487,7 @@ function extractPhp(content, groups) {
 		const bodyStart = Math.min(content.indexOf('\n', from) + 1 || end, end);
 
 		for (const literal of phpStrings(content, bodyStart, end, { skipKeys: true })) {
-			pushGroup(groups, 'php-region', literal.value, literal.start);
+			pushEscapedGroup(groups, 'php-region', literal.value, literal.start, literal.syntax);
 		}
 
 		from = content.indexOf(REGION_START, end);
@@ -405,7 +498,7 @@ function extractPhp(content, groups) {
 
 function extractJs(content, groups) {
 	for (const m of content.matchAll(/\b\w*[cC]lassName\s*[:=]\s*(["'])((?:(?!\1)[^\\]|\\.)*)\1/g)) {
-		pushGroup(groups, 'js-attr', m[2], m.index + m[0].length - m[2].length - 1);
+		pushEscapedGroup(groups, 'js-attr', m[2], m.index + m[0].length - m[2].length - 1, jsString(m[1]));
 	}
 }
 

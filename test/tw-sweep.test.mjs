@@ -33,12 +33,16 @@ test('reports unknown and non-canonical classes from manifests, PHP calls, class
 		'src/Blocks/custom/card/card.php w-[16px] → w-4',
 		'src/Blocks/custom/card/card.php w-[16px] → w-4',
 		'src/Blocks/custom/card/card.php w-[16px] → w-4',
+		'src/Blocks/custom/card/manifest.json [&_.card\\_icon]:w-[16px] → [&_.card\\_icon]:w-4',
 		'src/Blocks/custom/card/manifest.json aspect-[5/3] → aspect-5/3',
+		'src/Blocks/custom/card/manifest.json h-[16px] → h-4',
 		'src/Blocks/custom/card/manifest.json unknown text-sm',
 		'src/Blocks/custom/card/manifest.json w-[16px] → w-4',
+		'src/Plugins/Forms.php [&_.card\\_icon]:w-[16px] → [&_.card\\_icon]:w-4',
 		'src/Plugins/Forms.php aspect-[5/3] → aspect-5/3',
 		'src/Plugins/Forms.php h-[16px] → h-4',
 		'src/Plugins/Forms.php unknown text-xl',
+		'src/Plugins/Forms.php w-[16px] → w-4',
 		'src/Plugins/Forms.php w-[16px] → w-4',
 	]);
 });
@@ -57,8 +61,26 @@ test('--write rewrites non-canonical classes, keeps unknown ones and still fails
 		assert.match(php, /'text-lg w-4'/);
 		assert.match(php, /class="card__wrap aspect-5\/3"/);
 		assert.match(forms, /\$single = \['aspect-5\/3'\];\n/);
-		assert.match(forms, /\$wrapped = Helpers::getTwClasses\(\$attributes, \$manifest, 'h-4'\);\n\/\/ tw-sweep-classes-end/);
+		assert.match(forms, /\$wrapped = Helpers::getTwClasses\(\$attributes, \$manifest, 'h-4'\);\n/);
+		assert.match(forms, /\$escaped = \["w-4\\nh-full", '\[&_\.card\\_icon\]:w-4 content-\[\\'x\\'\]'\];\n\/\/ tw-sweep-classes-end/);
+		assert.equal(JSON.parse(readFileSync(join(dir, 'src/Blocks/custom/card/manifest.json'), 'utf8')).tailwind.parts.icon.twClassesEditor, 'h-4\nh-full\t[.card\\_\\_icon_&]:w-[16px] [&_.card\\_icon]:w-4 h-0');
 		assert.deepEqual(reported(run(dir, '--no-unknown', '--entry', resolve(fixture, 'tailwind.css')).out), []);
+	} finally {
+		rmSync(dir, { recursive: true, force: true });
+	}
+});
+
+test('JS string escapes are decoded for checking and re-escaped by --write', () => {
+	const dir = mkdtempSync(join(tmpdir(), 'tw-sweep-'));
+
+	try {
+		cpSync(fixture, dir, { recursive: true });
+
+		const { code, out } = run(dir, 'src/card.js', '--write', '--entry', resolve(fixture, 'tailwind.css'));
+
+		assert.equal(code, 0);
+		assert.deepEqual(reported(out), ['src/card.js w-[16px] → w-4', 'src/card.js [&_.a\\_b]:w-[16px] → [&_.a\\_b]:w-4']);
+		assert.ok(readFileSync(join(dir, 'src/card.js'), 'utf8').includes("\nexport const card = { className: 'w-4\\nh-full [&_.a\\\\_b]:w-4 content-[\\'x\\']' };\n"));
 	} finally {
 		rmSync(dir, { recursive: true, force: true });
 	}

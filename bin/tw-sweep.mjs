@@ -256,7 +256,7 @@ async function main() {
 			let next = content;
 
 			for (const r of replacements.sort((a, b) => b.start - a.start)) {
-				next = next.slice(0, r.start) + r.canonical + next.slice(r.end);
+				next = next.slice(0, r.start) + (r.encode ? r.encode(r.canonical) : r.canonical) + next.slice(r.end);
 			}
 
 			await writeFile(file, next, 'utf8');

@@ -11,4 +11,5 @@ $map = ['select-choices' => 'text-body-sm'];
 $single = ['aspect-[5/3]'];
 $indexed = $selectors['text-unknown-index'];
 $wrapped = Helpers::getTwClasses($attributes, $manifest, 'h-[16px]');
+$escaped = ["w-[16px]\nh-full", '[&_.card\_icon]:w-[16px] content-[\'x\']'];
 // tw-sweep-classes-end
