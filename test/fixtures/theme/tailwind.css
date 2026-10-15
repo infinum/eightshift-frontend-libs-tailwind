@@ -1,0 +1,6 @@
+@import 'tailwindcss';
+
+@theme {
+	--text-*: initial;
+	--text-body-sm: 0.875rem;
+}

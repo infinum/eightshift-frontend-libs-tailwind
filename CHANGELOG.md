@@ -6,6 +6,15 @@ This projects adheres to [Semantic Versioning](https://semver.org/) and [Keep a 
 
 ---
 
+## [Unreleased]
+
+### Added
+
+- `tw-sweep` CLI (`bunx tw-sweep`, also `lint:tw`): checks Tailwind classes in block manifests and PHP against the project's Tailwind entry and reports unknown and non-canonical classes. `--write` rewrites non-canonical ones. PHP sources: `class="…"` attributes, string arguments of `tailwindClasses`/`getTwPart` (after the part name), `getTwClasses`, `clsx` and `classnames`, and non-key string literals between `// tw-sweep-classes-start.` and `// tw-sweep-classes-end.` (the full stop keeps PHPCS happy; the markers match without it too).
+- `linters/oxlint.config.mjs`: `createOxlintConfig({ entryPoint })` for oxlint with `eslint-plugin-better-tailwindcss`.
+- `tw-ignore.json`: one unknown-class ignore list (JSON array of regex strings) read by both `tw-sweep` and `createOxlintConfig`. Invalid patterns fail loudly.
+- lint-staged does not run commands through a shell, so chain tools as an array: `"*.js": ["bun lintJs", "bun lintJs:oxlint"]`.
+
 ## [3.4.0]
 
 ### Added
