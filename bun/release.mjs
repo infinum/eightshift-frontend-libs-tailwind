@@ -11,15 +11,16 @@ async function ensureDirectory(directory) {
 	}
 
 	try {
-		const info = await lstat(directory);
-		if (!info.isDirectory() || info.isSymbolicLink()) {
-			throw new Error(`Release path must be a real directory: ${directory}`);
-		}
+		await mkdir(directory);
 	} catch (error) {
-		if (error.code !== 'ENOENT') {
+		if (error.code !== 'EEXIST') {
 			throw error;
 		}
-		await mkdir(directory);
+	}
+
+	const info = await lstat(directory);
+	if (!info.isDirectory() || info.isSymbolicLink()) {
+		throw new Error(`Release path must be a real directory: ${directory}`);
 	}
 }
 

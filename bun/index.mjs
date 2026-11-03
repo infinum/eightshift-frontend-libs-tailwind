@@ -29,6 +29,10 @@ export function defineBuild({ root = process.cwd(), preset, ssr, publish, watch 
 		throw new TypeError('watch must be an object');
 	}
 
+	if (watch.ignore !== undefined && typeof watch.ignore !== 'function') {
+		throw new TypeError('watch.ignore must be a function');
+	}
+
 	root = resolve(root);
 	let active;
 	const outputs = new Set();
@@ -40,8 +44,14 @@ export function defineBuild({ root = process.cwd(), preset, ssr, publish, watch 
 		active = (async () => {
 			const context = { ...options, root };
 			const configured = typeof preset === 'function' ? await preset(context) : preset;
-			if (typeof configured?.outdir === 'string' && configured.outdir) {
-				outputs.add(resolve(root, configured.outdir));
+			outputs.clear();
+			const output = typeof configured?.outdir === 'string' && configured.outdir ? resolve(root, configured.outdir) : undefined;
+			if (output) {
+				const rootFromOutput = relative(output, root);
+				if (!rootFromOutput || (!isAbsolute(rootFromOutput) && rootFromOutput !== '..' && !rootFromOutput.startsWith(`..${sep}`))) {
+					throw new Error('outdir must not contain the project root');
+				}
+				outputs.add(output);
 			}
 			const result = await buildPreset({ ...configured, root });
 			const state = { ...context, result };
@@ -66,8 +76,12 @@ export function defineBuild({ root = process.cwd(), preset, ssr, publish, watch 
 
 	return {
 		build: run,
-		watch: (options = {}) =>
-			watchBuild({
+		watch: (options = {}) => {
+			if ((ssr || publish) && watch.sources === undefined && !watch.ignored?.length) {
+				throw new Error('Watch builds with ssr or publish callbacks require explicit watch.sources or watch.ignored');
+			}
+
+			return watchBuild({
 				sources: ['.'],
 				...watch,
 				projectDir: root,
@@ -88,7 +102,8 @@ export function defineBuild({ root = process.cwd(), preset, ssr, publish, watch 
 					return false;
 				},
 				build: () => run(options),
-			}),
+			});
+		},
 	};
 }
 

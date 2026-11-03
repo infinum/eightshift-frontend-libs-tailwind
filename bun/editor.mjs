@@ -35,6 +35,10 @@ export async function buildEditor({ root, directory, entry, buildOptions = {}, p
 		throw new Error('Editor entry cannot be inside its chunk directory');
 	}
 
+	if (buildOptions.sourcemap !== undefined && !['none', 'external'].includes(buildOptions.sourcemap)) {
+		throw new TypeError('Editor sourcemap must be "none" or "external"');
+	}
+
 	const chunks = new Map();
 	const lazyImports = editorLazyImports({ ...lazy, root, chunks, chunkDir, scriptUrlIdentifier });
 	const discoveryPlugin = discovery ? eightshiftDiscovery({ ...discovery, root, outputDir: inside(discovery.outputDir ?? 'discovery'), transformSource: (source, path) => lazyImports.transformSource(discovery.transformSource ? discovery.transformSource(source, path) : source, path) }) : undefined;

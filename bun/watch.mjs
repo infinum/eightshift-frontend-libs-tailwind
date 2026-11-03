@@ -96,7 +96,16 @@ export function watchBuild({ projectDir, sources, ignored = [], ignore = () => f
 
 		const path = resolve(root, String(filename));
 
-		if (!within(root, path) || exclusions.some((item) => within(item, path)) || ignore(path)) {
+		if (!within(root, path) || exclusions.some((item) => within(item, path))) {
+			return;
+		}
+
+		try {
+			if (ignore(path)) {
+				return;
+			}
+		} catch (error) {
+			report(error);
 			return;
 		}
 
