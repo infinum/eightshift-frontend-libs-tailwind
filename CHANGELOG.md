@@ -6,6 +6,19 @@ This projects adheres to [Semantic Versioning](https://semver.org/) and [Keep a 
 
 ---
 
+## [3.5.1]
+
+### Fixed
+
+- Fixed stylelint false positives on Tailwind `@apply`: `at-rule-prelude-no-invalid` now ignores `@apply`, as the CSS Mixins spec `@apply` syntax only accepts dashed idents.
+- Fixed stylelint false positives on `&` inside `@utility` and `@custom-variant` (`nesting-selector-no-missing-scoping-root`).
+- Fixed stylelint false positives on declarations in at-rules nested inside `@utility`, such as `@supports` (`no-invalid-position-declaration`).
+
+### Updated
+
+- Updated dependencies (`@wordpress/dependency-extraction-webpack-plugin` 7, `@wordpress/api-fetch` 8, `stylelint`, `eslint`, `oxlint`, `webpack`, `webpack-cli`, `@swc/core`, `eslint-plugin-better-tailwindcss`, `prettier`, `lint-staged`).
+- `@wordpress/dependency-extraction-webpack-plugin` 7 requires Node.js 22.13 or newer.
+
 ## [3.5.0]
 
 ### Added
@@ -392,6 +405,7 @@ Co-authored with @piqusy
 
 - Initial release.
 
+[3.5.1]: https://github.com/infinum/eightshift-frontend-libs-tailwind/compare/3.5.0...3.5.1
 [3.5.0]: https://github.com/infinum/eightshift-frontend-libs-tailwind/compare/3.4.0...3.5.0
 [3.4.0]: https://github.com/infinum/eightshift-frontend-libs-tailwind/compare/3.4.0...3.4.0
 [3.3.0]: https://github.com/infinum/eightshift-frontend-libs-tailwind/compare/3.2.0...3.3.0
