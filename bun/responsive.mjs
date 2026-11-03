@@ -113,6 +113,8 @@ const runPreprocess = ({ projectDir, breakpoints, manifestGlob, outputFrontend, 
 		result.editor.forEach((cls) => editor.add(cls));
 	});
 
+	fs.mkdirSync(path.dirname(outputFrontend), { recursive: true });
+	fs.mkdirSync(path.dirname(outputEditor), { recursive: true });
 	fs.writeFileSync(outputFrontend, [...frontend].join(' '));
 	fs.writeFileSync(outputEditor, [...editor].join(' '));
 };

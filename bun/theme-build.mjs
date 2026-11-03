@@ -197,17 +197,14 @@ export function defineThemeBuild({ root, buildSsr, createPlugins = () => [], fro
 			},
 			getEditorWorker: () => editorWorker,
 		};
-		const plugins = createPlugins(pluginContext);
+		const callerPlugins = createPlugins(pluginContext);
 
-		if (!Array.isArray(plugins)) {
+		if (!Array.isArray(callerPlugins)) {
 			throw new TypeError('createPlugins must return an array');
 		}
 
 		const workerFactory = media.editorWorker === undefined ? editorWorkerPlugin : media.editorWorker;
-
-		if (workerFactory) {
-			plugins.push(workerFactory(pluginContext));
-		}
+		const plugins = workerFactory ? [workerFactory(pluginContext), ...callerPlugins] : [...callerPlugins];
 
 		if (discovery === undefined) {
 			plugins.push(discoveryPlugin);
