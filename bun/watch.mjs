@@ -5,11 +5,12 @@ import { isAbsolute, relative, resolve, sep } from 'node:path';
  * Watch source paths under projectDir and run build serially after changes settle.
  * Paths in sources and ignored are relative to projectDir unless absolute.
  * Ignored paths exclude themselves and their descendants, including outputs.
+ * `ignore` optionally filters absolute event paths in addition to ignored paths.
  * Returns { stop }, whose promise settles after any running build finishes.
  * Build and watcher errors are passed to onError; watcher errors stop watching.
  */
-export function watchBuild({ projectDir, sources, ignored = [], build, debounce = 200, initial = true, onError = console.error }) {
-	if (!projectDir || !Array.isArray(sources) || sources.length === 0 || !Array.isArray(ignored) || typeof build !== 'function' || typeof onError !== 'function' || !Number.isFinite(debounce) || debounce < 0) {
+export function watchBuild({ projectDir, sources, ignored = [], ignore = () => false, build, debounce = 200, initial = true, onError = console.error }) {
+	if (!projectDir || !Array.isArray(sources) || sources.length === 0 || !Array.isArray(ignored) || typeof ignore !== 'function' || typeof build !== 'function' || typeof onError !== 'function' || !Number.isFinite(debounce) || debounce < 0) {
 		throw new TypeError('watchBuild requires projectDir, sources, a build function, and a non-negative debounce.');
 	}
 
@@ -95,7 +96,7 @@ export function watchBuild({ projectDir, sources, ignored = [], build, debounce 
 
 		const path = resolve(root, String(filename));
 
-		if (!within(root, path) || exclusions.some((item) => within(item, path))) {
+		if (!within(root, path) || exclusions.some((item) => within(item, path)) || ignore(path)) {
 			return;
 		}
 

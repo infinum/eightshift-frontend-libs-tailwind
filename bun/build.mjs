@@ -320,7 +320,11 @@ export async function build({ root = process.cwd(), outdir, entries, wpRoot, wor
 		}
 
 		if (backedUp) {
-			await removeTree(backup);
+			try {
+				await removeTree(backup);
+			} catch (error) {
+				console.warn(`Build published, but backup cleanup failed at ${backup}:`, error);
+			}
 		}
 
 		return { outdir, entries: manifest };

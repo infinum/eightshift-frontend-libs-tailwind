@@ -1,4 +1,4 @@
-import { resolve } from 'node:path';
+import { basename, dirname, isAbsolute, relative, resolve, sep } from 'node:path';
 import { buildPreset, createPreset } from './preset.mjs';
 import { watchBuild } from './watch.mjs';
 
@@ -31,6 +31,7 @@ export function defineBuild({ root = process.cwd(), preset, ssr, publish, watch 
 
 	root = resolve(root);
 	let active;
+	const outputs = new Set();
 	const run = async (options = {}) => {
 		if (active) {
 			throw new Error('A build is already running');
@@ -39,6 +40,9 @@ export function defineBuild({ root = process.cwd(), preset, ssr, publish, watch 
 		active = (async () => {
 			const context = { ...options, root };
 			const configured = typeof preset === 'function' ? await preset(context) : preset;
+			if (typeof configured?.outdir === 'string' && configured.outdir) {
+				outputs.add(resolve(root, configured.outdir));
+			}
 			const result = await buildPreset({ ...configured, root });
 			const state = { ...context, result };
 
@@ -62,7 +66,29 @@ export function defineBuild({ root = process.cwd(), preset, ssr, publish, watch 
 
 	return {
 		build: run,
-		watch: (options = {}) => watchBuild({ sources: ['.'], ...watch, projectDir: root, build: () => run(options) }),
+		watch: (options = {}) =>
+			watchBuild({
+				sources: ['.'],
+				...watch,
+				projectDir: root,
+				ignore: (path) => {
+					if (watch.ignore?.(path)) {
+						return true;
+					}
+					for (const output of outputs) {
+						const location = relative(output, path);
+						if (!location || (!isAbsolute(location) && location !== '..' && !location.startsWith(`..${sep}`))) {
+							return true;
+						}
+						const sibling = relative(dirname(output), path).split(sep)[0];
+						if (sibling.startsWith(`.${basename(output)}-stage-`) || sibling.startsWith(`.${basename(output)}-backup-`)) {
+							return true;
+						}
+					}
+					return false;
+				},
+				build: () => run(options),
+			}),
 	};
 }
 
