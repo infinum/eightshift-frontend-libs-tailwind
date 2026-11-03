@@ -4,6 +4,25 @@ import { dirname, isAbsolute, join, relative, resolve, sep } from 'node:path';
 
 const digest = (value) => createHash('sha256').update(value).digest('hex');
 
+async function ensureDirectory(directory) {
+	const parent = dirname(directory);
+	if (parent !== directory) {
+		await ensureDirectory(parent);
+	}
+
+	try {
+		const info = await lstat(directory);
+		if (!info.isDirectory() || info.isSymbolicLink()) {
+			throw new Error(`Release path must be a real directory: ${directory}`);
+		}
+	} catch (error) {
+		if (error.code !== 'ENOENT') {
+			throw error;
+		}
+		await mkdir(directory);
+	}
+}
+
 const releasePath = (value) => {
 	if (typeof value !== 'string' || !value || value.includes('\\') || value.includes('\0') || isAbsolute(value) || value.split('/').some((part) => !part || part === '.' || part === '..')) {
 		throw new Error(`Invalid release path: ${String(value)}`);
@@ -140,10 +159,10 @@ export async function packageRelease({ root, files, entries, aliases = {}, outpu
 	add('manifest.json', Buffer.from(`${JSON.stringify(manifest, null, 2)}\n`));
 	const parent = resolve(root);
 
-	await mkdir(parent, { recursive: true });
+	await ensureDirectory(parent);
 	const release = outputDirectory ? resolve(outputDirectory) : join(parent, `release-${randomUUID()}`, version);
 
-	await mkdir(release, { recursive: true });
+	await ensureDirectory(release);
 
 	for (const [path, bytes] of contents) {
 		const target = resolve(release, ...path.split('/'));
@@ -152,7 +171,7 @@ export async function packageRelease({ root, files, entries, aliases = {}, outpu
 			throw new Error(`Invalid release path: ${path}`);
 		}
 
-		await mkdir(dirname(target), { recursive: true });
+		await ensureDirectory(dirname(target));
 		await writeFile(target, bytes, { flag: 'wx' });
 	}
 

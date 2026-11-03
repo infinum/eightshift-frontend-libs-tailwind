@@ -249,7 +249,11 @@ export async function publishFlatRelease({ root, wpRoot, release, manifest, vers
 		let cacheExists = false;
 
 		try {
-			cacheExists = (await lstat(cachePath)).isFile();
+			const cacheInfo = await lstat(cachePath);
+			if (!cacheInfo.isFile() || cacheInfo.isSymbolicLink()) {
+				throw new Error(`Manifest cache must be a regular file: ${cachePath}`);
+			}
+			cacheExists = true;
 		} catch (error) {
 			if (error.code !== 'ENOENT') {
 				throw error;
