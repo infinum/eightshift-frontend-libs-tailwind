@@ -59,6 +59,23 @@ async function removeTree(directory) {
 	await rmdir(directory);
 }
 
+export async function clearBuildDirectory(directory) {
+	await rejectSymlinkPath(directory);
+
+	try {
+		const info = await lstat(directory);
+		if (!info.isDirectory() || info.isSymbolicLink()) {
+			throw new Error(`Output must be a real directory: ${directory}`);
+		}
+		await inspectTree(directory);
+		await removeTree(directory);
+	} catch (error) {
+		if (error.code !== 'ENOENT') {
+			throw error;
+		}
+	}
+}
+
 async function assertOwned(directory) {
 	let info;
 
@@ -115,9 +132,10 @@ async function assertOwned(directory) {
  * editor optionally selects a synchronous classic entry with lazy ESM chunks.
  * Existing output is replaced only if it contains this API's ownership marker
  * and every build and callback succeeds. Output trees must not contain symlinks.
+ * `direct: true` writes to a fresh output directory without staging or rollback.
  * Generated discovery and responsive files are included in the published tree.
  */
-export async function build({ root = process.cwd(), outdir, entries, wpRoot, wordpress = true, discovery, responsive, css, editor, buildOptions = {} } = {}) {
+export async function build({ root = process.cwd(), outdir, entries, wpRoot, wordpress = true, discovery, responsive, css, editor, buildOptions = {}, direct = false } = {}) {
 	root = resolve(root);
 
 	if (typeof outdir !== 'string' || !outdir || !entries || typeof entries !== 'object' || Array.isArray(entries) || !Object.keys(entries).length) {
@@ -151,7 +169,7 @@ export async function build({ root = process.cwd(), outdir, entries, wpRoot, wor
 	const parent = dirname(outdir);
 
 	await mkdir(parent, { recursive: true });
-	const stage = join(parent, `.${basename(outdir)}-stage-${randomUUID()}`);
+	const stage = direct ? outdir : join(parent, `.${basename(outdir)}-stage-${randomUUID()}`);
 	const backup = join(parent, `.${basename(outdir)}-backup-${randomUUID()}`);
 
 	await mkdir(stage);
@@ -277,6 +295,11 @@ export async function build({ root = process.cwd(), outdir, entries, wpRoot, wor
 		await inspectTree(stage);
 		await writeFile(join(stage, 'manifest.json'), `${JSON.stringify(manifest, null, 2)}\n`);
 		await writeFile(join(stage, markerName), markerContents, { flag: 'wx' });
+		if (direct) {
+			published = true;
+			return { outdir, entries: manifest };
+		}
+
 		await rejectSymlinkPath(outdir);
 
 		if (await assertOwned(outdir)) {

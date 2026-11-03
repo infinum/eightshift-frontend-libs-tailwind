@@ -37,8 +37,8 @@ const feature = (value, keys, label) => {
  * Both are opt-in, and all filenames and discovery behavior are overridable.
  */
 export function createPreset(options = {}) {
-	checkOptions(options, ['root', 'outdir', 'entries', 'wpRoot', 'wordpress', 'discovery', 'responsive', 'css', 'editor', 'buildOptions'], 'preset');
-	const { root = process.cwd(), outdir, entries, wpRoot, wordpress = true, buildOptions = {} } = options;
+	checkOptions(options, ['root', 'outdir', 'entries', 'wpRoot', 'wordpress', 'discovery', 'responsive', 'css', 'editor', 'buildOptions', 'direct'], 'preset');
+	const { root = process.cwd(), outdir, entries, wpRoot, wordpress = true, buildOptions = {}, direct = false } = options;
 
 	if (typeof root !== 'string' || !root || typeof outdir !== 'string' || !outdir) {
 		throw new TypeError('root and outdir must be non-empty strings');
@@ -109,7 +109,7 @@ export function createPreset(options = {}) {
 		}
 	}
 
-	return { root, outdir, entries: { ...entries }, wpRoot, wordpress, discovery, responsive, css, editor, buildOptions: { ...buildOptions } };
+	return { root, outdir, entries: { ...entries }, wpRoot, wordpress, discovery, responsive, css, editor, direct, buildOptions: { ...buildOptions } };
 }
 
 /** Build and atomically publish a configured preset. */

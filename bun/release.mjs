@@ -21,8 +21,9 @@ const releasePath = (value) => {
  * otherwise a dynamic-import bootstrap loads entry relative to the root script.
  * aliases maps additional flat manifest keys to packaged paths.
  * Returns { release, version, manifest }. A failed staging directory is retained.
+ * outputDirectory writes directly to an existing directory instead of staging.
  */
-export async function packageRelease({ root, files, entries, aliases = {} }) {
+export async function packageRelease({ root, files, entries, aliases = {}, outputDirectory }) {
 	if (typeof root !== 'string' || !root || !Array.isArray(files) || !Array.isArray(entries) || !entries.length || !aliases || typeof aliases !== 'object' || Array.isArray(aliases)) {
 		throw new TypeError('Expected root, files, entries and optional aliases');
 	}
@@ -140,12 +141,9 @@ export async function packageRelease({ root, files, entries, aliases = {} }) {
 	const parent = resolve(root);
 
 	await mkdir(parent, { recursive: true });
-	const stage = join(parent, `release-${randomUUID()}`);
+	const release = outputDirectory ? resolve(outputDirectory) : join(parent, `release-${randomUUID()}`, version);
 
-	await mkdir(stage);
-	const release = join(stage, version);
-
-	await mkdir(release);
+	await mkdir(release, { recursive: true });
 
 	for (const [path, bytes] of contents) {
 		const target = resolve(release, ...path.split('/'));

@@ -109,7 +109,7 @@ export async function flattenAssets({ outdir, flatDir, directories = ['frontend'
 }
 
 /** Package flattened files, optional SSR files and standalone assets. */
-export async function packageFlatRelease({ root, flatDir, entries, ssrDir, ssrNames = [], standaloneAssets = new Map(), aliases = {} }) {
+export async function packageFlatRelease({ root, flatDir, entries, ssrDir, ssrNames = [], standaloneAssets = new Map(), aliases = {}, outputDirectory }) {
 	const files = [];
 
 	for (const name of await readdir(flatDir)) {
@@ -135,13 +135,14 @@ export async function packageFlatRelease({ root, flatDir, entries, ssrDir, ssrNa
 		extraAliases[name] = name;
 	}
 
-	return packageRelease({ root, files, entries, aliases: { ...extraAliases, ...aliases } });
+	return packageRelease({ root, files, entries, aliases: { ...extraAliases, ...aliases }, outputDirectory });
 }
 
-/** Replace public with a staged release and synchronize an existing PHP asset cache.
- * On cache failure the previous public directory is restored. Missing caches are ignored.
+/** Publish a flat release and synchronize an existing PHP asset cache.
+ * Staged publication restores the previous public directory on cache failure.
+ * Direct publication writes in public and does not roll back. Missing caches are ignored.
  */
-export async function publishFlatRelease({ root, wpRoot, release, manifest, version }) {
+export async function publishFlatRelease({ root, wpRoot, release, manifest, version, direct = false }) {
 	root = resolve(root);
 	wpRoot = resolve(wpRoot);
 	release = resolve(release);
@@ -152,7 +153,7 @@ export async function publishFlatRelease({ root, wpRoot, release, manifest, vers
 		return !path || (path !== '..' && !path.startsWith(`..${sep}`) && !isAbsolute(path));
 	};
 
-	if (within(publicDir, release) || within(release, publicDir) || within(release, root)) {
+	if ((!direct && (within(publicDir, release) || within(release, publicDir) || within(release, root))) || (direct && release !== publicDir)) {
 		throw new Error('Release, root and public directory must be distinct');
 	}
 
@@ -202,7 +203,7 @@ export async function publishFlatRelease({ root, wpRoot, release, manifest, vers
 			throw new Error(`Unsupported release output: ${name}`);
 		}
 
-		if (name !== 'manifest.json' && name !== 'ssr' && !Object.hasOwn(result, name)) {
+		if (name !== 'manifest.json' && name !== 'ssr' && !(direct && name === '.build') && !Object.hasOwn(result, name)) {
 			result[name] = name;
 		}
 	}
@@ -213,23 +214,27 @@ export async function publishFlatRelease({ root, wpRoot, release, manifest, vers
 	const backup = resolve(root, `.public-previous-${randomUUID()}`);
 	let hadPublic = false;
 
-	try {
-		const publicInfo = await lstat(publicDir);
+	if (!direct) {
+		try {
+			const publicInfo = await lstat(publicDir);
 
-		if (!publicInfo.isDirectory() || publicInfo.isSymbolicLink()) {
-			throw new Error('Refusing to replace non-directory public path');
-		}
+			if (!publicInfo.isDirectory() || publicInfo.isSymbolicLink()) {
+				throw new Error('Refusing to replace non-directory public path');
+			}
 
-		await rename(publicDir, backup);
-		hadPublic = true;
-	} catch (error) {
-		if (error.code !== 'ENOENT') {
-			throw error;
+			await rename(publicDir, backup);
+			hadPublic = true;
+		} catch (error) {
+			if (error.code !== 'ENOENT') {
+				throw error;
+			}
 		}
 	}
 
 	try {
-		await rename(release, publicDir);
+		if (!direct) {
+			await rename(release, publicDir);
+		}
 		const cachePath = resolve(root, 'eightshift/manifests.json');
 		let cacheExists = false;
 
@@ -297,6 +302,9 @@ export async function publishFlatRelease({ root, wpRoot, release, manifest, vers
 			}
 		}
 	} catch (error) {
+		if (direct) {
+			throw error;
+		}
 		try {
 			await rename(publicDir, release);
 		} catch (rollbackError) {

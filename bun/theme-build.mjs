@@ -1,8 +1,9 @@
 import { createHash, randomUUID } from 'node:crypto';
-import { link, readFile, unlink } from 'node:fs/promises';
+import { link, mkdir, readFile, unlink } from 'node:fs/promises';
 import { createRequire } from 'node:module';
 import { basename, dirname, isAbsolute, resolve } from 'node:path';
 import { defineBuild } from './index.mjs';
+import { clearBuildDirectory } from './build.mjs';
 import { generateThemeDiscovery, generateThemeImporters, themeDiscoveryPlugin } from './theme-discovery.mjs';
 import { processEightshiftCss } from './eightshift-css.mjs';
 import { flattenAssets, packageFlatRelease, publishFlatRelease } from './flat-publication.mjs';
@@ -126,7 +127,14 @@ export function defineThemeBuild({ root, buildSsr, createPlugins = () => [], fro
 	let editorWorker;
 	const makePreset = async ({ sourcemaps }) => {
 		editorWorker = undefined;
-		outdir = resolve(root, '.bun-pilot', `library-release-build-${randomUUID()}`);
+		const publicDir = resolve(root, 'public');
+		outdir = resolve(publicDir, '.build');
+		if (publish === undefined) {
+			await clearBuildDirectory(publicDir);
+			await mkdir(publicDir, { recursive: true });
+		} else {
+			await clearBuildDirectory(outdir);
+		}
 		const require = createRequire(resolve(root, 'package.json'));
 		const names = ['componentManifests', 'customManifests', 'customBlocks', 'customHooks', 'customTransforms', 'customDeprecations', 'customOverrides', 'variationManifests', 'customVariationManifests', 'variationOverrides', 'componentAdminAssets', 'customAdminAssets'];
 		const specs = [
@@ -216,6 +224,7 @@ export function defineThemeBuild({ root, buildSsr, createPlugins = () => [], fro
 		return {
 			root,
 			outdir,
+			direct: true,
 			wpRoot,
 			entries: entries ?? { frontend: 'src/Blocks/assets/scripts/application-blocks-frontend.js', admin: 'src/Blocks/assets/scripts/application-admin.js', editor: 'src/Blocks/assets/scripts/application-blocks-editor.js' },
 			responsive,
@@ -310,7 +319,7 @@ export function defineThemeBuild({ root, buildSsr, createPlugins = () => [], fro
 			throw new Error('Missing editor worker');
 		}
 
-		const ssrDir = resolve(root, '.bun-pilot/ssr/production');
+		const ssrDir = resolve(outdir, 'ssr/production');
 		const ssrNames = [];
 
 		if (ssr !== false) {
@@ -368,7 +377,8 @@ export function defineThemeBuild({ root, buildSsr, createPlugins = () => [], fro
 			return { name, entry: surface === 'editor' ? 'editor-entry.js' : basename(entry.entry), style: `${name}.css`, dependencies: entry.dependencies, ...(script && { script }) };
 		});
 		const { release, version, manifest } = await packageFlatRelease({
-			root: resolve(root, '.bun-pilot'),
+			root: resolve(root, 'public'),
+			outputDirectory: resolve(root, 'public'),
 			flatDir,
 			entries,
 			ssrDir,
@@ -377,9 +387,10 @@ export function defineThemeBuild({ root, buildSsr, createPlugins = () => [], fro
 			aliases,
 		});
 
-		await publishFlatRelease({ root, wpRoot, release, manifest, version });
+		await publishFlatRelease({ root, wpRoot, release, manifest, version, direct: true });
+		await clearBuildDirectory(outdir);
 	};
-	const defaultSsr = ({ root, mode }) => buildDefaultSsr({ root, mode, outdir: resolve(root, '.bun-pilot/ssr', mode) });
+	const defaultSsr = ({ root, mode }) => buildDefaultSsr({ root, mode, outdir: resolve(outdir, 'ssr', mode) });
 	const customSsr = ssr ?? buildSsr;
 	const definition = defineBuild({
 		root,
