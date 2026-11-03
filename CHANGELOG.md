@@ -6,6 +6,13 @@ This projects adheres to [Semantic Versioning](https://semver.org/) and [Keep a 
 
 ---
 
+## [4.0.0]
+
+### Changed
+
+- **Breaking:** removed the Webpack configuration, `webpack/*` API and its build dependencies. Migrate project build scripts to Bun or another independently configured build pipeline.
+- Bun build helpers include a conventional theme preset, CSS processing and watch support. They are not a drop-in replacement for Webpack: projects must verify their layout, WordPress integration and generated asset metadata. The Tailwind lint plugin still transitively requires `tsconfig-paths-webpack-plugin` for resolution, not the Webpack bundler.
+
 ## [3.5.0]
 
 ### Added
@@ -392,6 +399,7 @@ Co-authored with @piqusy
 
 - Initial release.
 
+[4.0.0]: https://github.com/infinum/eightshift-frontend-libs-tailwind/compare/3.5.0...4.0.0
 [3.5.0]: https://github.com/infinum/eightshift-frontend-libs-tailwind/compare/3.4.0...3.5.0
 [3.4.0]: https://github.com/infinum/eightshift-frontend-libs-tailwind/compare/3.4.0...3.4.0
 [3.3.0]: https://github.com/infinum/eightshift-frontend-libs-tailwind/compare/3.2.0...3.3.0
