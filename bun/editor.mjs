@@ -1,5 +1,5 @@
 import { mkdir, writeFile } from 'node:fs/promises';
-import { dirname, isAbsolute, relative, resolve, sep } from 'node:path';
+import { basename, dirname, isAbsolute, relative, resolve, sep } from 'node:path';
 import { eightshiftDiscovery, editorLazyImports } from './eightshift-discovery.mjs';
 
 /**
@@ -38,7 +38,8 @@ export async function buildEditor({ root, directory, entry, buildOptions = {}, p
 	const chunks = new Map();
 	const lazyImports = editorLazyImports({ ...lazy, root, chunks, chunkDir, scriptUrlIdentifier });
 	const discoveryPlugin = discovery ? eightshiftDiscovery({ ...discovery, root, outputDir: inside(discovery.outputDir ?? 'discovery'), transformSource: (source, path) => lazyImports.transformSource(discovery.transformSource ? discovery.transformSource(source, path) : source, path) }) : undefined;
-	const options = { target: 'browser', ...buildOptions, sourcemap: 'none', entrypoints: [resolve(root, entry)], format: 'iife', splitting: false, write: false, plugins: [...(discoveryPlugin ? [discoveryPlugin] : []), ...plugins, lazyImports.plugin] };
+	const sourcemap = buildOptions.sourcemap === 'external';
+	const options = { target: 'browser', ...buildOptions, sourcemap: sourcemap ? 'external' : 'none', entrypoints: [resolve(root, entry)], format: 'iife', splitting: false, write: false, plugins: [...(discoveryPlugin ? [discoveryPlugin] : []), ...plugins, lazyImports.plugin] };
 	const paths = [];
 	const compile = async (target, format) => {
 		const result = await Bun.build({ ...options, entrypoints: [target], format });
@@ -47,20 +48,29 @@ export async function buildEditor({ root, directory, entry, buildOptions = {}, p
 			throw new AggregateError(result.logs, `Editor build failed: ${target}`);
 		}
 
-		if (result.outputs.length !== 1 || result.outputs[0].kind !== 'entry-point') {
+		const entries = result.outputs.filter((output) => output.kind === 'entry-point');
+		const maps = result.outputs.filter((output) => output.kind === 'sourcemap');
+		if (entries.length !== 1 || maps.length !== (sourcemap ? 1 : 0) || result.outputs.length !== entries.length + maps.length) {
 			throw new Error(`Unexpected editor assets: ${target}`);
 		}
 
-		return result.outputs[0].text();
+		const map = sourcemap ? JSON.parse(await maps[0].text()) : undefined;
+		if (map) {
+			map.mappings = `;${map.mappings}`;
+		}
+		return { source: await entries[0].text(), map };
 	};
 	const write = async (path, source) => {
 		await mkdir(dirname(path), { recursive: true });
 		await writeFile(path, source);
 		paths.push(path);
 	};
-	const source = await compile(resolve(root, entry), 'iife');
-
-	await write(entryOutput, `((${scriptUrlIdentifier}) => {\n${source}\n})(document.currentScript.src);\n`);
+	const entryBuild = await compile(resolve(root, entry), 'iife');
+	const entryMap = `${basename(entryOutput)}.map`;
+	await write(entryOutput, `((${scriptUrlIdentifier}) => {\n${entryBuild.source}\n})(document.currentScript.src);\n${entryBuild.map ? `//# sourceMappingURL=${entryMap}\n` : ''}`);
+	if (entryBuild.map) {
+		await write(`${entryOutput}.map`, JSON.stringify(entryBuild.map));
+	}
 
 	for (const [target, name] of chunks) {
 		const output = inside(`${chunkDir}/${name}`);
@@ -71,8 +81,10 @@ export async function buildEditor({ root, directory, entry, buildOptions = {}, p
 		}
 
 		const chunk = await compile(target, 'esm');
-
-		await write(output, `const ${scriptUrlIdentifier} = new URL(${JSON.stringify(entryPath)}, import.meta.url).href;\n${chunk}`);
+		await write(output, `const ${scriptUrlIdentifier} = new URL(${JSON.stringify(entryPath)}, import.meta.url).href;\n${chunk.source}${chunk.map ? `\n//# sourceMappingURL=${basename(output)}.map\n` : ''}`);
+		if (chunk.map) {
+			await write(`${output}.map`, JSON.stringify(chunk.map));
+		}
 	}
 
 	return { entry: entryOutput, paths };
