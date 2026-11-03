@@ -51,10 +51,20 @@ export async function flattenAssets({ outdir, flatDir, directories = ['frontend'
 		outputNames.set(name, path);
 	}
 
+	const targetsByName = new Map([...sources.keys()].map((target) => [basename(target), target]));
+	const unusualTargets = [...targetsByName].filter(([name]) => !/^[\w.@+-]+$/.test(name)).map(([, target]) => target);
 	const rewrite = (input, path) => {
 		let source = input;
+		const candidates = new Set(unusualTargets);
 
-		for (const target of sources.keys()) {
+		for (const match of input.matchAll(/[/'"=]([\w.@+-]+)/g)) {
+			const target = targetsByName.get(match[1]);
+			if (target) {
+				candidates.add(target);
+			}
+		}
+
+		for (const target of candidates) {
 			const reference = posix.relative(posix.dirname(path), target);
 
 			if (!reference) {
