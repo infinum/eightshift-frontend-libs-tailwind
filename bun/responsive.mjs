@@ -27,6 +27,7 @@ const addClasses = (value, breakpoints, output, isResponsive = false) => {
 
 	if (Array.isArray(value)) {
 		value.forEach((item) => addClasses(item, breakpoints, output, isResponsive));
+
 		return;
 	}
 
@@ -52,6 +53,7 @@ const addClasses = (value, breakpoints, output, isResponsive = false) => {
 		.forEach((token) => {
 			if (isResponsiveToken(token, breakpoints)) {
 				output.add(token);
+
 				return;
 			}
 
@@ -71,12 +73,14 @@ const collectTailwindClasses = (value, allowedKeys, breakpoints, output) => {
 
 	if (Array.isArray(value)) {
 		value.forEach((item) => collectTailwindClasses(item, allowedKeys, breakpoints, output));
+
 		return;
 	}
 
 	Object.entries(value).forEach(([key, item]) => {
 		if (allowedKeys.has(key)) {
 			addClasses(item, breakpoints, output, value.responsive === true);
+
 			return;
 		}
 
@@ -104,6 +108,7 @@ const runPreprocess = ({ projectDir, breakpoints, manifestGlob, outputFrontend, 
 
 	matches.forEach((filePath) => {
 		const result = processManifest(filePath, breakpoints);
+
 		result.frontend.forEach((cls) => frontend.add(cls));
 		result.editor.forEach((cls) => editor.add(cls));
 	});
@@ -113,53 +118,25 @@ const runPreprocess = ({ projectDir, breakpoints, manifestGlob, outputFrontend, 
 };
 
 /**
- * Factory returning a webpack plugin that regenerates Tailwind class source
- * files before each build and on every manifest change in watch mode.
+ * Generate responsive Tailwind class source files without a bundler.
  *
- * @param {object} options
- * @param {string} options.projectDir Absolute path to the project root.
- * @param {string[]} [options.breakpoints] Tailwind breakpoint prefixes to expand. Defaults to `['sm', 'md']`.
- * @param {string} [options.manifestGlob] Glob (relative to `projectDir`) used to find manifests. Defaults to `src/**\/manifest.json`.
- * @param {{ frontend?: string, editor?: string }} [options.output] Override absolute output paths.
+ * @param {object} options Compiler options.
+ * @param {string} options.projectDir Absolute project directory.
+ * @param {string[]} [options.breakpoints] Responsive breakpoint prefixes.
+ * @param {string} [options.manifestGlob] Manifest glob relative to the project.
+ * @param {{ frontend?: string, editor?: string }} [options.output] Output paths.
+ * @returns {void}
  */
-export const esTwResponsiveCompiler = ({ projectDir, breakpoints = DEFAULT_BREAKPOINTS, manifestGlob = DEFAULT_MANIFEST_GLOB, output = {} } = {}) => {
+export const generateResponsiveClasses = ({ projectDir, breakpoints = DEFAULT_BREAKPOINTS, manifestGlob = DEFAULT_MANIFEST_GLOB, output = {} } = {}) => {
 	if (!projectDir) {
-		throw new Error('esTwResponsiveCompiler: `projectDir` is required.');
+		throw new Error('generateResponsiveClasses: `projectDir` is required.');
 	}
 
-	const config = {
+	runPreprocess({
 		projectDir,
 		breakpoints,
 		manifestGlob,
 		outputFrontend: output.frontend ?? path.resolve(projectDir, 'es-tw-frontend-classes.txt'),
 		outputEditor: output.editor ?? path.resolve(projectDir, 'es-tw-editor-classes.txt'),
-	};
-
-	const run = (label) => {
-		console.log(`🔄 ${label}`);
-		try {
-			runPreprocess(config);
-			console.log('✅ Done!');
-		} catch (error) {
-			console.error('❌ Failed. ', error);
-		}
-	};
-
-	return {
-		apply(compiler) {
-			compiler.hooks.beforeRun.tap('EsTwResponsiveCompiler', () => {
-				run('Generating Tailwind manifest class sources');
-			});
-
-			compiler.hooks.watchRun.tapAsync('EsTwResponsiveCompiler', ({ modifiedFiles }, callback) => {
-				const manifestChanged = modifiedFiles && [...modifiedFiles].some((file) => file.includes('manifest.json'));
-
-				if (manifestChanged) {
-					run('A manifest was modified, re-running Tailwind manifest class generation');
-				}
-
-				callback();
-			});
-		},
-	};
+	});
 };
