@@ -45,21 +45,32 @@ export async function flattenAssets({ outdir, flatDir, directories = ['frontend'
 		const name = basename(path);
 
 		if (outputNames.has(name)) {
-			throw new Error(`Flat output collision: ${path} and ${outputNames.get(name)}`);
+			const previous = outputNames.get(name);
+
+			if (/\.(?:js|css|map)$/.test(name) || !(await readFile(sources.get(path))).equals(await readFile(sources.get(previous)))) {
+				throw new Error(`Flat output collision: ${path} and ${previous}`);
+			}
+
+			continue;
 		}
 
 		outputNames.set(name, path);
 	}
 
-	const targetsByName = new Map([...sources.keys()].map((target) => [basename(target), target]));
-	const unusualTargets = [...targetsByName].filter(([name]) => !/^[\w.@+-]+$/.test(name)).map(([, target]) => target);
+	const targetsByName = new Map();
+	for (const target of sources.keys()) {
+		const name = basename(target);
+		const targets = targetsByName.get(name) ?? [];
+		targets.push(target);
+		targetsByName.set(name, targets);
+	}
+	const unusualTargets = [...targetsByName].filter(([name]) => !/^[\w.@+-]+$/.test(name)).flatMap(([, targets]) => targets);
 	const rewrite = (input, path) => {
 		let source = input;
 		const candidates = new Set(unusualTargets);
 
 		for (const match of input.matchAll(/[/'"=]([\w.@+-]+)/g)) {
-			const target = targetsByName.get(match[1]);
-			if (target) {
+			for (const target of targetsByName.get(match[1]) ?? []) {
 				candidates.add(target);
 			}
 		}
@@ -98,7 +109,7 @@ export async function flattenAssets({ outdir, flatDir, directories = ['frontend'
 	for (const [path, source] of sources) {
 		const name = basename(path);
 
-		if (path === editorEntry) {
+		if (path === editorEntry || outputNames.get(name) !== path) {
 			continue;
 		}
 
