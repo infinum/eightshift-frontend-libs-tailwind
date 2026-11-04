@@ -101,7 +101,12 @@ export function defineBuild({ root = process.cwd(), preset, ssr, publish, watch 
 					}
 					return false;
 				},
-				build: () => run(options),
+				build: async () => {
+					while (active) {
+						await active.catch(() => {});
+					}
+					return run(options);
+				},
 			});
 		},
 	};
