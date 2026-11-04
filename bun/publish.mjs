@@ -79,8 +79,12 @@ export async function publishRelease({ root, release, manifest, publicDir, publi
 
 		locks.push(handle);
 
-		if (libc.symbols.flock(handle.fd, 2) !== 0) {
-			throw new Error(`Could not lock ${path}`);
+		const deadline = Date.now() + 30000;
+		while (libc.symbols.flock(handle.fd, 2 | 4) !== 0) {
+			if (Date.now() >= deadline) {
+				throw new Error(`Could not lock ${path} within 30 seconds`);
+			}
+			await new Promise((resolve) => setTimeout(resolve, 50));
 		}
 	};
 	const parent = dirname(publicDir);
@@ -221,7 +225,9 @@ export async function publishRelease({ root, release, manifest, publicDir, publi
 
 		if (backedUp) {
 			backedUp = false;
-			await rm(backup, { recursive: true }).catch(() => {});
+			await rm(backup, { recursive: true }).catch((error) => {
+				console.error(`Could not remove publication backup ${backup}:`, error);
+			});
 		}
 
 		return { publicDir, manifest: { ...publicManifest } };

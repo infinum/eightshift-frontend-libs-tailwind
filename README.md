@@ -18,6 +18,8 @@ The Webpack configuration and `webpack/*` imports have been removed. Projects mu
 
 The Bun helpers are not a drop-in replacement for Webpack. Start with the theme preset for the conventional Eightshift theme layout. Use the lower-level API below for other layouts.
 
+The conventional theme build requires a stable WordPress 7.0 or newer installation. Each build reads `wp-includes/version.php` before modifying output and fails if the version is missing, unrecognized, or too old. By default, the WordPress root is three directories above the theme root; set `EIGHTSHIFT_WP_ROOT` to its absolute path for other layouts. The lower-level build API does not enforce this version check.
+
 ### Migrate a conventional theme
 
 1. Keep a working copy of your current build and compare its outputs before removing Webpack. Install a version of this library that contains the Bun build helpers, using Bun, and commit the updated lockfile when that version is available.

@@ -10,6 +10,7 @@ This projects adheres to [Semantic Versioning](https://semver.org/) and [Keep a 
 
 ### Changed
 
+- **Breaking:** the conventional theme build requires a stable WordPress 7.0 or newer installation.
 - **Breaking:** removed the Webpack configuration, `webpack/*` API and its build dependencies. Migrate project build scripts to Bun or another independently configured build pipeline.
 - Bun build helpers include a conventional theme preset, CSS processing and watch support. They are not a drop-in replacement for Webpack: projects must verify their layout, WordPress integration and generated asset metadata. The Tailwind lint plugin still transitively requires `tsconfig-paths-webpack-plugin` for resolution, not the Webpack bundler.
 

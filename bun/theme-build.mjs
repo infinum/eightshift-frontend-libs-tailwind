@@ -126,6 +126,21 @@ export function defineThemeBuild({ root, buildSsr, createPlugins = () => [], fro
 	let outdir;
 	let editorWorker;
 	const makePreset = async ({ sourcemaps }) => {
+		const versionFile = resolve(wpRoot, 'wp-includes/version.php');
+		let versionSource;
+		try {
+			versionSource = await readFile(versionFile, 'utf8');
+		} catch (error) {
+			throw new Error(`Cannot read WordPress version at ${versionFile}. Set EIGHTSHIFT_WP_ROOT to a WordPress installation.`, { cause: error });
+		}
+		const version = versionSource.match(/^\s*\$wp_version\s*=\s*['"](\d+)\.(\d+)(?:\.(\d+))?(['"]);/m);
+		if (!version) {
+			throw new Error(`Cannot determine a stable WordPress version from ${versionFile}; WordPress 7.0 or newer is required.`);
+		}
+		if (Number(version[1]) < 7) {
+			throw new Error(`WordPress 7.0 or newer is required; found ${version[1]}.${version[2]}${version[3] === undefined ? '' : `.${version[3]}`}.`);
+		}
+
 		editorWorker = undefined;
 		const publicDir = resolve(root, 'public');
 		outdir = resolve(publicDir, '.build');
