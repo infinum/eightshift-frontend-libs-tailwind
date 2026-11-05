@@ -1,7 +1,6 @@
 import { randomUUID } from 'node:crypto';
-import { lstat, mkdir, open, readFile, readdir, rename, rmdir, unlink, writeFile } from 'node:fs/promises';
+import { chmod, lstat, mkdir, readFile, readdir, rename, rmdir, unlink, writeFile } from 'node:fs/promises';
 import { basename, dirname, isAbsolute, posix, relative, resolve, sep } from 'node:path';
-import { dlopen, FFIType } from 'bun:ffi';
 import { packageRelease } from './release.mjs';
 
 const pathName = (value) => {
@@ -21,6 +20,10 @@ export async function flattenAssets({ outdir, flatDir, directories = ['frontend'
 		for (const item of await readdir(directory, { withFileTypes: true })) {
 			const path = `${prefix}/${item.name}`;
 
+			if (path === 'editor/discovery' || (item.isFile() && !prefix.includes('/') && item.name === `${prefix}.asset.json`)) {
+				continue;
+			}
+
 			if (item.isDirectory()) {
 				await collect(resolve(directory, item.name), path);
 			} else if (item.isFile()) {
@@ -37,24 +40,6 @@ export async function flattenAssets({ outdir, flatDir, directories = ['frontend'
 
 	for (const [path, source] of Object.entries(extraSources)) {
 		sources.set(pathName(path), source);
-	}
-
-	const outputNames = new Map();
-
-	for (const path of sources.keys()) {
-		const name = basename(path);
-
-		if (outputNames.has(name)) {
-			const previous = outputNames.get(name);
-
-			if (/\.(?:js|css|map)$/.test(name) || !(await readFile(sources.get(path))).equals(await readFile(sources.get(previous)))) {
-				throw new Error(`Flat output collision: ${path} and ${previous}`);
-			}
-
-			continue;
-		}
-
-		outputNames.set(name, path);
 	}
 
 	const targetsByName = new Map();
@@ -88,7 +73,7 @@ export async function flattenAssets({ outdir, flatDir, directories = ['frontend'
 				variants.push(`./${reference}`);
 			}
 
-			if (target.startsWith('editor/editor-assets/')) {
+			if (target.startsWith('editor/editor-assets/') || (target.startsWith('editor/') && path.startsWith('editor/'))) {
 				variants.push(target.slice('editor/'.length));
 			}
 
@@ -104,22 +89,36 @@ export async function flattenAssets({ outdir, flatDir, directories = ['frontend'
 		return source;
 	};
 
+	const contentFor = async (path) => {
+		const content = await readFile(sources.get(path));
+		return /\.(?:js|css|map)$/.test(basename(path)) ? Buffer.from(rewrite(content.toString(), path)) : content;
+	};
+	const outputNames = new Map();
+	for (const path of sources.keys()) {
+		if (path === editorEntry) {
+			continue;
+		}
+		const name = basename(path);
+		const previous = outputNames.get(name);
+		if (previous !== undefined) {
+			if (!(await contentFor(path)).equals(await contentFor(previous))) {
+				throw new Error(`Flat output collision: ${path} and ${previous}`);
+			}
+		} else {
+			outputNames.set(name, path);
+		}
+	}
+
 	await mkdir(flatDir);
 
-	for (const [path, source] of sources) {
+	for (const [path] of sources) {
 		const name = basename(path);
 
 		if (path === editorEntry || outputNames.get(name) !== path) {
 			continue;
 		}
 
-		let content = await readFile(source);
-
-		if (/\.(?:js|css|map)$/.test(name)) {
-			content = Buffer.from(rewrite(content.toString(), path));
-		}
-
-		await writeFile(resolve(flatDir, name), content, { flag: 'wx' });
+		await writeFile(resolve(flatDir, name), await contentFor(path), { flag: 'wx' });
 	}
 
 	if (editorEntry !== undefined) {
@@ -163,7 +162,7 @@ export async function packageFlatRelease({ root, flatDir, entries, ssrDir, ssrNa
  * Staged publication restores the previous public directory on cache failure.
  * Direct publication writes in public and does not roll back. Missing caches are ignored.
  */
-export async function publishFlatRelease({ root, wpRoot, release, manifest, version, direct = false }) {
+export async function publishFlatRelease({ root, wpRoot, release, manifest, version, direct = false, publicPrefix }) {
 	root = resolve(root);
 	wpRoot = resolve(wpRoot);
 	release = resolve(release);
@@ -178,16 +177,18 @@ export async function publishFlatRelease({ root, wpRoot, release, manifest, vers
 		throw new Error('Release, root and public directory must be distinct');
 	}
 
-	const themePath = relative(wpRoot, root);
+	if (publicPrefix === undefined) {
+		const themePath = relative(wpRoot, root);
 
-	if (themePath === '..' || themePath.startsWith(`..${sep}`) || isAbsolute(themePath)) {
-		throw new Error('Theme must be inside the WordPress root');
+		if (!themePath || themePath === '..' || themePath.startsWith(`..${sep}`) || isAbsolute(themePath)) {
+			throw new Error('Theme must be inside the WordPress root unless publicPrefix is configured');
+		}
+
+		publicPrefix = `/${themePath.split(sep).join('/')}/public/`;
 	}
 
-	const publicPrefix = `/${themePath.split(sep).join('/')}/public/`;
-
-	if (publicPrefix.includes('/../') || publicPrefix.startsWith('//')) {
-		throw new Error('Theme must be inside the WordPress root');
+	if (typeof publicPrefix !== 'string' || !publicPrefix.startsWith('/') || publicPrefix.startsWith('//') || !publicPrefix.endsWith('/') || publicPrefix.includes('\\') || /[?#\s\x00-\x1f]/.test(publicPrefix) || publicPrefix.split('/').some((part) => part === '.' || part === '..')) {
+		throw new Error('publicPrefix must be a root-relative URL path ending in /');
 	}
 
 	const info = await lstat(release);
@@ -272,25 +273,13 @@ export async function publishFlatRelease({ root, wpRoot, release, manifest, vers
 		}
 
 		if (cacheExists) {
-			const library = process.platform === 'darwin' ? '/usr/lib/libSystem.B.dylib' : process.platform === 'linux' ? 'libc.so.6' : null;
-
-			if (!library) {
-				throw new Error(`Manifest cache locking is unsupported on ${process.platform}`);
-			}
-
-			const libc = dlopen(library, { flock: { args: [FFIType.i32, FFIType.i32], returns: FFIType.i32 } });
-			let lock,
-				locked = false,
-				temporary;
+			let temporary;
 
 			try {
-				lock = await open(`${cachePath}.lock`, 'a');
-
-				if (libc.symbols.flock(lock.fd, 2) !== 0) {
-					throw new Error('Could not lock the manifest cache');
+				const cacheInfo = await lstat(cachePath);
+				if (!cacheInfo.isFile() || cacheInfo.isSymbolicLink()) {
+					throw new Error(`Manifest cache must be a regular file: ${cachePath}`);
 				}
-
-				locked = true;
 				const data = JSON.parse(await readFile(cachePath, 'utf8'));
 
 				if (!data?.assets || Array.isArray(data.assets) || typeof data.assets !== 'object' || !data.assets.assets || Array.isArray(data.assets.assets) || typeof data.assets.assets !== 'object') {
@@ -299,30 +288,17 @@ export async function publishFlatRelease({ root, wpRoot, release, manifest, vers
 
 				data.assets.assets = publicManifest;
 				temporary = `${cachePath}.${randomUUID()}`;
-				await writeFile(temporary, JSON.stringify(data), { flag: 'wx' });
+				await writeFile(temporary, JSON.stringify(data), { flag: 'wx', mode: cacheInfo.mode & 0o7777 });
+				await chmod(temporary, cacheInfo.mode & 0o7777);
 				await rename(temporary, cachePath);
 				temporary = undefined;
 			} finally {
-				try {
-					if (temporary) {
-						await unlink(temporary).catch((error) => {
-							if (error.code !== 'ENOENT') {
-								throw error;
-							}
-						});
-					}
-				} finally {
-					if (locked) {
-						libc.symbols.flock(lock.fd, 8);
-					}
-
-					try {
-						if (lock) {
-							await lock.close();
+				if (temporary) {
+					await unlink(temporary).catch((error) => {
+						if (error.code !== 'ENOENT') {
+							throw error;
 						}
-					} finally {
-						libc.close();
-					}
+					});
 				}
 			}
 		}

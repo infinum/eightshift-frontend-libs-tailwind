@@ -1,4 +1,5 @@
 import { createHash } from 'node:crypto';
+import { realpathSync } from 'node:fs';
 import { readFile } from 'node:fs/promises';
 import { createRequire } from 'node:module';
 import { dirname, resolve, relative, sep } from 'node:path';
@@ -16,8 +17,8 @@ export function eightshiftDiscovery({ root, outputDir, filter = /\.[cm]?jsx?$/, 
 		throw new TypeError('root and outputDir are required');
 	}
 
-	root = resolve(root);
 	outputDir = resolve(root, outputDir);
+	root = realpathSync(root);
 
 	return {
 		name: 'eightshift-discovery',
@@ -99,7 +100,7 @@ export function editorLazyImports({ root, chunks, chunkDir = 'editor-chunks', sc
 		throw new TypeError('Expected root, chunks Map and valid script URL identifier');
 	}
 
-	root = resolve(root);
+	root = realpathSync(resolve(root));
 	const require = createRequire(import.meta.url);
 	const transformSource = (source, path) =>
 		!include(path)

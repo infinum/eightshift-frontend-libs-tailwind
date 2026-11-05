@@ -13,18 +13,25 @@ if (!(process.env.NODE_PATH ?? '').split(delimiter).includes(projectModules)) {
 		stderr: 'inherit',
 	});
 
-	process.exit(await child.exited);
+	const forwardInt = () => child.kill('SIGINT');
+	const forwardTerm = () => child.kill('SIGTERM');
+	process.on('SIGINT', forwardInt);
+	process.on('SIGTERM', forwardTerm);
+	const exitCode = await child.exited;
+	process.removeListener('SIGINT', forwardInt);
+	process.removeListener('SIGTERM', forwardTerm);
+	process.exit(exitCode);
 }
 
 const args = process.argv.slice(2);
 const command = args.shift();
 
 if (!['build', 'watch'].includes(command)) {
-	throw new Error('Usage: eightshift-build <build|watch> [--config path] [--sourcemaps] [--activate]');
+	throw new Error('Usage: eightshift-build <build|watch> [--config path] [--sourcemaps]');
 }
 
 let config = 'eightshift.build.mjs';
-const options = { sourcemaps: false, activate: false };
+const options = { sourcemaps: false };
 
 while (args.length) {
 	const arg = args.shift();
@@ -37,8 +44,6 @@ while (args.length) {
 		}
 	} else if (arg === '--sourcemaps') {
 		options.sourcemaps = true;
-	} else if (arg === '--activate') {
-		options.activate = true;
 	} else {
 		throw new Error(`Unknown option: ${arg}`);
 	}
@@ -54,12 +59,19 @@ if (command === 'build') {
 	await definition.build(options);
 } else {
 	const watcher = definition.watch(options);
-	const stop = async () => {
-		process.removeListener('SIGINT', stop);
-		process.removeListener('SIGTERM', stop);
-		await watcher.stop();
+	let stopping;
+	const stop = () => {
+		if (!stopping) {
+			stopping = Promise.resolve()
+				.then(() => watcher.stop())
+				.finally(() => {
+					process.removeListener('SIGINT', stop);
+					process.removeListener('SIGTERM', stop);
+				});
+		}
+		return stopping;
 	};
 
-	process.once('SIGINT', stop);
-	process.once('SIGTERM', stop);
+	process.on('SIGINT', stop);
+	process.on('SIGTERM', stop);
 }

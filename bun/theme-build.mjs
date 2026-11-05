@@ -1,7 +1,7 @@
 import { createHash, randomUUID } from 'node:crypto';
 import { link, mkdir, readFile, unlink } from 'node:fs/promises';
 import { createRequire } from 'node:module';
-import { basename, dirname, isAbsolute, resolve } from 'node:path';
+import { basename, dirname, isAbsolute, relative, resolve, sep } from 'node:path';
 import { defineBuild } from './index.mjs';
 import { clearBuildDirectory } from './build.mjs';
 import { generateThemeDiscovery, generateThemeImporters, themeDiscoveryPlugin } from './theme-discovery.mjs';
@@ -18,7 +18,25 @@ import { buildSsr as buildDefaultSsr } from './ssr.mjs';
  * SSR is built when conventional entries exist; ssr: false disables it.
  * watch: false disables watching; an object overrides the safe watch defaults.
  */
-export function defineThemeBuild({ root, buildSsr, createPlugins = () => [], frontendStyles = [], extraCss = async () => {}, aliases = {}, requireEditorWorker = false, media = {}, watch = {}, entries, editor, responsive = {}, css, discovery, ssr, publish } = {}) {
+export function defineThemeBuild({
+	root,
+	publicPrefix: configuredPublicPrefix,
+	buildSsr,
+	createPlugins = () => [],
+	frontendStyles = [],
+	extraCss = async () => {},
+	aliases = {},
+	requireEditorWorker = false,
+	media = {},
+	watch = {},
+	entries,
+	editor,
+	responsive = {},
+	css,
+	discovery,
+	ssr,
+	publish,
+} = {}) {
 	if (typeof root !== 'string' || !root) {
 		throw new TypeError('root must be a non-empty string');
 	}
@@ -123,6 +141,17 @@ export function defineThemeBuild({ root, buildSsr, createPlugins = () => [], fro
 	}
 
 	const wpRoot = process.env.EIGHTSHIFT_WP_ROOT ? resolve(process.env.EIGHTSHIFT_WP_ROOT) : resolve(root, '../../..');
+	const themePath = relative(wpRoot, resolve(root));
+	let publicPath = configuredPublicPrefix ?? process.env.EIGHTSHIFT_PUBLIC_PREFIX;
+	if (publicPath === undefined) {
+		if (!themePath || themePath === '..' || themePath.startsWith(`..${sep}`) || isAbsolute(themePath)) {
+			throw new Error('Theme must be inside the WordPress root unless publicPrefix is configured');
+		}
+		publicPath = `/${themePath.split(sep).join('/')}/public/`;
+	}
+	if (typeof publicPath !== 'string' || !publicPath.startsWith('/') || publicPath.startsWith('//') || !publicPath.endsWith('/') || publicPath.includes('\\') || /[?#\s\x00-\x1f]/.test(publicPath) || publicPath.split('/').some((part) => part === '.' || part === '..')) {
+		throw new Error('publicPrefix must be a root-relative URL path ending in /');
+	}
 	let outdir;
 	let editorWorker;
 	const makePreset = async ({ sourcemaps }) => {
@@ -145,10 +174,10 @@ export function defineThemeBuild({ root, buildSsr, createPlugins = () => [], fro
 		const publicDir = resolve(root, 'public');
 		outdir = resolve(publicDir, '.build');
 		if (publish === undefined) {
-			await clearBuildDirectory(publicDir);
+			await clearBuildDirectory(publicDir, root);
 			await mkdir(publicDir, { recursive: true });
 		} else {
-			await clearBuildDirectory(outdir);
+			await clearBuildDirectory(outdir, root);
 		}
 		const require = createRequire(resolve(root, 'package.json'));
 		const names = ['componentManifests', 'customManifests', 'customBlocks', 'customHooks', 'customTransforms', 'customDeprecations', 'customOverrides', 'variationManifests', 'customVariationManifests', 'variationOverrides', 'componentAdminAssets', 'customAdminAssets'];
@@ -317,6 +346,8 @@ export function defineThemeBuild({ root, buildSsr, createPlugins = () => [], fro
 			},
 			buildOptions: {
 				minify: true,
+				publicPath,
+				naming: { entry: '[name]-[hash].[ext]', chunk: '[name]-[hash].[ext]', asset: '[name]-[hash].[ext]' },
 				sourcemap: sourcemaps ? 'external' : 'none',
 				loader: { '.js': 'jsx', '.svg': 'file' },
 				define: { 'process.browser': 'true', 'process.env.NODE_ENV': '"production"', 'process.env.VERSION': '"library-release"' },
@@ -399,8 +430,8 @@ export function defineThemeBuild({ root, buildSsr, createPlugins = () => [], fro
 			aliases,
 		});
 
-		await publishFlatRelease({ root, wpRoot, release, manifest, version, direct: true });
-		await clearBuildDirectory(outdir);
+		await publishFlatRelease({ root, wpRoot, release, manifest, version, direct: true, publicPrefix: publicPath });
+		await clearBuildDirectory(outdir, root);
 	};
 	const defaultSsr = ({ root, mode }) => buildDefaultSsr({ root, mode, outdir: resolve(outdir, 'ssr', mode) });
 	const customSsr = ssr ?? buildSsr;

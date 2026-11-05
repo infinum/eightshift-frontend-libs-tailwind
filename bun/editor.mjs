@@ -43,7 +43,17 @@ export async function buildEditor({ root, directory, entry, buildOptions = {}, p
 	const lazyImports = editorLazyImports({ ...lazy, root, chunks, chunkDir, scriptUrlIdentifier });
 	const discoveryPlugin = discovery ? eightshiftDiscovery({ ...discovery, root, outputDir: inside(discovery.outputDir ?? 'discovery'), transformSource: (source, path) => lazyImports.transformSource(discovery.transformSource ? discovery.transformSource(source, path) : source, path) }) : undefined;
 	const sourcemap = buildOptions.sourcemap === 'external';
-	const options = { target: 'browser', ...buildOptions, sourcemap: sourcemap ? 'external' : 'none', entrypoints: [resolve(root, entry)], format: 'iife', splitting: false, write: false, plugins: [...(discoveryPlugin ? [discoveryPlugin] : []), ...plugins, lazyImports.plugin] };
+	const options = {
+		target: 'browser',
+		...buildOptions,
+		loader: { ...buildOptions.loader, '.svg': 'text' },
+		sourcemap: sourcemap ? 'external' : 'none',
+		entrypoints: [resolve(root, entry)],
+		format: 'iife',
+		splitting: false,
+		write: false,
+		plugins: [...(discoveryPlugin ? [discoveryPlugin] : []), ...plugins, lazyImports.plugin],
+	};
 	const paths = [];
 	const compile = async (target, format) => {
 		const result = await Bun.build({ ...options, entrypoints: [target], format });

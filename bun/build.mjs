@@ -9,11 +9,14 @@ import { wordpressPlugin } from './wordpress.mjs';
 const markerName = '.eightshift-bun-build';
 const markerContents = 'eightshift-bun-build-v1\n';
 
-async function rejectSymlinkPath(path) {
+async function rejectSymlinkPath(path, root) {
+	const boundary = root && resolve(root);
+	const location = boundary && relative(boundary, path);
+	const withinRoot = boundary && (!location || (!isAbsolute(location) && location !== '..' && !location.startsWith(`..${sep}`)));
 	const parent = dirname(path);
 
-	if (parent !== path) {
-		await rejectSymlinkPath(parent);
+	if (parent !== path && (!withinRoot || path !== boundary)) {
+		await rejectSymlinkPath(parent, root);
 	}
 
 	try {
@@ -59,8 +62,8 @@ async function removeTree(directory) {
 	await rmdir(directory);
 }
 
-export async function clearBuildDirectory(directory) {
-	await rejectSymlinkPath(directory);
+export async function clearBuildDirectory(directory, root) {
+	await rejectSymlinkPath(resolve(directory), root);
 
 	try {
 		const info = await lstat(directory);
@@ -149,7 +152,7 @@ export async function build({ root = process.cwd(), outdir, entries, wpRoot, wor
 		throw new Error('outdir must not contain the project root');
 	}
 
-	await rejectSymlinkPath(outdir);
+	await rejectSymlinkPath(outdir, root);
 	await assertOwned(outdir);
 
 	for (const [name, entry] of Object.entries(entries)) {
@@ -213,7 +216,7 @@ export async function build({ root = process.cwd(), outdir, entries, wpRoot, wor
 			await css({ root, outdir: stage, discovery: generatedDiscovery, responsive: generatedResponsive });
 		}
 
-		await rejectSymlinkPath(stage);
+		await rejectSymlinkPath(stage, root);
 		await inspectTree(stage);
 		const manifest = {};
 
@@ -261,7 +264,7 @@ export async function build({ root = process.cwd(), outdir, entries, wpRoot, wor
 				throw new AggregateError(result.logs, `Bun build failed for ${name}`);
 			}
 
-			await rejectSymlinkPath(stage);
+			await rejectSymlinkPath(stage, root);
 			await inspectTree(stage);
 			const output = result.outputs.filter((item) => item.kind === 'entry-point');
 
@@ -300,7 +303,7 @@ export async function build({ root = process.cwd(), outdir, entries, wpRoot, wor
 			return { outdir, entries: manifest };
 		}
 
-		await rejectSymlinkPath(outdir);
+		await rejectSymlinkPath(outdir, root);
 
 		if (await assertOwned(outdir)) {
 			await rename(outdir, backup);

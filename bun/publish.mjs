@@ -1,7 +1,6 @@
 import { randomUUID } from 'node:crypto';
-import { cp, lstat, mkdir, open, readFile, readdir, rename, rm, unlink, writeFile } from 'node:fs/promises';
+import { cp, lstat, mkdir, readFile, readdir, rename, rm, unlink, writeFile } from 'node:fs/promises';
 import { dirname, isAbsolute, join, relative, resolve, sep } from 'node:path';
-import { dlopen, FFIType } from 'bun:ffi';
 
 const exists = async (path) => {
 	try {
@@ -31,7 +30,7 @@ const inside = (parent, child) => {
  * Publish a packageRelease directory without deleting unrelated public files.
  * root is the theme root; publicDir defaults to root/public. publicPrefix is
  * the URL prefix including its trailing slash. manifest maps keys to paths in
- * release. Existing PHP manifest cache assets are updated under its flock;
+ * release. Existing PHP manifest cache assets are updated;
  * missing caches are left alone. Returns { publicDir, manifest }.
  */
 export async function publishRelease({ root, release, manifest, publicDir, publicPrefix }) {
@@ -66,27 +65,6 @@ export async function publishRelease({ root, release, manifest, publicDir, publi
 		throw new Error('Cache must be outside publication and release directories');
 	}
 
-	const library = process.platform === 'darwin' ? '/usr/lib/libSystem.B.dylib' : process.platform === 'linux' ? 'libc.so.6' : null;
-
-	if (!library) {
-		throw new Error(`Publication locking is unsupported on ${process.platform}`);
-	}
-
-	const libc = dlopen(library, { flock: { args: [FFIType.i32, FFIType.i32], returns: FFIType.i32 } });
-	const locks = [];
-	const lock = async (path) => {
-		const handle = await open(path, 'a');
-
-		locks.push(handle);
-
-		const deadline = Date.now() + 30000;
-		while (libc.symbols.flock(handle.fd, 2 | 4) !== 0) {
-			if (Date.now() >= deadline) {
-				throw new Error(`Could not lock ${path} within 30 seconds`);
-			}
-			await new Promise((resolve) => setTimeout(resolve, 50));
-		}
-	};
 	const parent = dirname(publicDir);
 	const stage = join(parent, `.public-stage-${randomUUID()}`);
 	const backup = join(parent, `.public-backup-${randomUUID()}`);
@@ -97,7 +75,6 @@ export async function publishRelease({ root, release, manifest, publicDir, publi
 
 	try {
 		await mkdir(parent, { recursive: true });
-		await lock(`${publicDir}.lock`);
 		const releaseInfo = await lstat(release);
 
 		if (!releaseInfo.isDirectory() || releaseInfo.isSymbolicLink()) {
@@ -197,7 +174,6 @@ export async function publishRelease({ root, release, manifest, publicDir, publi
 				throw new Error('Manifest cache must be a regular file');
 			}
 
-			await lock(`${cachePath}.lock`);
 			cacheData = JSON.parse(await readFile(cachePath, 'utf8'));
 
 			if (!cacheData?.assets || Array.isArray(cacheData.assets) || typeof cacheData.assets !== 'object' || !cacheData.assets.assets || Array.isArray(cacheData.assets.assets) || typeof cacheData.assets.assets !== 'object') {
@@ -245,25 +221,16 @@ export async function publishRelease({ root, release, manifest, publicDir, publi
 
 		throw error;
 	} finally {
-		try {
-			if (cacheTemporary) {
-				await unlink(cacheTemporary).catch((error) => {
-					if (error.code !== 'ENOENT') {
-						throw error;
-					}
-				});
-			}
+		if (cacheTemporary) {
+			await unlink(cacheTemporary).catch((error) => {
+				if (error.code !== 'ENOENT') {
+					throw error;
+				}
+			});
+		}
 
-			if (staged) {
-				await rm(stage, { recursive: true, force: true });
-			}
-		} finally {
-			for (const handle of locks.reverse()) {
-				libc.symbols.flock(handle.fd, 8);
-				await handle.close();
-			}
-
-			libc.close();
+		if (staged) {
+			await rm(stage, { recursive: true, force: true });
 		}
 	}
 }

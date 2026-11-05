@@ -1,6 +1,5 @@
 import { createRequire } from 'node:module';
-import { isAbsolute, resolve } from 'node:path';
-import { fileURLToPath, pathToFileURL } from 'node:url';
+import { dirname, isAbsolute, resolve } from 'node:path';
 import { readFile } from 'node:fs/promises';
 import { promisify } from 'node:util';
 import { execFile } from 'node:child_process';
@@ -120,7 +119,7 @@ export function wordpressPlugin({ projectRoot = process.cwd(), wpRoot } = {}) {
 					if (kind !== 'commonjs' && kind !== 'wordpress') {
 						const importer = isAbsolute(args.importer) ? args.importer : resolve(projectRoot, '__wordpress_plugin__.mjs');
 
-						entry = kind === 'react' ? require.resolve(request) : fileURLToPath(import.meta.resolve(request, pathToFileURL(importer).href));
+						entry = kind === 'react' ? require.resolve(request) : Bun.resolveSync(request, dirname(importer));
 					}
 
 					const key = JSON.stringify([request, entry || '', fallback]);
