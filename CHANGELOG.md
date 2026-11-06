@@ -6,6 +6,24 @@ This projects adheres to [Semantic Versioning](https://semver.org/) and [Keep a 
 
 ---
 
+## [4.0.0]
+
+### Changed
+
+- **Breaking:** the conventional theme build requires a stable WordPress 7.0 or newer installation.
+- **Breaking:** removed the Webpack configuration, `webpack/*` API and its build dependencies. Migrate project build scripts to Bun or another independently configured build pipeline.
+- Bun build helpers include a conventional theme preset, CSS processing and watch support. They are not a drop-in replacement for Webpack: projects must verify their layout, WordPress integration and generated asset metadata. The Tailwind lint plugin still transitively requires `tsconfig-paths-webpack-plugin` for resolution, not the Webpack bundler.
+- The conventional theme build defaults to Bun barrel optimization for `@eightshift/ui-components`; `optimizeImports` replaces the list, and `[]` disables the preset's explicit default.
+- Improved flat-asset reference rewriting to avoid repeatedly scanning large generated bundles.
+- Improved browser bundle tree-shaking and WordPress dependency metadata, with a conservative fallback when Bun's metafile cannot be read.
+- Avoided repeated watch builds caused by unchanged directory events from Bun on macOS.
+- Removed the experimental `editor.sharedPackages` vendor bridge in favor of independent builds and opt-in native/unified sharing. Configurations using the removed option fail explicitly.
+- Added experimental `editor.sharing: 'native'` for one shared lazy ESM graph with content-hashed URLs, source maps and synchronous registration. It rejects inlined dynamic imports that cannot preserve native namespaces and remains disabled by default.
+
+- Added experimental `editor.sharing: 'unified'` for one registration/lazy ESM graph with module metadata and an explicit readiness completion signal. Requires matching PHP integration; classic defaults and native-lazy sharing remain unchanged.
+- Added opt-in `editor.pureJsxGroups: { maxBytes: 4096 }` for unified production builds: bounded, AST-proven dependency definitions share native chunks without co-loading application initialization. Custom transforms and source-map builds conservatively retain ungrouped output with a warning; default builds remain unchanged.
+- Isolated native editor compilation in private staging so Bun versions ignoring `write: false` cannot publish discarded first-pass chunks; selected artifacts and source maps are materialized before cleanup.
+
 ## [3.5.0]
 
 ### Added
@@ -392,6 +410,7 @@ Co-authored with @piqusy
 
 - Initial release.
 
+[4.0.0]: https://github.com/infinum/eightshift-frontend-libs-tailwind/compare/3.5.0...4.0.0
 [3.5.0]: https://github.com/infinum/eightshift-frontend-libs-tailwind/compare/3.4.0...3.5.0
 [3.4.0]: https://github.com/infinum/eightshift-frontend-libs-tailwind/compare/3.4.0...3.4.0
 [3.3.0]: https://github.com/infinum/eightshift-frontend-libs-tailwind/compare/3.2.0...3.3.0
