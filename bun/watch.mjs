@@ -41,6 +41,21 @@ export function watchBuild({ projectDir, sources, ignored = [], ignore = () => f
 	let pending = false;
 	let stopped = false;
 	const watchers = new Map();
+	const directoryStamps = new Map();
+	const filterDirectoryEvents = process.platform === 'darwin' && typeof Bun !== 'undefined';
+	const directoryStamp = (path) => {
+		try {
+			const info = statSync(path);
+
+			return info.isDirectory() ? `${info.dev}:${info.ino}:${info.mode}:${info.mtimeMs}:${info.ctimeMs}` : undefined;
+		} catch (error) {
+			if (error.code === 'ENOENT' || error.code === 'ENOTDIR') {
+				return undefined;
+			}
+
+			throw error;
+		}
+	};
 
 	const report = (error) => {
 		try {
@@ -146,6 +161,9 @@ export function watchBuild({ projectDir, sources, ignored = [], ignore = () => f
 				}
 			}
 			if (current === input && info.isDirectory()) {
+				if (filterDirectoryEvents && !directoryStamps.has(input)) {
+					directoryStamps.set(input, directoryStamp(input));
+				}
 				add(input, true);
 				if (input !== root) {
 					add(dirname(input), false, basename(input));
@@ -171,8 +189,43 @@ export function watchBuild({ projectDir, sources, ignored = [], ignore = () => f
 					return;
 				}
 				const path = resolve(config.directory, name);
-				onEvent(path);
 				try {
+					// Bun on macOS can report unchanged watched directories as changes.
+					if (filterDirectoryEvents && _event === 'change') {
+						let directory;
+
+						if (!config.recursive && inputs.includes(path)) {
+							directory = path;
+						} else if (config.recursive && name === basename(config.directory)) {
+							try {
+								statSync(path);
+							} catch (error) {
+								if (error.code !== 'ENOENT') {
+									throw error;
+								}
+								directory = config.directory;
+							}
+						}
+
+						if (directory) {
+							const stamp = directoryStamp(directory);
+
+							if (stamp && directoryStamps.get(directory) === stamp) {
+								return;
+							}
+							if (stamp) {
+								directoryStamps.set(directory, stamp);
+							}
+						}
+					}
+					if (filterDirectoryEvents && config.recursive) {
+						const stamp = directoryStamp(config.directory);
+
+						if (stamp) {
+							directoryStamps.set(config.directory, stamp);
+						}
+					}
+					onEvent(path);
 					refresh();
 				} catch (error) {
 					report(error);

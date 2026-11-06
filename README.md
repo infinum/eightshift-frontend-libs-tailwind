@@ -50,7 +50,7 @@ The conventional theme build requires a stable WordPress 7.0 or newer installati
 
 The default preset discovers conventional block and component assets, builds frontend, editor and admin scripts and styles, and builds conventional SSR entries when present. SVG imports in frontend and admin scripts emit files referenced by root-relative public URLs; editor SVG imports produce SVG text instead. The default build clears `public/` first, writes intermediate assets inside `public/.build`, and publishes the final assets and `public/manifest.json` directly to `public/`. Successful builds remove `public/.build`; failed builds can leave incomplete output. Do not keep manually maintained files in `public/`. Frontend and admin use classic-script bootstraps that dynamically import their bundled modules; the editor is packaged separately. Preserve the generated chunks alongside the entry scripts. The default preset always produces production-optimized assets, including in watch mode; watch does not provide hot reload. With `--sourcemaps`, external maps are generated for the editor entry and its lazy chunks as well as the browser bundles. SSR execution may still require Node in the project's PHP integration.
 
-The manifest maps the conventional `applicationBlocksFrontend`, `applicationBlocksEditor` and `applicationAdmin` script and style keys to their generated files. Each entry also has `.asset.json` metadata containing WordPress dependency handles and a release version; the manifest maps its legacy `.json` key to that metadata as well. **The build does not enqueue assets:** confirm that your installed PHP integration reads the generated metadata and merges its dependencies with the registered handles. Existing PHP/library versions may not support this; update or adapt them before switching, and check that the frontend, editor and admin load without missing globals. Do not assume Bun's `external` option supplies WordPress global mappings.
+The manifest maps the conventional `applicationBlocksFrontend`, `applicationBlocksEditor` and `applicationAdmin` script and style keys to their generated files. Each entry also has `.asset.json` metadata containing WordPress dependency handles and a release version; the manifest maps its legacy `.json` key to that metadata as well. Browser entry metadata includes handles used by any emitted chunk, including lazy chunks. If Bun's build metadata is unavailable or cannot be read, the build conservatively includes all resolved handles instead; the editor also retains all resolved handles across its independently compiled chunks. **The build does not enqueue assets:** confirm that your installed PHP integration reads the generated metadata and merges its dependencies with the registered handles. Existing PHP/library versions may not support this; update or adapt them before switching, and check that the frontend, editor and admin load without missing globals. Do not assume Bun's `external` option supplies WordPress global mappings.
 
 Each build clears the previous `public/` contents. Run only one build or publication per theme at a time; output directories are not locked against concurrent builds. The PHP manifest cache update is not coordinated with PHP cache rebuilds: if they overlap, stale asset URLs can remain until the next successful build or cache reset. Build failures may leave the site without working assets; use a separate deployment process if atomic releases are required, and account for cached pages that may still request removed files. Verify block registration, editor controls and save/reload behavior, frontend styles and lazy assets, representative admin screens, script dependencies, browser console and asset URLs. Keep the previous Webpack build available for rollback until the new build is verified.
 
@@ -101,11 +101,100 @@ Run `bun run build.mjs`, add `--production` for minification, or `--watch` for a
 
 `build` requires named entries and an output directory. By default, it builds each entry separately as browser ESM with splitting and hashed filenames, writes `manifest.json` and an `<entry>/<entry>.asset.json` with dependencies and a version hash, and returns `{ outdir, entries }`. Integrate these files with your WordPress enqueue code; this package does not enqueue them. Output is staged and published only after success. An existing output directory must have the build's ownership marker, and output paths and trees cannot contain symlinks. Do not use a directory containing the project root. `buildOptions` can override Bun defaults such as `target`, `format`, `splitting`, `naming`, loaders and plugins; callers must ensure the resulting format matches their WordPress loading strategy. Entry points, output directory and write mode are controlled by the build API.
 
-For projects that prefer a validated configuration, `createPreset` and `buildPreset` are exported from `@eightshift/frontend-libs-tailwind/bun/preset.mjs`. Pass `wordpress: false`, `discovery: false`, `responsive: false` or `css: false` to disable the corresponding feature; discovery, responsive generation and CSS are opt-in. Configure CSS surfaces or pass a custom CSS callback. `buildOptions` accepts the same overrides as `build`. When an editor entry is enabled, `buildOptions.sourcemap` supports only `none` and `external`. The editor entry and each lazy chunk are bundled separately: modules included in more than one bundle may initialize more than once and have separate state. Avoid relying on shared module identity or one-time side effects across those bundles.
+For projects that prefer a validated configuration, `createPreset` and `buildPreset` are exported from `@eightshift/frontend-libs-tailwind/bun/preset.mjs`. Pass `wordpress: false`, `discovery: false`, `responsive: false` or `css: false` to disable the corresponding feature; discovery, responsive generation and CSS are opt-in. Configure CSS surfaces or pass a custom CSS callback. `buildOptions` accepts the same overrides as `build`. When an editor entry is enabled, `buildOptions.sourcemap` supports only `none` and `external`. The default `editor.sharing: 'independent'` keeps synchronous registration and lazy entries in separate bundles. Its lazy editor URLs use a build-wide query version derived from the registration and lazy bundles; changing either invalidates all lazy URLs. The opt-in sharing modes below change graph layout, and unified mode also changes registration timing.
+
+### Native editor sharing (experimental, opt-in)
+
+Set `editor.sharing: 'native'` to compile discovered lazy editor targets together with Bun's native ESM splitting. Registration remains a synchronous classic script. Lazy imports resolve directly to content-hashed ESM entries, without namespace facades or a custom module loader. Shared modules inside this lazy graph have one instance, shared live bindings and shared initialization; this deliberately differs from the duplicated state of independently bundled entries. The synchronous registration bundle remains separate and can still contain another instance. Different resolved package copies are not forcibly merged.
+
+For the conventional theme preset, preserve the editor discovery configuration when overriding `editor`:
+
+```js
+import { defineThemeBuild } from '@eightshift/frontend-libs-tailwind/bun/theme-build.mjs';
+
+export default defineThemeBuild({
+  root: import.meta.dirname,
+  editor: {
+    entry: 'editor',
+    filename: 'applicationBlocksEditor.js',
+    sharing: 'native',
+    discovery: {
+      filter: /application-blocks-editor\.js$/,
+      omitContexts: ({ pattern }) => pattern.source === 'styles-editor.css$',
+    },
+  },
+});
+```
+
+Native sharing preserves nested lazy imports and emits source maps when requested. The classic entry is compiled again against final chunk URLs so its source map matches. Keep every emitted entry and shared chunk together; custom publishers must preserve their URLs and worker paths. Existing watch builds regenerate the graph when their watched inputs change.
+
+This mode requires readable Bun entry metadata and rejects dynamic imports that Bun inlines into the current chunk: those can lose native module namespaces, and dynamic self-imports were observed to generate an undefined helper in Bun 1.4.4-canary.1. These cases fail the build rather than silently falling back to different semantics. Native output must remain JavaScript and source maps, as with the existing editor pipeline.
+
+Native sharing can substantially reduce total output while increasing the number of files requested by the editor. It does **not** guarantee faster startup or Webpack parity. Validate cold and warm editor loads, first-block rendering, options, custom plugins, worker URLs and module state before enabling it. No theme is opted in automatically. Remove `sharing: 'native'` to restore independent chunks and rebuild; do not mix outputs from the two modes.
+
+### Unified editor graph (experimental, compatibility-changing)
+
+`editor.sharing: 'unified'` builds registration and all lazy editor code in one native ESM graph. Unlike `native`, it can share dependency instances between registration and lazy consumers. It does **not** preserve synchronous classic-script registration. Keep it disabled until the matching Eightshift PHP module-readiness integration is installed and every dependent consumer has been checked.
+
+Use the native-sharing configuration above with `sharing: 'unified'`. Do not provide `editor.lazy` rewriting options; unified mode lets Bun discover native imports. It keeps the same lazy-transform rejection rules as native mode. Its JavaScript wrapper statically imports the editor graph and signals completion through `globalThis.eightshiftEditorModules.complete(import.meta.url)`. Generated editor asset metadata declares `format: 'module'` and `readiness: 'eightshift-editor-v1'`; frontend/admin and existing editor modes retain their previous metadata. Older classic-only PHP integration is incompatible.
+
+The shared PHP integration must establish `globalThis.eightshiftEditorModules.ready`, a map of promises keyed by the actual WordPress script handle, before emitting the parser-inserted `type="module"` entry. A dependent classic script must explicitly await its handle's promise:
+
+```js
+const handle = 'my-theme-block-editor-scripts';
+const ready = globalThis.eightshiftEditorModules?.ready.get(handle);
+if (!ready) {
+  throw new Error(`No unified editor readiness contract for ${handle}`);
+}
+ready.then(() => {
+  // Initial registration is complete; use the registered blocks here.
+}).catch((error) => {
+  console.error('Editor registration failed', error);
+});
+```
+
+Readiness means the registration entry finished evaluating, not that asynchronous sidebar/plugin initialization or every lazy block has finished. A promise does not make an unmodified classic dependent wait. Readiness and registration were checked in synthetic parser-inserted module pages and one authenticated WordPress post editor, including existing content rendering and an unsaved control change followed by undo and reload. This does not certify all editors or plugins, content saving, cross-browser support or deployment behavior. Hook editor JavaScript to `enqueue_block_editor_assets`, not the content iframe's `enqueue_block_assets`; shared content styles can remain on the latter.
+
+Do not use `async`, a dynamic-import classic bootstrap, late script insertion, or top-level await in the initial registration graph. Initial registration must complete before `DOMContentLoaded`. Matching PHP integration rejects loading errors, an evaluation failure that fires a load event without completion, and missed readiness deadlines. Third-party script optimizers, CSP rules, translations, post/site editor initialization and save/reload need explicit verification before rollout. Do not replace WordPress boot functions or `wp.domReady` to hide ordering problems.
+
+One graph reduces duplication but is not a guarantee of fewer requests or Webpack parity. The measured prototype still loaded more startup files than Webpack. Roll back by restoring the prior editor sharing setting and matching PHP/JavaScript artifacts together; do not activate a unified artifact as a classic script.
+
+#### Opt-in bounded pure JSX groups
+
+In unified mode only, set `editor.pureJsxGroups: { maxBytes: 4096 }` to co-load small, proven-pure dependency definitions. The default is `false`; `maxBytes` is a required integer from 1 to 65536 and bounds the combined original UTF-8 source bytes per group, not emitted or compressed bytes. This is not a giant vendor chunk or a modulepreload workaround.
+
+The first native build identifies single-source dependency chunks and their minimum lazy depth from the **configured initial entries**, not every output marked `entryPoint`. A restricted AST proof accepts literals, arrays/objects and intrinsic-element `jsx`/`jsxs` calls from `react/jsx-runtime`; it rejects application initialization, component calls, arbitrary calls, getters, spreads, mutation and unsupported syntax. Members share a source directory, resolved JSX runtime identity and lazy depth, have distinct export names, and are grouped deterministically within the source budget. Only pure definitions may evaluate earlier; this does not pull unrelated application initialization forward.
+
+A second native build compiles the original graph with bounded groups. Static named dependency imports/re-exports can target a group directly; namespace, star, bare and dynamic imports retain per-module native facades. Repeated imports share the same exported element instances. This preserves Bun's existing namespace behavior, not a promise that Bun's synthesized static namespace objects equal dynamic-import namespace objects. No generated import strings are patched; Bun generates final hashes, URLs and graph metadata. Native compilation uses a private sibling staging directory and materializes only the selected pass before cleanup, including on failure. This prevents Bun versions that write despite `write: false` from publishing discarded-pass chunks. `buildEditor()` reports the grouping plan (virtual source, original members, budget, lazy depth and runtime identity) in its optional `pureJsxGroups` result.
+
+**Conservative fallbacks:** only production builds with `buildOptions.define['process.env.NODE_ENV']` set to `'"production"'` qualify. External source maps use the original ungrouped build with a warning: synthesized group source maps are not published. Custom Bun plugins/resolvers, discovery `transformSource`, and `buildOptions.alias` also disable grouping with a warning, so custom transforms are never bypassed. Audited built-in WordPress adapters, worker handling and default discovery are supported; trusted plugin identity is checked, not merely the plugin name. Unknown graph forms, changed sources, changed runtime resolution or a non-grouped source moving to an earlier lazy depth similarly keep the first native build. Existing native inlined-dynamic-import rejection remains in force.
+
+In an isolated production-release comparison using Bun 1.4.4-canary.1, 4 KiB grouping reduced startup theme-JavaScript requests from 34 to 16 while increasing gzip bytes from 307108 to 309447. After rendering a CTA block, requests fell from 37 to 19 and gzip bytes increased from 388459 to 390798. Both variants registered 33 theme blocks and rendered three editable CTA fields without browser errors. These measurements used a synthetic editor page with the PHP readiness bootstrap and disabled browser cache; WordPress core assets are excluded. The same-source Webpack reference used 10 startup requests / 287529 gzip bytes and 12 requests / 366641 gzip bytes after the CTA. These results do **not** establish a repeatable latency improvement or Webpack parity. Measure your own editor and lazy interactions before opting in. Remove `pureJsxGroups` or set it to `false` and rebuild to roll back; independent and native-lazy modes remain unchanged.
+
+The earlier `editor.sharedPackages` vendor-bridge experiment was removed. Existing experimental configurations must remove that option; it now fails configuration validation rather than silently changing initialization behavior. Use independent mode by default, or explicitly evaluate native/unified sharing with their compatibility requirements.
+
+### Theme build and watch integration
 
 For `defineBuild` watch configurations with `ssr` or `publish` callbacks, explicitly set `watch.sources` or `watch.ignored`. Exclude every path those callbacks write inside the project root, including paths outside the preset output directory, to avoid rebuild loops.
 
 `defineThemeBuild` from `bun/theme-build.mjs` supplies the conventional theme layout and flat publication. `entries` replaces the complete entry map; `editor` replaces the editor preset or may be `false`. `responsive` accepts the preset's options or `false`. `css` accepts an async callback receiving `{ root, outdir, stage, responsive, require }` or `false`; `extraCss` still runs afterwards. `discovery` accepts a plugin factory receiving `{ root, setEditorWorker, getEditorWorker }` (also async) or `false`; with either override, callers must provide discovery compatible with their entry sources. `frontendStyles` applies only to default discovery. The built-in editor worker plugin runs before plugins returned by `createPlugins`; replace it via `media.editorWorker` when custom handling is needed. The returned plugin array is not modified. `ssr` replaces `buildSsr` or can be `false`; do not specify both. `publish` replaces the flat publisher with an async callback receiving the build state, or `false` leaves the intermediate build unpublished in `public/.build`. With custom or disabled publication, the SSR callback runs after the browser build and receives the build state and `mode: 'production'`.
+
+### Optimizing package imports
+
+`optimizeImports` is an array of package names passed to Bun's [barrel import optimization](https://bun.com/docs/bundler#optimizeimports) for frontend, editor (including lazy chunks), and admin JavaScript. It also applies in watch and source-map builds, but not to SSR or CSS processing. The conventional theme build defaults to `['@eightshift/ui-components']`. Supply an array to replace the default, or `[]` to disable the preset's explicit optimization:
+
+```js
+import { defineThemeBuild } from '@eightshift/frontend-libs-tailwind/bun/theme-build.mjs';
+
+export default defineThemeBuild({
+  root: import.meta.dirname,
+  optimizeImports: [], // Disable the preset's explicit package list.
+});
+```
+
+To retain UI Components and add another package, set `optimizeImports: ['@eightshift/ui-components', 'another-package']`.
+
+Bun can skip unused re-exported modules when a package is listed. The default is tested with UI Components 8.4.0; verify compatibility when using other versions. Only list additional packages after checking that skipped modules have no required JavaScript initialization side effects; verify CSS imports, WordPress dependency handles, worker assets, and affected frontend, editor, and admin screens. An empty list disables the preset's explicit list, but Bun may still optimize packages that declare `sideEffects: false`. Namespace imports, star re-exports, and mixed barrels can limit the optimization. Results vary by package and Bun version; this option was introduced in Bun 1.3.10. It does not deduplicate separate editor bundles or guarantee smaller output.
 
 ### Additional and lazy stylesheets
 
@@ -134,7 +223,7 @@ The build regenerates discovery and CSS on each rebuild. Watch monitors the conf
 
 Default flat publication requires frontend, admin and editor entries, an editor build, and CSS at the conventional filenames. It scans the conventional SSR source glob and expects matching outputs in `public/.build/ssr/production`; use `ssr: false` to omit SSR or supply custom publication for a different layout. Disabling responsive generation requires custom or disabled CSS. Custom publication is required when disabling CSS or the editor, or changing the entry set. With custom or disabled publication, intermediate output remains in `public/.build`; the project owns its publication and cleanup.
 
-WordPress externalization is enabled by default. Set `wpRoot` to the WordPress installation when using externalized `@wordpress/*` imports; export discovery reads its core scripts and requires compatible installed package metadata. The adapter also maps React and selected common dependencies to WordPress globals. Those globals and script handles must be available at runtime. Set `wordpress: false` to disable this adapter. For direct Bun integration, `wordpressPlugin({ projectRoot, wpRoot })` returns `{ plugin, dependencies }`; use a fresh adapter for each build and absolute paths.
+WordPress externalization is enabled by default. Set `wpRoot` to the WordPress installation when using externalized `@wordpress/*` imports; export discovery reads its core scripts and requires compatible installed package metadata. The adapter also maps React and selected common dependencies to WordPress globals. Those globals and script handles must be available at runtime. Set `wordpress: false` to disable this adapter. For direct Bun integration, `wordpressPlugin({ projectRoot, wpRoot })` returns `{ plugin, dependencies, getEmittedDependencies }`; use a fresh adapter for each build and absolute paths. `dependencies` contains all resolved handles. Request a Bun metafile and pass it to `getEmittedDependencies(metafile)` to derive handles from every emitted output; invalid metadata falls back to all resolved handles. Some Bun versions can throw when reading `result.metafile` itself, so catch that access and fall back to `dependencies` too.
 
 `processCss` compiles the `files` array in order into one output file. Each item is a path or `{ file, scan, sources, scanFiles, removeSources }`: scanning is opt-in; `sources` adds Tailwind scanner source objects, `scanFiles` adds explicit candidate files, and `removeSources` removes exact source-rule strings (and fails if absent). Relative paths resolve from `projectDir`. Local URL assets are copied next to the CSS with content-hashed names. Production uses Lightning CSS and the `browsers` option (default `>= 0.25%`); the return value includes `outputFile` and discovered `dependencies`. Watch does not automatically use those dependencies. `responsive: {}` generates frontend and editor class lists from `src/**/manifest.json`, expanding responsive classes for `sm` and `md`; customize `breakpoints`, `manifestGlob`, and `output`. Pass the relevant generated list to CSS scanning, as above. The standalone `generateResponsiveClasses({ projectDir, ... })` is also exported from `bun/build.mjs`.
 

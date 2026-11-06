@@ -1,5 +1,6 @@
 import { readFile } from 'node:fs/promises';
 import { basename, dirname, resolve } from 'node:path';
+import { allowPureJsxGrouping } from './plugin-capabilities.mjs';
 
 /**
  * Adapt the published UI Components smart-image worker for flat theme releases.
@@ -11,7 +12,7 @@ export function editorWorkerPlugin({ setEditorWorker, getEditorWorker }) {
 		throw new TypeError('Worker callbacks are required');
 	}
 
-	return {
+	return allowPureJsxGrouping({
 		name: 'eightshift-editor-worker-url',
 		setup(builder) {
 			builder.onLoad({ filter: /[/\\]smart-image[/\\]smart-image\.js$/ }, async ({ path }) => {
@@ -45,5 +46,5 @@ export function editorWorkerPlugin({ setEditorWorker, getEditorWorker }) {
 				return { contents: source.replace(pattern, `new URL(${JSON.stringify(`editor-assets/${basename(worker)}`)}, ${base})`), loader: 'js', resolveDir: dirname(path) };
 			});
 		},
-	};
+	});
 }

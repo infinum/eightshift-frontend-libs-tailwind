@@ -132,7 +132,8 @@ async function assertOwned(directory) {
  * splitting, naming, plugins, loaders and defines. Entry points, output directory
  * and writing are controlled by this API to protect staged publication.
  *
- * editor optionally selects a synchronous classic entry with lazy ESM chunks.
+ * editor selects classic registration with lazy ESM chunks by default;
+ * unified sharing uses module registration with explicit PHP readiness integration.
  * Existing output is replaced only if it contains this API's ownership marker
  * and every build and callback succeeds. Output trees must not contain symlinks.
  * `direct: true` writes to a fresh output directory without staging or rollback.
@@ -241,7 +242,11 @@ export async function build({ root = process.cwd(), outdir, entries, wpRoot, wor
 						.update(bytes);
 				}
 
-				const metadata = { dependencies: [...(wp?.dependencies ?? [])].sort(), version: digest.digest('hex') };
+				const metadata = {
+					dependencies: [...(wp?.dependencies ?? [])].sort(),
+					version: digest.digest('hex'),
+					...(built.format === 'module' ? { format: built.format, readiness: built.readiness } : {}),
+				};
 
 				await writeFile(join(directory, `${name}.asset.json`), `${JSON.stringify(metadata, null, 2)}\n`);
 				manifest[name] = { entry: `${name}/${relative(directory, built.entry).replaceAll('\\', '/')}`, styles: [], ...metadata };
@@ -254,6 +259,7 @@ export async function build({ root = process.cwd(), outdir, entries, wpRoot, wor
 				splitting: true,
 				naming: { entry: '[name]-[hash].[ext]', chunk: 'chunks/[name]-[hash].[ext]', asset: 'assets/[name]-[hash].[ext]' },
 				...buildOptions,
+				metafile: Boolean(wp) || buildOptions.metafile,
 				entrypoints: [resolve(root, entry)],
 				outdir: directory,
 				write: true,
@@ -289,7 +295,17 @@ export async function build({ root = process.cwd(), outdir, entries, wpRoot, wor
 					.update(bytes);
 			}
 
-			const metadata = { dependencies: [...(wp?.dependencies ?? [])].sort(), version: digest.digest('hex') };
+			let dependencies = [...(wp?.dependencies ?? [])].sort();
+
+			if (wp) {
+				try {
+					dependencies = wp.getEmittedDependencies(result.metafile);
+				} catch {
+					// Some Bun versions throw while reading a malformed metafile.
+				}
+			}
+
+			const metadata = { dependencies, version: digest.digest('hex') };
 
 			await writeFile(join(directory, `${name}.asset.json`), `${JSON.stringify(metadata, null, 2)}\n`);
 			manifest[name] = { entry: `${name}/${relative(directory, output[0].path).replaceAll('\\', '/')}`, styles: files.filter(({ path }) => path.endsWith('.css')).map(({ path }) => `${name}/${path}`), ...metadata };

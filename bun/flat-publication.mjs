@@ -50,7 +50,7 @@ export async function flattenAssets({ outdir, flatDir, directories = ['frontend'
 		targetsByName.set(name, targets);
 	}
 	const unusualTargets = [...targetsByName].filter(([name]) => !/^[\w.@+-]+$/.test(name)).flatMap(([, targets]) => targets);
-	const rewrite = (input, path) => {
+	const rewriteLegacy = (input, path) => {
 		let source = input;
 		const candidates = new Set(unusualTargets);
 
@@ -80,6 +80,8 @@ export async function flattenAssets({ outdir, flatDir, directories = ['frontend'
 			for (const value of variants) {
 				for (const quote of ['"', "'"]) {
 					source = source.replaceAll(`${quote}${value}${quote}`, `${quote}./${basename(target)}${quote}`);
+					source = source.replaceAll(`${quote}${value}?`, `${quote}./${basename(target)}?`);
+					source = source.replaceAll(`${quote}${value}#`, `${quote}./${basename(target)}#`);
 				}
 
 				source = source.replaceAll(`sourceMappingURL=${value}`, `sourceMappingURL=./${basename(target)}`);
@@ -87,6 +89,66 @@ export async function flattenAssets({ outdir, flatDir, directories = ['frontend'
 		}
 
 		return source;
+	};
+
+	const referencePatterns = new Map();
+	const rewrite = (input, path) => {
+		// Keep the existing source-map comment handling for map-bearing files.
+		if (input.includes('sourceMappingURL=')) {
+			return rewriteLegacy(input, path);
+		}
+
+		const directory = posix.dirname(path);
+		const editorPath = path.startsWith('editor/');
+		const cacheKey = `${directory}:${editorPath}`;
+		let cached = referencePatterns.get(cacheKey);
+
+		if (!cached) {
+			const references = new Map();
+
+			for (const target of sources.keys()) {
+				const reference = posix.relative(directory, target);
+				if (!reference) {
+					continue;
+				}
+
+				const variants = [reference];
+				if (!reference.startsWith('.')) {
+					variants.push(`./${reference}`);
+				}
+				if (target.startsWith('editor/editor-assets/') || (target.startsWith('editor/') && editorPath)) {
+					variants.push(target.slice('editor/'.length));
+				}
+				for (const value of variants) {
+					references.set(value, `./${basename(target)}`);
+				}
+			}
+
+			const alternatives = [...references.keys()].map((value) => value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('|');
+			let pattern;
+			let fallback = alternatives.length > 200000;
+
+			if (alternatives && !fallback) {
+				try {
+					pattern = new RegExp(`(["'])(?:${alternatives})(?=\\1|[?#])`, 'g');
+				} catch (error) {
+					if (!(error instanceof SyntaxError)) {
+						throw error;
+					}
+					fallback = true;
+				}
+			}
+			cached = { references, pattern, fallback };
+			referencePatterns.set(cacheKey, cached);
+		}
+
+		if (cached.fallback) {
+			return rewriteLegacy(input, path);
+		}
+		if (!cached.pattern) {
+			return input;
+		}
+		return input.replace(cached.pattern, (match, quote) => `${quote}${cached.references.get(match.slice(1))}`);
 	};
 
 	const contentFor = async (path) => {
@@ -129,7 +191,7 @@ export async function flattenAssets({ outdir, flatDir, directories = ['frontend'
 }
 
 /** Package flattened files, optional SSR files and standalone assets. */
-export async function packageFlatRelease({ root, flatDir, entries, ssrDir, ssrNames = [], standaloneAssets = new Map(), aliases = {}, outputDirectory }) {
+export async function packageFlatRelease({ root, flatDir, entries, ssrDir, ssrNames = [], standaloneAssets = new Map(), aliases = {}, outputDirectory, removeIntermediates = false }) {
 	const files = [];
 
 	for (const name of await readdir(flatDir)) {
@@ -155,7 +217,13 @@ export async function packageFlatRelease({ root, flatDir, entries, ssrDir, ssrNa
 		extraAliases[name] = name;
 	}
 
-	return packageRelease({ root, files, entries, aliases: { ...extraAliases, ...aliases }, outputDirectory });
+	const omitted = removeIntermediates ? entries.flatMap((entry) => [entry.style, ...(entry.script !== undefined ? [entry.entry] : [])]) : [];
+	for (const entry of entries) {
+		if (entry.script === undefined && omitted.includes(entry.entry)) {
+			throw new Error(`Cannot omit a script bootstrap target: ${entry.entry}`);
+		}
+	}
+	return packageRelease({ root, files, entries, aliases: { ...extraAliases, ...aliases }, outputDirectory, omit: [...new Set(omitted)] });
 }
 
 /** Publish a flat release and synchronize an existing PHP asset cache.

@@ -39,13 +39,15 @@ const releasePath = (value) => {
  *
  * files: [{ source, destination }] copies files or directory trees.
  * entries: [{ name, entry, style, dependencies, script? }] generates the root
- * scripts and WordPress asset metadata. script supplies synchronous editor code;
+ * scripts and WordPress asset metadata. script supplies the entry wrapper code;
  * otherwise a dynamic-import bootstrap loads entry relative to the root script.
+ * Unified editor scripts declare format: 'module', readiness: 'eightshift-editor-v1';
+ * their static-import wrapper must be loaded by matching module-aware PHP integration.
  * aliases maps additional flat manifest keys to packaged paths.
  * Returns { release, version, manifest }. A failed staging directory is retained.
  * outputDirectory writes directly to an existing directory instead of staging.
  */
-export async function packageRelease({ root, files, entries, aliases = {}, outputDirectory }) {
+export async function packageRelease({ root, files, entries, aliases = {}, outputDirectory, omit = [] }) {
 	if (typeof root !== 'string' || !root || !Array.isArray(files) || !Array.isArray(entries) || !entries.length || !aliases || typeof aliases !== 'object' || Array.isArray(aliases)) {
 		throw new TypeError('Expected root, files, entries and optional aliases');
 	}
@@ -117,13 +119,23 @@ export async function packageRelease({ root, files, entries, aliases = {}, outpu
 			throw new TypeError(`Invalid script for ${entry.name}`);
 		}
 
+		if (entry.format !== undefined && entry.format !== 'module') {
+			throw new TypeError(`Unsupported script format for ${entry.name}`);
+		}
+		if (entry.format === 'module' && (entry.readiness !== 'eightshift-editor-v1' || entry.script === undefined)) {
+			throw new TypeError(`Module entry ${entry.name} requires an explicit script and readiness contract`);
+		}
+		if (entry.readiness !== undefined && entry.format !== 'module') {
+			throw new TypeError(`Readiness requires a module entry: ${entry.name}`);
+		}
+
 		const script = entry.script ?? `(() => { const url = new URL(${JSON.stringify(target)}, document.currentScript.src); import(url.href).catch((error) => console.error(${JSON.stringify(`Failed to load ${entry.name}:`)}, error)); })();\n`;
 
 		if (scripts.has(entry.name)) {
 			throw new Error(`Duplicate entry: ${entry.name}`);
 		}
 
-		scripts.set(entry.name, { script, dependencies: entry.dependencies });
+		scripts.set(entry.name, { script, dependencies: entry.dependencies, ...(entry.format === 'module' ? { format: entry.format, readiness: entry.readiness } : {}) });
 		const scriptName = `${entry.name}-${digest(script)}.js`;
 		const styleBytes = contents.get(style);
 		const styleName = `${entry.name}-${digest(styleBytes)}.css`;
@@ -151,12 +163,25 @@ export async function packageRelease({ root, files, entries, aliases = {}, outpu
 		setManifest(key, value);
 	}
 
+	if (!Array.isArray(omit)) {
+		throw new TypeError('omit must be an array');
+	}
+	for (const path of omit) {
+		releasePath(path);
+		if (Object.values(manifest).includes(path)) {
+			throw new Error(`Cannot omit manifest target: ${path}`);
+		}
+		if (!contents.delete(path)) {
+			throw new Error(`Cannot omit missing release file: ${path}`);
+		}
+	}
+
 	const inventory = Object.fromEntries([...contents].sort(([a], [b]) => (a < b ? -1 : a > b ? 1 : 0)).map(([path, bytes]) => [path, digest(bytes)]));
 	const version = digest(JSON.stringify({ format: 1, inventory, scripts: [...scripts].sort(([a], [b]) => (a < b ? -1 : a > b ? 1 : 0)), manifest }));
 
-	for (const [name, { script, dependencies }] of scripts) {
+	for (const [name, { script, dependencies, format, readiness }] of scripts) {
 		add(manifest[`${name}.js`], Buffer.from(script));
-		add(`${name}.asset.json`, Buffer.from(`${JSON.stringify({ dependencies, version }, null, 2)}\n`));
+		add(`${name}.asset.json`, Buffer.from(`${JSON.stringify({ dependencies, version, ...(format === 'module' ? { format, readiness } : {}) }, null, 2)}\n`));
 	}
 
 	add('manifest.json', Buffer.from(`${JSON.stringify(manifest, null, 2)}\n`));

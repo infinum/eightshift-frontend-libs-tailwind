@@ -3,6 +3,7 @@ import { dirname, isAbsolute, resolve } from 'node:path';
 import { readFile } from 'node:fs/promises';
 import { promisify } from 'node:util';
 import { execFile } from 'node:child_process';
+import { allowPureJsxGrouping } from './plugin-capabilities.mjs';
 
 const execFileAsync = promisify(execFile);
 const externals = {
@@ -80,13 +81,58 @@ export function wordpressPlugin({ projectRoot = process.cwd(), wpRoot } = {}) {
 	const projectRequire = createRequire(resolve(projectRoot, 'package.json'));
 	const dependencies = new Set();
 	const modules = new Map();
+	const handles = new Map();
 
 	return {
 		dependencies,
-		plugin: {
+		getEmittedDependencies(metafile) {
+			try {
+				const data = typeof metafile === 'string' ? JSON.parse(metafile) : metafile;
+				const outputs = Object.values(data?.outputs ?? {});
+
+				if (!outputs.length) {
+					return [...dependencies].sort();
+				}
+
+				const emitted = new Set();
+
+				for (const output of outputs) {
+					if (!output?.inputs || typeof output.inputs !== 'object') {
+						return [...dependencies].sort();
+					}
+
+					for (const [input, info] of Object.entries(output.inputs)) {
+						if (!input.startsWith('wordpress-global:')) {
+							continue;
+						}
+
+						if (typeof info?.bytesInOutput !== 'number') {
+							return [...dependencies].sort();
+						}
+
+						if (!info.bytesInOutput) {
+							continue;
+						}
+
+						const key = input.slice('wordpress-global:'.length);
+
+						if (!handles.has(key)) {
+							return [...dependencies].sort();
+						}
+
+						emitted.add(handles.get(key));
+					}
+				}
+
+				return [...emitted].sort();
+			} catch {
+				return [...dependencies].sort();
+			}
+		},
+		plugin: allowPureJsxGrouping({
 			name: 'wordpress-globals',
 			setup(build) {
-				build.onResolve({ filter: /.*/ }, async (args) => {
+				build.onResolve({ filter: /^(?:moment|jquery|lodash|lodash-es|@babel\/runtime\/regenerator|react|react-dom)(?:$|\/)|^@wordpress\/|react-refresh\/runtime/ }, async (args) => {
 					const request = args.path;
 					const external = externalFor(request);
 
@@ -163,11 +209,12 @@ export function wordpressPlugin({ projectRoot = process.cwd(), wpRoot } = {}) {
 					}
 
 					dependencies.add(handle);
+					handles.set(key, handle);
 
 					return { path: key, namespace: 'wordpress-global' };
 				});
 				build.onLoad({ filter: /.*/, namespace: 'wordpress-global' }, (args) => ({ contents: modules.get(args.path), loader: 'js' }));
 			},
-		},
+		}),
 	};
 }

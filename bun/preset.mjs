@@ -31,8 +31,10 @@ const feature = (value, keys, label) => {
  * Set wordpress: false to bundle dependencies instead of externalizing them.
  * Configure Bun target, format, naming and splitting via buildOptions.
  * Entry points, staging output and write mode are controlled by build.
- * editor: { entry, filename, chunkDir, scriptUrlIdentifier, discovery, lazy }
- * makes the named entry a synchronous classic script with lazy ESM chunks.
+ * editor: { entry, filename, chunkDir, scriptUrlIdentifier, discovery, lazy, sharing, pureJsxGroups }
+ * builds classic registration with lazy ESM chunks by default.
+ * sharing: 'native' bundles lazy targets together; the default is 'independent'.
+ * sharing: 'unified' also moves registration to ESM and requires readiness integration.
  * discovery configures eightshiftDiscovery; lazy configures editorLazyImports.
  * Both are opt-in, and all filenames and discovery behavior are overridable.
  */
@@ -66,7 +68,7 @@ export function createPreset(options = {}) {
 		}
 	}
 
-	const editor = feature(options.editor, ['entry', 'chunkDir', 'filename', 'scriptUrlIdentifier', 'discovery', 'lazy'], 'editor');
+	const editor = feature(options.editor, ['entry', 'chunkDir', 'filename', 'scriptUrlIdentifier', 'discovery', 'lazy', 'sharing', 'pureJsxGroups'], 'editor');
 	const discovery = feature(options.discovery, ['output', 'definitions'], 'discovery');
 	const responsive = feature(options.responsive, ['breakpoints', 'manifestGlob', 'output'], 'responsive');
 

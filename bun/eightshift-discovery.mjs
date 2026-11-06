@@ -4,6 +4,7 @@ import { readFile } from 'node:fs/promises';
 import { createRequire } from 'node:module';
 import { dirname, resolve, relative, sep } from 'node:path';
 import { generateDiscovery } from './discovery.mjs';
+import { allowPureJsxGrouping } from './plugin-capabilities.mjs';
 
 /**
  * Migrate literal webpack require.context calls in selected source files.
@@ -12,7 +13,7 @@ import { generateDiscovery } from './discovery.mjs';
  * omitContexts to match contexts handled separately (for example CSS).
  * Template-literal imports and nonliteral require.context calls are not rewritten.
  */
-export function eightshiftDiscovery({ root, outputDir, filter = /\.[cm]?jsx?$/, lazyContexts = () => false, omitContexts = () => false, transformSource = (source) => source } = {}) {
+export function eightshiftDiscovery({ root, outputDir, filter = /\.[cm]?jsx?$/, lazyContexts = () => false, omitContexts = () => false, transformSource } = {}) {
 	if (!root || !outputDir) {
 		throw new TypeError('root and outputDir are required');
 	}
@@ -20,7 +21,7 @@ export function eightshiftDiscovery({ root, outputDir, filter = /\.[cm]?jsx?$/, 
 	outputDir = resolve(root, outputDir);
 	root = realpathSync(root);
 
-	return {
+	const plugin = {
 		name: 'eightshift-discovery',
 		setup(builder) {
 			builder.onLoad({ filter }, async ({ path }) => {
@@ -81,21 +82,24 @@ export function eightshiftDiscovery({ root, outputDir, filter = /\.[cm]?jsx?$/, 
 					contents = `import { ${definitions.map(({ name }) => name).join(', ')} } from ${JSON.stringify(output)};\n${contents}`;
 				}
 
-				contents = transformSource(contents, path);
+				contents = transformSource ? transformSource(contents, path) : contents;
 
 				return { contents, loader: 'jsx', resolveDir: dirname(path) };
 			});
 		},
 	};
+	return transformSource ? plugin : allowPureJsxGrouping(plugin);
 }
 
 /** Rewrite literal relative dynamic imports for a synchronous IIFE editor build.
- * Build each collected target as an ESM entry with the same plugin, then wrap
- * the IIFE in a function receiving scriptUrlIdentifier from currentScript.src.
- * Chunk URLs are relative to that script. The caller owns chunk output/builds.
+ * Build collected targets as ESM entries, then wrap the IIFE in a function
+ * receiving scriptUrlIdentifier from currentScript.src. Chunk URLs are relative
+ * to that script. The caller owns chunk output/builds.
  * Pass transformSource to eightshiftDiscovery to compose both onLoad hooks.
+ * Existing chunks Map names are reused. Set versioned: false when those names
+ * already contain content hashes, as in native editor sharing.
  */
-export function editorLazyImports({ root, chunks, chunkDir = 'editor-chunks', scriptUrlIdentifier = '__eightshiftEditorScriptUrl', filter = /\.[cm]?jsx?$/, include = (path) => !path.split(sep).includes('node_modules') } = {}) {
+export function editorLazyImports({ root, chunks, chunkDir = 'editor-chunks', scriptUrlIdentifier = '__eightshiftEditorScriptUrl', filter = /\.[cm]?jsx?$/, include = (path) => !path.split(sep).includes('node_modules'), versioned = true } = {}) {
 	if (!root || !(chunks instanceof Map) || !/^[$A-Z_a-z][$\w]*$/.test(scriptUrlIdentifier)) {
 		throw new TypeError('Expected root, chunks Map and valid script URL identifier');
 	}
@@ -107,11 +111,12 @@ export function editorLazyImports({ root, chunks, chunkDir = 'editor-chunks', sc
 			? source
 			: source.replace(/import\(\s*(?:\/\*[\s\S]*?\*\/\s*)?(['"])(\.[^'"\n]+)\1\s*\)/g, (_match, _quote, specifier) => {
 					const target = require.resolve(resolve(dirname(path), specifier));
-					const name = `${createHash('sha256').update(relative(root, target)).digest('hex').slice(0, 20)}.js`;
+					const name = chunks.get(target) ?? `${createHash('sha256').update(relative(root, target)).digest('hex').slice(0, 20)}.js`;
 
 					chunks.set(target, name);
+					const version = versioned ? '?v=00000000000000000000' : '';
 
-					return `import(new URL(${JSON.stringify(`${chunkDir}/${name}`)}, ${scriptUrlIdentifier}).href)`;
+					return `import(new URL(${JSON.stringify(`${chunkDir}/${name}${version}`)}, ${scriptUrlIdentifier}).href)`;
 				});
 	const plugin = {
 		name: 'eightshift-editor-lazy-imports',

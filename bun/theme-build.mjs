@@ -8,6 +8,7 @@ import { generateThemeDiscovery, generateThemeImporters, themeDiscoveryPlugin } 
 import { processEightshiftCss } from './eightshift-css.mjs';
 import { flattenAssets, packageFlatRelease, publishFlatRelease } from './flat-publication.mjs';
 import { editorWorkerPlugin } from './media.mjs';
+import { allowPureJsxGrouping } from './plugin-capabilities.mjs';
 import { processCss } from './css.mjs';
 import { buildSsr as buildDefaultSsr } from './ssr.mjs';
 
@@ -16,6 +17,8 @@ import { buildSsr as buildDefaultSsr } from './ssr.mjs';
  * { files, output?, keys?, href? }; package files use the `package:` prefix.
  * Omitted output names use a content hash. Keys attach CSS to frontend importers.
  * SSR is built when conventional entries exist; ssr: false disables it.
+ * optimizeImports controls Bun's package barrel optimization for browser builds.
+ * UI Components is optimized by default; pass [] to disable the explicit default.
  * watch: false disables watching; an object overrides the safe watch defaults.
  */
 export function defineThemeBuild({
@@ -24,6 +27,7 @@ export function defineThemeBuild({
 	buildSsr,
 	createPlugins = () => [],
 	frontendStyles = [],
+	optimizeImports = ['@eightshift/ui-components'],
 	extraCss = async () => {},
 	aliases = {},
 	requireEditorWorker = false,
@@ -43,6 +47,10 @@ export function defineThemeBuild({
 
 	if (typeof createPlugins !== 'function') {
 		throw new TypeError('createPlugins must be a function');
+	}
+
+	if (!Array.isArray(optimizeImports) || optimizeImports.some((name) => typeof name !== 'string' || !name.trim())) {
+		throw new TypeError('optimizeImports must be an array of package names');
 	}
 
 	if (extraCss !== false && typeof extraCss !== 'function' && !Array.isArray(extraCss)) {
@@ -251,7 +259,7 @@ export function defineThemeBuild({
 		const plugins = workerFactory ? [workerFactory(pluginContext), ...callerPlugins] : [...callerPlugins];
 
 		if (discovery === undefined) {
-			plugins.push(discoveryPlugin);
+			plugins.push(allowPureJsxGrouping(discoveryPlugin));
 		} else if (discovery) {
 			const plugin = await discovery(pluginContext);
 
@@ -345,6 +353,7 @@ export function defineThemeBuild({
 				}
 			},
 			buildOptions: {
+				optimizeImports,
 				minify: true,
 				publicPath,
 				naming: { entry: '[name]-[hash].[ext]', chunk: '[name]-[hash].[ext]', asset: '[name]-[hash].[ext]' },
@@ -417,11 +426,19 @@ export function defineThemeBuild({
 
 			console.log(`${surface}: ${entry.entry}; dependencies: ${entry.dependencies.join(', ') || 'none'}`);
 
-			return { name, entry: surface === 'editor' ? 'editor-entry.js' : basename(entry.entry), style: `${name}.css`, dependencies: entry.dependencies, ...(script && { script }) };
+			return {
+				name,
+				entry: surface === 'editor' ? 'editor-entry.js' : basename(entry.entry),
+				style: `${name}.css`,
+				dependencies: entry.dependencies,
+				...(script && { script }),
+				...(entry.format === 'module' ? { format: entry.format, readiness: entry.readiness } : {}),
+			};
 		});
 		const { release, version, manifest } = await packageFlatRelease({
 			root: resolve(root, 'public'),
 			outputDirectory: resolve(root, 'public'),
+			removeIntermediates: true,
 			flatDir,
 			entries,
 			ssrDir,
