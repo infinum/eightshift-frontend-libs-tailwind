@@ -349,7 +349,13 @@ export async function build({ root = process.cwd(), outdir, entries, wpRoot, wor
 		return { outdir, entries: manifest };
 	} finally {
 		if (!published) {
-			await removeTree(stage);
+			try {
+				await removeTree(stage);
+			} catch (error) {
+				if (error.code !== 'ENOENT') {
+					console.warn(`Build staging cleanup failed at ${stage}:`, error);
+				}
+			}
 		}
 	}
 }

@@ -33,15 +33,34 @@ export function defineBuild({ root = process.cwd(), preset, ssr, publish, watch 
 		throw new TypeError('watch.ignore must be a function');
 	}
 
+	const validateOptions = (options) => {
+		if (Object.hasOwn(options, 'timings')) {
+			throw new Error('The timings option is no longer supported');
+		}
+		if (options.quiet && options.verbose) {
+			throw new Error('quiet and verbose cannot be combined');
+		}
+	};
+
 	root = resolve(root);
 	let active;
 	const outputs = new Set();
 	const run = async (options = {}) => {
+		validateOptions(options);
 		if (active) {
 			throw new Error('A build is already running');
 		}
 
+		const started = performance.now();
+		const report = (message, detail = false) => {
+			if (!options.quiet && (!detail || options.verbose)) {
+				console.log(`[eightshift-build] ${message}`);
+			}
+		};
+
 		active = (async () => {
+			report('Starting build…');
+			report('Preparing build…', true);
 			const context = { ...options, root };
 			const configured = typeof preset === 'function' ? await preset(context) : preset;
 			outputs.clear();
@@ -53,17 +72,21 @@ export function defineBuild({ root = process.cwd(), preset, ssr, publish, watch 
 				}
 				outputs.add(output);
 			}
+			report('Building browser assets…');
 			const result = await buildPreset({ ...configured, root });
 			const state = { ...context, result };
 
 			if (ssr) {
+				report('Building SSR assets…');
 				state.ssr = await ssr(state);
 			}
 
 			if (publish) {
+				report('Running publication…');
 				state.publication = await publish(state);
 			}
 
+			report(`Build completed in ${((performance.now() - started) / 1000).toFixed(2)}s.`);
 			return state;
 		})();
 
@@ -77,6 +100,7 @@ export function defineBuild({ root = process.cwd(), preset, ssr, publish, watch 
 	return {
 		build: run,
 		watch: (options = {}) => {
+			validateOptions(options);
 			if ((ssr || publish) && watch.sources === undefined && !watch.ignored?.length) {
 				throw new Error('Watch builds with ssr or publish callbacks require explicit watch.sources or watch.ignored');
 			}

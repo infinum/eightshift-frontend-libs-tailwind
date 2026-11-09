@@ -10,19 +10,19 @@ This projects adheres to [Semantic Versioning](https://semver.org/) and [Keep a 
 
 ### Changed
 
+- Show build/watch progress and total duration by default, with `--quiet` and `--verbose` output modes.
+- Stage theme releases before replacing public assets, preserving the previous release on build or cache failures.
+- Support extra publication files, manifest aliases and explicit file retention through the shared publisher.
+
 - **Breaking:** the conventional theme build requires a stable WordPress 7.0 or newer installation.
 - **Breaking:** removed the Webpack configuration, `webpack/*` API and its build dependencies. Migrate project build scripts to Bun or another independently configured build pipeline.
-- Bun build helpers include a conventional theme preset, CSS processing and watch support. They are not a drop-in replacement for Webpack: projects must verify their layout, WordPress integration and generated asset metadata. The Tailwind lint plugin still transitively requires `tsconfig-paths-webpack-plugin` for resolution, not the Webpack bundler.
-- The conventional theme build defaults to Bun barrel optimization for `@eightshift/ui-components`; `optimizeImports` replaces the list, and `[]` disables the preset's explicit default.
-- Improved flat-asset reference rewriting to avoid repeatedly scanning large generated bundles.
-- Improved browser bundle tree-shaking and WordPress dependency metadata, with a conservative fallback when Bun's metafile cannot be read.
-- Avoided repeated watch builds caused by unchanged directory events from Bun on macOS.
-- Removed the experimental `editor.sharedPackages` vendor bridge in favor of independent builds and opt-in native/unified sharing. Configurations using the removed option fail explicitly.
-- Added experimental `editor.sharing: 'native'` for one shared lazy ESM graph with content-hashed URLs, source maps and synchronous registration. It rejects inlined dynamic imports that cannot preserve native namespaces and remains disabled by default.
-
-- Added experimental `editor.sharing: 'unified'` for one registration/lazy ESM graph with module metadata and an explicit readiness completion signal. Requires matching PHP integration; classic defaults and native-lazy sharing remain unchanged.
-- Added opt-in `editor.pureJsxGroups: { maxBytes: 4096 }` for unified production builds: bounded, AST-proven dependency definitions share native chunks without co-loading application initialization. Custom transforms and source-map builds conservatively retain ungrouped output with a warning; default builds remain unchanged.
-- Isolated native editor compilation in private staging so Bun versions ignoring `write: false` cannot publish discarded first-pass chunks; selected artifacts and source maps are materialized before cleanup.
+- Added Bun build helpers with a conventional theme preset, CSS processing and watch support. These are not a drop-in replacement for Webpack; project configuration and WordPress asset integration must be migrated.
+- Enabled import optimization for `@eightshift/ui-components` by default in conventional theme builds.
+- Improved browser bundle tree-shaking and WordPress dependency metadata.
+- Prevented unnecessary watch rebuilds on macOS.
+- Removed the experimental `editor.sharedPackages` option. Existing configurations must remove it or migrate to a supported sharing mode.
+- Added opt-in editor sharing modes: `native` shares lazy-loaded modules while preserving synchronous registration; `unified` also shares registration code and requires matching PHP module-readiness integration. Independent builds remain the default.
+- Added opt-in `editor.pureJsxGroups` to reduce chunk requests in unified production builds. Unsupported configurations, including source-map builds, fall back to ungrouped output.
 
 ## [3.5.0]
 

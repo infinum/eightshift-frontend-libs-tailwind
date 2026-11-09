@@ -191,8 +191,25 @@ export async function flattenAssets({ outdir, flatDir, directories = ['frontend'
 }
 
 /** Package flattened files, optional SSR files and standalone assets. */
-export async function packageFlatRelease({ root, flatDir, entries, ssrDir, ssrNames = [], standaloneAssets = new Map(), aliases = {}, outputDirectory, removeIntermediates = false }) {
-	const files = [];
+export async function packageFlatRelease({ root, flatDir, entries, ssrDir, ssrNames = [], standaloneAssets = new Map(), aliases = {}, extraFiles = [], retain = [], previousPublic, outputDirectory, removeIntermediates = false }) {
+	if (!Array.isArray(extraFiles) || !Array.isArray(retain) || (retain.length && !previousPublic)) {
+		throw new TypeError('extraFiles and retain must be arrays; retention requires previousPublic');
+	}
+	const files = [...extraFiles];
+	for (const name of retain) {
+		pathName(name);
+		let source = resolve(previousPublic);
+		for (const part of name.split('/')) {
+			source = resolve(source, part);
+			if ((await lstat(source)).isSymbolicLink()) {
+				throw new Error(`Symlink in retained path: ${name}`);
+			}
+		}
+		if (!(await lstat(source)).isFile()) {
+			throw new Error(`Retained path must be an exact file: ${name}`);
+		}
+		files.push({ source, destination: name });
+	}
 
 	for (const name of await readdir(flatDir)) {
 		files.push({ source: resolve(flatDir, name), destination: name });
@@ -293,7 +310,7 @@ export async function publishFlatRelease({ root, wpRoot, release, manifest, vers
 			throw new Error(`Unsupported release output: ${name}`);
 		}
 
-		if (name !== 'manifest.json' && name !== 'ssr' && !(direct && name === '.build') && !Object.hasOwn(result, name)) {
+		if (entry.isFile() && name !== 'manifest.json' && name !== 'ssr' && !(direct && name === '.build') && !Object.hasOwn(result, name)) {
 			result[name] = name;
 		}
 	}
@@ -404,7 +421,11 @@ export async function publishFlatRelease({ root, wpRoot, release, manifest, vers
 	};
 
 	if (hadPublic) {
-		await removeTree(backup);
+		try {
+			await removeTree(backup);
+		} catch (error) {
+			console.warn(`Build published, but backup cleanup failed at ${backup}:`, error);
+		}
 	}
 
 	return { publicDir, manifest: publicManifest, version };

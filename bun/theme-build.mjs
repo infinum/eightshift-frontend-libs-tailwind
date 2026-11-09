@@ -30,6 +30,7 @@ export function defineThemeBuild({
 	optimizeImports = ['@eightshift/ui-components'],
 	extraCss = async () => {},
 	aliases = {},
+	publication = async () => ({}),
 	requireEditorWorker = false,
 	media = {},
 	watch = {},
@@ -180,13 +181,8 @@ export function defineThemeBuild({
 
 		editorWorker = undefined;
 		const publicDir = resolve(root, 'public');
-		outdir = resolve(publicDir, '.build');
-		if (publish === undefined) {
-			await clearBuildDirectory(publicDir, root);
-			await mkdir(publicDir, { recursive: true });
-		} else {
-			await clearBuildDirectory(outdir, root);
-		}
+		outdir = publish === undefined ? resolve(root, '.bun-pilot/theme-build') : resolve(publicDir, '.build');
+		await clearBuildDirectory(outdir, root);
 		const require = createRequire(resolve(root, 'package.json'));
 		const names = ['componentManifests', 'customManifests', 'customBlocks', 'customHooks', 'customTransforms', 'customDeprecations', 'customOverrides', 'variationManifests', 'customVariationManifests', 'variationOverrides', 'componentAdminAssets', 'customAdminAssets'];
 		const specs = [
@@ -364,7 +360,7 @@ export function defineThemeBuild({
 			},
 		};
 	};
-	const defaultPublish = async ({ result }) => {
+	const defaultPublish = async ({ result, verbose, quiet }) => {
 		const editorScript = await readFile(resolve(outdir, result.entries.editor.entry), 'utf8');
 
 		if (requireEditorWorker && !editorWorker) {
@@ -376,7 +372,7 @@ export function defineThemeBuild({
 
 		if (ssr !== false) {
 			if (ssr || buildSsr) {
-				await (ssr ?? buildSsr)({ root, mode: 'production' });
+				await (ssr ?? buildSsr)({ root, mode: 'production', outdir: ssrDir });
 			}
 
 			for await (const file of new Bun.Glob('src/**/assets-ssr/ssr.{js,mjs}').scan({ cwd: root })) {
@@ -424,7 +420,9 @@ export function defineThemeBuild({
 			const entry = result.entries[surface];
 			const script = surface === 'editor' ? rewrite(editorScript, entry.entry) : undefined;
 
-			console.log(`${surface}: ${entry.entry}; dependencies: ${entry.dependencies.join(', ') || 'none'}`);
+			if (verbose && !quiet) {
+				console.log(`${surface}: ${entry.entry}; dependencies: ${entry.dependencies.join(', ') || 'none'}`);
+			}
 
 			return {
 				name,
@@ -435,19 +433,41 @@ export function defineThemeBuild({
 				...(entry.format === 'module' ? { format: entry.format, readiness: entry.readiness } : {}),
 			};
 		});
+		const publicationResult = await publication({ root, outdir, result });
+		const additions = publicationResult === undefined ? {} : publicationResult;
+
+		if (!additions || typeof additions !== 'object' || Array.isArray(additions)) {
+			throw new TypeError('publication must return an object or undefined');
+		}
+
+		if (additions.aliases !== undefined && (!additions.aliases || typeof additions.aliases !== 'object' || Array.isArray(additions.aliases))) {
+			throw new TypeError('publication aliases must be a non-array object');
+		}
+
+		if (additions.extraFiles !== undefined && !Array.isArray(additions.extraFiles)) {
+			throw new TypeError('publication extraFiles must be an array');
+		}
+
+		for (const key of Object.keys(additions.aliases ?? {})) {
+			if (Object.hasOwn(aliases, key)) {
+				throw new Error(`Duplicate publication alias: ${key}`);
+			}
+		}
 		const { release, version, manifest } = await packageFlatRelease({
-			root: resolve(root, 'public'),
-			outputDirectory: resolve(root, 'public'),
+			extraFiles: additions.extraFiles,
+			retain: additions.retain,
+			previousPublic: resolve(root, 'public'),
+			root: outdir,
 			removeIntermediates: true,
 			flatDir,
 			entries,
 			ssrDir,
 			ssrNames,
 			standaloneAssets,
-			aliases,
+			aliases: { ...aliases, ...additions.aliases },
 		});
 
-		await publishFlatRelease({ root, wpRoot, release, manifest, version, direct: true, publicPrefix: publicPath });
+		await publishFlatRelease({ root, wpRoot, release, manifest, version, publicPrefix: publicPath });
 		await clearBuildDirectory(outdir, root);
 	};
 	const defaultSsr = ({ root, mode }) => buildDefaultSsr({ root, mode, outdir: resolve(outdir, 'ssr', mode) });

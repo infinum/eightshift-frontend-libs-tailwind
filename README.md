@@ -45,14 +45,14 @@ The conventional theme build requires a stable WordPress 7.0 or newer installati
    }
    ```
 
-4. Run `bun run build` and compare the generated assets and site behavior with the previous build. Use `bun run start` for an initial build and subsequent rebuilds, or `bun run build:sourcemaps` for external source maps. The CLI accepts `--config path` to select another configuration. It is `eightshift-build`, not `bun build`: the library orchestrates CSS, discovery, WordPress dependencies and publication around Bun's bundler.
+4. Run `bun run build` and compare the generated assets and site behavior with the previous build. Use `bun run start` for an initial build and subsequent rebuilds, or `bun run build:sourcemaps` for external source maps. The CLI accepts `--config path` to select another configuration. By default, builds log a short start message and total elapsed seconds on success. Use `--quiet` to suppress informational output while retaining warnings and errors, or `--verbose` for build stages and theme entry/dependency details. These flags are mutually exclusive. The obsolete `--timings` flag is rejected. Both modes work with `build` and `watch`; each rebuild gets its own timer. Completion is reported only after configured SSR and publication callbacks succeed, including staged theme publication. The theme publisher may also build SSR during its publication stage. Use `eightshift-build --help` for CLI options. Programmatic `defineBuild` and theme definitions accept `{ quiet: true }` or `{ verbose: true }` in `.build()` and `.watch()`; combining them or providing the removed `timings` option throws. Custom callbacks should use the invocation context’s `quiet` and `verbose` fields to control their own informational logging. It is `eightshift-build`, not `bun build`: the library orchestrates CSS, discovery, WordPress dependencies and publication around Bun's bundler.
 5. Update CI and deployment to use Bun and the new scripts. Only remove Webpack dependencies and configuration after verifying the new build. Ensure the deployment environment has access to WordPress and its compatible script metadata for dependency extraction.
 
-The default preset discovers conventional block and component assets, builds frontend, editor and admin scripts and styles, and builds conventional SSR entries when present. SVG imports in frontend and admin scripts emit files referenced by root-relative public URLs; editor SVG imports produce SVG text instead. The default build clears `public/` first, writes intermediate assets inside `public/.build`, and publishes the final assets and `public/manifest.json` directly to `public/`. Successful builds remove `public/.build`; failed builds can leave incomplete output. Do not keep manually maintained files in `public/`. Frontend and admin use classic-script bootstraps that dynamically import their bundled modules; the editor is packaged separately. Preserve the generated chunks alongside the entry scripts. The default preset always produces production-optimized assets, including in watch mode; watch does not provide hot reload. With `--sourcemaps`, external maps are generated for the editor entry and its lazy chunks as well as the browser bundles. SSR execution may still require Node in the project's PHP integration.
+The default preset discovers conventional block and component assets, builds frontend, editor and admin scripts and styles, and builds conventional SSR entries when present. SVG imports in frontend and admin scripts emit files referenced by root-relative public URLs; editor SVG imports produce SVG text instead. The default build stages intermediate assets in `.bun-pilot/theme-build`, including SSR output in `.bun-pilot/theme-build/ssr/production`, and replaces `public/` with the packaged assets and manifest only after packaging succeeds. Build or packaging failures preserve the existing public assets. Successful builds remove the staging directory. Only custom or disabled publication uses `public/.build`; the project owns its publication and cleanup. Do not keep manually maintained files in `public/`. Frontend and admin use classic-script bootstraps that dynamically import their bundled modules; the editor is packaged separately. Preserve the generated chunks alongside the entry scripts. The default preset always produces production-optimized assets, including in watch mode; watch does not provide hot reload. With `--sourcemaps`, external maps are generated for the editor entry and its lazy chunks as well as the browser bundles. SSR execution may still require Node in the project's PHP integration.
 
 The manifest maps the conventional `applicationBlocksFrontend`, `applicationBlocksEditor` and `applicationAdmin` script and style keys to their generated files. Each entry also has `.asset.json` metadata containing WordPress dependency handles and a release version; the manifest maps its legacy `.json` key to that metadata as well. Browser entry metadata includes handles used by any emitted chunk, including lazy chunks. If Bun's build metadata is unavailable or cannot be read, the build conservatively includes all resolved handles instead; the editor also retains all resolved handles across its independently compiled chunks. **The build does not enqueue assets:** confirm that your installed PHP integration reads the generated metadata and merges its dependencies with the registered handles. Existing PHP/library versions may not support this; update or adapt them before switching, and check that the frontend, editor and admin load without missing globals. Do not assume Bun's `external` option supplies WordPress global mappings.
 
-Each build clears the previous `public/` contents. Run only one build or publication per theme at a time; output directories are not locked against concurrent builds. The PHP manifest cache update is not coordinated with PHP cache rebuilds: if they overlap, stale asset URLs can remain until the next successful build or cache reset. Build failures may leave the site without working assets; use a separate deployment process if atomic releases are required, and account for cached pages that may still request removed files. Verify block registration, editor controls and save/reload behavior, frontend styles and lazy assets, representative admin screens, script dependencies, browser console and asset URLs. Keep the previous Webpack build available for rollback until the new build is verified.
+Successful default publication replaces the previous `public/` contents. Run only one build or publication per theme at a time; output directories are not locked against concurrent builds. The PHP manifest cache update is not coordinated with PHP cache rebuilds: if they overlap, stale asset URLs can remain until the next successful build or cache reset. Account for cached pages that may still request files removed by successful publication; retain old releases externally if needed. Verify block registration, editor controls and save/reload behavior, frontend styles and lazy assets, representative admin screens, script dependencies, browser console and asset URLs. Keep the previous Webpack build available for rollback until the new build is verified.
 
 ### Lower-level build API
 
@@ -179,6 +179,47 @@ For `defineBuild` watch configurations with `ssr` or `publish` callbacks, explic
 
 `defineThemeBuild` from `bun/theme-build.mjs` supplies the conventional theme layout and flat publication. `entries` replaces the complete entry map; `editor` replaces the editor preset or may be `false`. `responsive` accepts the preset's options or `false`. `css` accepts an async callback receiving `{ root, outdir, stage, responsive, require }` or `false`; `extraCss` still runs afterwards. `discovery` accepts a plugin factory receiving `{ root, setEditorWorker, getEditorWorker }` (also async) or `false`; with either override, callers must provide discovery compatible with their entry sources. `frontendStyles` applies only to default discovery. The built-in editor worker plugin runs before plugins returned by `createPlugins`; replace it via `media.editorWorker` when custom handling is needed. The returned plugin array is not modified. `ssr` replaces `buildSsr` or can be `false`; do not specify both. `publish` replaces the flat publisher with an async callback receiving the build state, or `false` leaves the intermediate build unpublished in `public/.build`. With custom or disabled publication, the SSR callback runs after the browser build and receives the build state and `mode: 'production'`.
 
+### Staged theme publication
+
+Default theme builds now prepare assets outside `public`, then swap the validated
+release into place. Build/package failures preserve the previous release; cache
+update failures roll publication back. Custom `publish` hooks remain responsible
+for their own publication and rollback.
+
+Use `publication` to supply additional already-built files (for example Infobip
+UTM scripts/fonts or Forms custom entry bundles) without replacing the publisher:
+
+```js
+import { resolve } from 'node:path';
+import { defineThemeBuild } from '@eightshift/frontend-libs-tailwind/bun/theme-build.mjs';
+
+export default defineThemeBuild({
+  root: import.meta.dirname,
+  publication: async ({ root }) => ({
+    extraFiles: [
+      { source: resolve(root, 'build/utm.js'), destination: 'utm.js' },
+      { source: resolve(root, 'build/fonts'), destination: 'fonts' },
+      { source: resolve(root, 'build/forms.js'), destination: 'forms.js' },
+    ],
+    aliases: { 'utm.js': 'utm.js', 'forms.js': 'forms.js', 'font.woff2': 'fonts/font.woff2' },
+    retain: [],
+  }),
+});
+```
+
+Sources must exist before packaging; the hook can build them into `outdir`.
+The hook may return `undefined` for no additions, or a non-array object. When
+provided, `aliases` must be a non-null, non-array object and `extraFiles` must be
+an array; invalid results throw a `TypeError` before packaging.
+Paths are release-relative destinations; duplicate destinations fail rather than
+silently overwrite. `packageFlatRelease` also accepts `extraFiles`, `retain` and
+`previousPublic`. Retention is opt-in and names exact existing files, not globs or
+filename heuristics. Retained files cannot collide with new outputs. Fixed names
+are replaced on successful publication: they cannot preserve old browser sessions
+like content-hashed filenames. Additional manifest generation and automatic
+multi-release retention are not provided. Aliases join the primary manifest and
+PHP asset cache; consumers needing separate manifests must use custom publication.
+
 ### Optimizing package imports
 
 `optimizeImports` is an array of package names passed to Bun's [barrel import optimization](https://bun.com/docs/bundler#optimizeimports) for frontend, editor (including lazy chunks), and admin JavaScript. It also applies in watch and source-map builds, but not to SSR or CSS processing. The conventional theme build defaults to `['@eightshift/ui-components']`. Supply an array to replace the default, or `[]` to disable the preset's explicit optimization:
@@ -221,7 +262,7 @@ The default flat publisher includes generated stylesheets in `public/` and its m
 
 The build regenerates discovery and CSS on each rebuild. Watch monitors the configured project paths, not `node_modules` or arbitrary external files by default; customize `watch.sources` for additional inputs. Default theme builds use production CSS processing, including Lightning CSS minification and its browser targets, even in watch mode. `extraCss` may also be an async hook receiving `{ root, stage, require }`, or `false` to disable it. Hooks are responsible for their own filenames and loading behavior. `frontendStyles` separately attaches existing URLs to keys; both automatic mechanisms require default discovery.
 
-Default flat publication requires frontend, admin and editor entries, an editor build, and CSS at the conventional filenames. It scans the conventional SSR source glob and expects matching outputs in `public/.build/ssr/production`; use `ssr: false` to omit SSR or supply custom publication for a different layout. Disabling responsive generation requires custom or disabled CSS. Custom publication is required when disabling CSS or the editor, or changing the entry set. With custom or disabled publication, intermediate output remains in `public/.build`; the project owns its publication and cleanup.
+Default flat publication requires frontend, admin and editor entries, an editor build, and CSS at the conventional filenames. It scans the conventional SSR source glob and expects matching outputs in `.bun-pilot/theme-build/ssr/production`. With default publication, custom `ssr` (or legacy `buildSsr`) callbacks receive `{ root, mode: 'production', outdir }`, where `outdir` is the absolute path to that SSR output directory. Callbacks must finish writing `<name>.js` files there before resolving, where `<name>` is the directory containing each conventional `assets-ssr` directory; `packageFlatRelease` reads those files from the same directory. Use `ssr: false` to omit SSR or supply custom publication for a different layout. Disabling responsive generation requires custom or disabled CSS. Custom publication is required when disabling CSS or the editor, or changing the entry set. With custom or disabled publication, intermediate output remains in `public/.build`; the project owns its publication and cleanup.
 
 WordPress externalization is enabled by default. Set `wpRoot` to the WordPress installation when using externalized `@wordpress/*` imports; export discovery reads its core scripts and requires compatible installed package metadata. The adapter also maps React and selected common dependencies to WordPress globals. Those globals and script handles must be available at runtime. Set `wordpress: false` to disable this adapter. For direct Bun integration, `wordpressPlugin({ projectRoot, wpRoot })` returns `{ plugin, dependencies, getEmittedDependencies }`; use a fresh adapter for each build and absolute paths. `dependencies` contains all resolved handles. Request a Bun metafile and pass it to `getEmittedDependencies(metafile)` to derive handles from every emitted output; invalid metadata falls back to all resolved handles. Some Bun versions can throw when reading `result.metafile` itself, so catch that access and fall back to `dependencies` too.
 
