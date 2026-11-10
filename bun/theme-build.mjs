@@ -11,6 +11,7 @@ import { editorWorkerPlugin } from './media.mjs';
 import { allowPureJsxGrouping } from './plugin-capabilities.mjs';
 import { processCss } from './css.mjs';
 import { buildSsr as buildDefaultSsr } from './ssr.mjs';
+import { prepareSharedFonts } from './shared-fonts.mjs';
 
 /**
  * Define a conventional theme build. extraCss may be a hook or an array of
@@ -28,6 +29,7 @@ export function defineThemeBuild({
 	createPlugins = () => [],
 	frontendStyles = [],
 	optimizeImports = ['@eightshift/ui-components'],
+	sharedFonts = false,
 	extraCss = async () => {},
 	aliases = {},
 	publication = async () => ({}),
@@ -44,6 +46,10 @@ export function defineThemeBuild({
 } = {}) {
 	if (typeof root !== 'string' || !root) {
 		throw new TypeError('root must be a non-empty string');
+	}
+
+	if (typeof sharedFonts !== 'boolean' || (sharedFonts && publish !== undefined)) {
+		throw new TypeError('sharedFonts must be a boolean and requires default theme publication');
 	}
 
 	if (typeof createPlugins !== 'function') {
@@ -454,8 +460,12 @@ export function defineThemeBuild({
 				throw new Error(`Duplicate publication alias: ${key}`);
 			}
 		}
+		const fontAssets = sharedFonts ? await prepareSharedFonts({ root, flatDir }) : { extraFiles: [], aliases: {} };
+		if (sharedFonts && (Object.hasOwn(aliases, 'shared-fonts.json') || Object.hasOwn(additions.aliases ?? {}, 'shared-fonts.json'))) {
+			throw new Error('shared-fonts.json is reserved when sharedFonts is enabled');
+		}
 		const { release, version, manifest } = await packageFlatRelease({
-			extraFiles: additions.extraFiles,
+			extraFiles: [...fontAssets.extraFiles, ...(additions.extraFiles ?? [])],
 			retain: additions.retain,
 			previousPublic: resolve(root, 'public'),
 			root: outdir,
@@ -465,7 +475,7 @@ export function defineThemeBuild({
 			ssrDir,
 			ssrNames,
 			standaloneAssets,
-			aliases: { ...aliases, ...additions.aliases },
+			aliases: { ...aliases, ...additions.aliases, ...fontAssets.aliases },
 		});
 
 		await publishFlatRelease({ root, wpRoot, release, manifest, version, publicPrefix: publicPath });
