@@ -1,5 +1,5 @@
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
-import { basename, dirname, resolve } from 'node:path';
+import { basename, dirname, relative, resolve } from 'node:path';
 
 /** Discover SSR entries by their block/component directory name. */
 export async function discoverSsrEntries({ root, pattern = 'src/**/assets-ssr/ssr.{js,mjs}' }) {
@@ -37,9 +37,10 @@ export function ssrCssAsText() {
 }
 
 /**
- * Build discovered SSR entries as individual Node CJS bundles. Paths are
- * relative to root unless absolute. Caller plugins run before the CSS plugin;
- * pass cssAsText: false to disable it. write: false returns in-memory outputs.
+ * Build discovered SSR entries as standalone Node CJS bundles in one compilation.
+ * Caller plugins retain sequential compilations and run before the CSS plugin.
+ * Paths are relative to root unless absolute; cssAsText: false disables the CSS
+ * plugin. write: false returns in-memory outputs without touching the output tree.
  */
 export async function buildSsr({ root, outdir, pattern, mode = 'development', plugins = [], cssAsText = true, write = true }) {
 	if (typeof root !== 'string' || !root || typeof outdir !== 'string' || !outdir || !['development', 'production'].includes(mode) || !Array.isArray(plugins) || typeof cssAsText !== 'boolean' || typeof write !== 'boolean') {
@@ -50,12 +51,16 @@ export async function buildSsr({ root, outdir, pattern, mode = 'development', pl
 	const entries = await discoverSsrEntries({ root, pattern });
 	const outputs = [];
 
-	for (const [name, entrypoint] of entries) {
+	// Caller plugins may keep per-build state, so retain their sequential lifecycle.
+	const groups = plugins.length ? [...entries].map((entry) => new Map([entry])) : [entries];
+
+	for (const group of groups) {
 		const result = await Bun.build({
-			entrypoints: [entrypoint],
-			outdir: directory,
+			entrypoints: [...group.values()],
+			root: resolve(root),
+			// Omitting outdir is essential: Bun can write files despite write: false.
 			write: false,
-			naming: `${name}.js`,
+			naming: '[dir]/[name].[ext]',
 			target: 'node',
 			format: 'cjs',
 			splitting: false,
@@ -67,14 +72,23 @@ export async function buildSsr({ root, outdir, pattern, mode = 'development', pl
 		});
 
 		if (!result.success) {
-			throw new AggregateError(result.logs, `SSR build failed: ${name}`);
+			throw new AggregateError(result.logs, `SSR build failed: ${[...group.keys()].join(', ')}`);
 		}
 
-		if (result.outputs.length !== 1 || result.outputs[0].kind !== 'entry-point') {
-			throw new Error(`Unexpected SSR output count or kind for ${name}: ${result.outputs.length}`);
+		if (result.outputs.length !== group.size || result.outputs.some((output) => output.kind !== 'entry-point')) {
+			throw new Error(`Unexpected SSR output count or kind: ${result.outputs.length}`);
 		}
 
-		outputs.push({ name, entrypoint, path: resolve(directory, `${name}.js`), output: result.outputs[0], logs: result.logs });
+		for (const [name, entrypoint] of group) {
+			const expected = relative(resolve(root), entrypoint).replace(/\.m?js$/, '.js');
+			const output = result.outputs.find((item) => resolve(root, item.path) === resolve(root, expected));
+
+			if (!output) {
+				throw new Error(`Missing SSR output: ${name}`);
+			}
+
+			outputs.push({ name, entrypoint, path: resolve(directory, `${name}.js`), output, logs: result.logs });
+		}
 	}
 
 	if (write) {
