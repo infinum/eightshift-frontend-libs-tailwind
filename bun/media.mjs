@@ -26,7 +26,7 @@ export function editorWorkerPlugin({ setEditorWorker, getEditorWorker }) {
 					return;
 				}
 
-				const pattern = /new URL\("" \+ new URL\("(\.\.\/\.\.\/assets\/image-analysis-worker-[A-Za-z0-9_-]+\.js)", import\.meta\.url\)\.href \+ "", "" \+ import\.meta\.url\)/g;
+				const pattern = /new URL\((?:"" \+ )?new URL\("(\.\.\/\.\.\/assets\/image-analysis-worker-[A-Za-z0-9_-]+\.js)", import\.meta\.url\)\.href(?: \+ "")?, "" \+ import\.meta\.url\)/g;
 				const matches = [...source.matchAll(pattern)];
 
 				if (matches.length !== 1) {
