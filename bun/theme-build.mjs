@@ -276,6 +276,7 @@ export function defineThemeBuild({
 			editor: editor ?? {
 				entry: 'editor',
 				filename: 'applicationBlocksEditor.js',
+				sharing: 'unified',
 				discovery: {
 					filter: /application-blocks-editor\.js$/,
 					omitContexts: ({ pattern }) => pattern.source === 'styles-editor.css$',
