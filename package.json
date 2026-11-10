@@ -1,6 +1,6 @@
 {
 	"name": "@eightshift/frontend-libs-tailwind",
-	"version": "3.5.0",
+	"version": "4.0.0-beta.4",
 	"description": "A framework for creating modern Gutenberg themes with styling provided by Tailwind CSS.",
 	"author": {
 		"name": "Eightshift team",
@@ -32,20 +32,17 @@
 		"prepare": "husky"
 	},
 	"bin": {
-		"tw-sweep": "bin/tw-sweep.mjs"
+		"tw-sweep": "bin/tw-sweep.mjs",
+		"eightshift-build": "bun/cli.mjs"
 	},
 	"homepage": "https://github.com/infinum/eightshift-frontend-libs-tailwind#readme",
 	"license": "MIT",
 	"dependencies": {
 		"@stylistic/eslint-plugin": "^5.10.0",
 		"@stylistic/stylelint-plugin": "^5.2.1",
-		"@swc/core": "^1.15.43",
 		"@tailwindcss/node": "^4.3.3",
-		"@tailwindcss/webpack": "^4.3.3",
-		"@wordpress/dependency-extraction-webpack-plugin": "^6.51.0",
-		"browserslist": "^4.28.6",
-		"css-loader": "^7.1.4",
-		"css-minimizer-webpack-plugin": "^8.0.0",
+		"@tailwindcss/oxide": "^4.3.3",
+		"browserslist": "^4.29.3",
 		"eslint": "^10.7.0",
 		"eslint-config-prettier": "^10.1.8",
 		"eslint-plugin-better-tailwindcss": "^4.7.0",
@@ -56,20 +53,15 @@
 		"glob": "^13.0.6",
 		"globals": "^17.7.0",
 		"husky": "^9.1.7",
-		"lightningcss": "^1.32.0",
-		"mini-css-extract-plugin": "^2.10.2",
+		"lightningcss": "^1.33.0",
 		"oxlint": "^1.82.0",
+		"postcss": "^8.5.30",
+		"postcss-value-parser": "^4.2.0",
 		"prettier": "^3.9.5",
 		"prettier-plugin-tailwindcss": "^0.8.1",
 		"sonner": "^2.0.7",
 		"stylelint": "^17.14.0",
-		"stylelint-config-standard": "^40.0.0",
-		"swc-loader": "^0.2.7",
-		"terser-webpack-plugin": "^5.6.1",
-		"webpack": "^5.108.4",
-		"webpack-cli": "^7.2.1",
-		"webpack-manifest-plugin": "^6.0.1",
-		"webpack-merge": "^6.0.1"
+		"stylelint-config-standard": "^40.0.0"
 	},
 	"devDependencies": {
 		"@wordpress/api-fetch": "^7.51.0",

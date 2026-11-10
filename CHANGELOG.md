@@ -6,6 +6,32 @@ This projects adheres to [Semantic Versioning](https://semver.org/) and [Keep a 
 
 ---
 
+## [4.0.0]
+
+### 4.0.0-beta.4
+
+- Default conventional theme editor builds to unified sharing; compatible PHP module-readiness integration is required.
+- Add opt-in shared same-origin font publication, requiring UI Components 8.5.0-beta.1 and Eightshift Libs 14.0.0-alpha.3 shared-font support.
+- Compile default SSR entries together as standalone CommonJS bundles; preserve sequential compilation for caller plugins and prevent implicit writes during compilation.
+- Restart CLI watch workers on selected configuration, root package manifest and Bun lockfile changes, draining active work before replacement.
+- Accept both verified generated Smart Image worker URL forms.
+
+### Changed
+
+- Show build/watch progress and total duration by default, with `--quiet` and `--verbose` output modes.
+- Stage theme releases before replacing public assets, preserving the previous release on build or cache failures.
+- Support extra publication files, manifest aliases and explicit file retention through the shared publisher.
+
+- **Breaking:** the conventional theme build requires a stable WordPress 7.0 or newer installation.
+- **Breaking:** removed the Webpack configuration, `webpack/*` API and its build dependencies. Migrate project build scripts to Bun or another independently configured build pipeline.
+- Added Bun build helpers with a conventional theme preset, CSS processing and watch support. These are not a drop-in replacement for Webpack; project configuration and WordPress asset integration must be migrated.
+- Enabled import optimization for `@eightshift/ui-components` by default in conventional theme builds.
+- Improved browser bundle tree-shaking and WordPress dependency metadata.
+- Prevented unnecessary watch rebuilds on macOS.
+- Removed the experimental `editor.sharedPackages` option. Existing configurations must remove it or migrate to a supported sharing mode.
+- **Breaking:** conventional theme builds now default to `unified` editor sharing, requiring matching PHP module-readiness integration (validated with eightshift-libs 14.0.0-alpha.2). The lower-level editor API still defaults to `independent`. Explicit editor presets retain their own sharing choice. `native` remains opt-in and shares lazy modules while keeping registration separate.
+- Added opt-in `editor.pureJsxGroups` to reduce chunk requests in unified production builds. Unsupported configurations, including source-map builds, fall back to ungrouped output.
+
 ## [3.5.0]
 
 ### Added
@@ -392,6 +418,7 @@ Co-authored with @piqusy
 
 - Initial release.
 
+[4.0.0]: https://github.com/infinum/eightshift-frontend-libs-tailwind/compare/3.5.0...4.0.0
 [3.5.0]: https://github.com/infinum/eightshift-frontend-libs-tailwind/compare/3.4.0...3.5.0
 [3.4.0]: https://github.com/infinum/eightshift-frontend-libs-tailwind/compare/3.4.0...3.4.0
 [3.3.0]: https://github.com/infinum/eightshift-frontend-libs-tailwind/compare/3.2.0...3.3.0
