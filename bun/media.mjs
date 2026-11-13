@@ -3,13 +3,21 @@ import { basename, dirname, resolve } from 'node:path';
 import { allowPureJsxGrouping } from './plugin-capabilities.mjs';
 
 /**
- * Adapt the published UI Components smart-image worker for flat theme releases.
+ * Adapt the published UI Components smart-image worker for structured theme releases.
  * Callbacks belong to one build and provide the worker to the publication step.
  * Unsupported upstream worker URL forms fail rather than producing a broken URL.
  */
-export function editorWorkerPlugin({ setEditorWorker, getEditorWorker }) {
+export function editorWorkerPlugin({ setEditorWorker, getEditorWorker, scriptUrlIdentifier = '__eightshiftEditorScriptUrl', publicPrefix }) {
 	if (typeof setEditorWorker !== 'function' || typeof getEditorWorker !== 'function') {
 		throw new TypeError('Worker callbacks are required');
+	}
+
+	if (typeof scriptUrlIdentifier !== 'string' || !/^[$A-Z_a-z][$\w]*$/.test(scriptUrlIdentifier)) {
+		throw new TypeError('Invalid editor script URL identifier');
+	}
+
+	if (publicPrefix !== undefined && (typeof publicPrefix !== 'string' || !publicPrefix)) {
+		throw new TypeError('publicPrefix must be a non-empty string');
 	}
 
 	return allowPureJsxGrouping({
@@ -41,9 +49,13 @@ export function editorWorkerPlugin({ setEditorWorker, getEditorWorker }) {
 				}
 
 				setEditorWorker(worker);
-				const base = '(typeof __eightshiftEditorScriptUrl !== "undefined" ? __eightshiftEditorScriptUrl : (() => { throw new Error("Smart-image worker requires the Eightshift editor script URL; override media.editorWorker for other bundles"); })())';
+				const editorPath = `editor-assets/${basename(worker)}`;
+				const publicPath = `editor/${editorPath}`;
+				const url = publicPrefix
+					? `new URL(${JSON.stringify(`${publicPrefix}${publicPath}`)}, globalThis.location.href)`
+					: `(typeof ${scriptUrlIdentifier} !== "undefined" ? new URL(${JSON.stringify(editorPath)}, ${scriptUrlIdentifier}) : (() => { throw new Error("Smart-image worker requires a publicPrefix outside the editor"); })())`;
 
-				return { contents: source.replace(pattern, `new URL(${JSON.stringify(`editor-assets/${basename(worker)}`)}, ${base})`), loader: 'js', resolveDir: dirname(path) };
+				return { contents: source.replace(pattern, url), loader: 'js', resolveDir: dirname(path) };
 			});
 		},
 	});

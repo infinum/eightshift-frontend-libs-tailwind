@@ -98,6 +98,7 @@ export const LinkSectionEditor = (props) => {
 
 				return;
 			}
+
 			const before = items.slice(0, index + 1);
 			const after = items.slice(index + 1);
 

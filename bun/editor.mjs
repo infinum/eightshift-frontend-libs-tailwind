@@ -17,15 +17,19 @@ export async function buildEditor({ root, directory, entry, buildOptions = {}, p
 	if (!['independent', 'native', 'unified'].includes(sharing)) {
 		throw new TypeError('editor.sharing must be "independent", "native" or "unified"');
 	}
+
 	if (pureJsxGroups !== false && (!pureJsxGroups || typeof pureJsxGroups !== 'object' || Array.isArray(pureJsxGroups) || Object.keys(pureJsxGroups).some((key) => key !== 'maxBytes') || !Number.isSafeInteger(pureJsxGroups.maxBytes) || pureJsxGroups.maxBytes < 1 || pureJsxGroups.maxBytes > 65536)) {
 		throw new TypeError('editor.pureJsxGroups must be false or { maxBytes: integer between 1 and 65536 }');
 	}
+
 	if (pureJsxGroups && sharing !== 'unified') {
 		throw new TypeError('editor.pureJsxGroups requires unified sharing');
 	}
+
 	if (sharedPackages !== undefined) {
 		throw new TypeError('editor.sharedPackages was removed; use native or unified sharing after checking their initialization and readiness requirements');
 	}
+
 	const inside = (path) => {
 		if (typeof path !== 'string' || !path || isAbsolute(path)) {
 			throw new TypeError('Editor output paths must be relative');
@@ -60,9 +64,11 @@ export async function buildEditor({ root, directory, entry, buildOptions = {}, p
 		if (!/^[$A-Z_a-z][$\w]*$/.test(scriptUrlIdentifier)) {
 			throw new TypeError('Invalid editor script URL identifier');
 		}
+
 		if (Object.keys(lazy).length) {
 			throw new TypeError('Unified editor sharing uses native imports and cannot apply lazy import rewriting');
 		}
+
 		const target = resolve(root, entry);
 		const nativeDiscovery = discovery ? eightshiftDiscovery({ ...discovery, root, outputDir: inside(discovery.outputDir ?? 'discovery') }) : undefined;
 		const {
@@ -80,23 +86,30 @@ export async function buildEditor({ root, directory, entry, buildOptions = {}, p
 		});
 		const paths = [];
 		await mkdir(chunkOutput, { recursive: true });
+
 		for (const output of outputs) {
 			let contents = Buffer.from(await output.arrayBuffer());
+
 			if (output.sourcemap) {
 				contents = Buffer.from(`${await output.text()}\n//# sourceMappingURL=${basename(output.sourcemap.path)}\n`);
 			}
+
 			await writeFile(output.path, contents);
 			paths.push(output.path);
 		}
+
 		let imported = relative(dirname(entryOutput), resolve(chunkOutput, names.get(target)))
 			.split(sep)
 			.join('/');
+
 		if (!imported.startsWith('.')) {
 			imported = `./${imported}`;
 		}
+
 		const source = `import ${JSON.stringify(imported)};\nconst readiness = globalThis.eightshiftEditorModules;\nif (readiness?.version !== 1 || typeof readiness.complete !== 'function') throw new Error('Unified editor requires the Eightshift module readiness integration');\nreadiness.complete(import.meta.url);\n`;
 		await writeFile(entryOutput, source);
 		paths.push(entryOutput);
+
 		return { entry: entryOutput, paths, format: 'module', readiness: 'eightshift-editor-v1', ...(grouping ? { pureJsxGroups: grouping } : {}) };
 	}
 
@@ -126,23 +139,29 @@ export async function buildEditor({ root, directory, entry, buildOptions = {}, p
 
 		const entries = result.outputs.filter((output) => output.kind === 'entry-point');
 		const maps = result.outputs.filter((output) => output.kind === 'sourcemap');
+
 		if (entries.length !== 1 || maps.length !== (sourcemap ? 1 : 0) || result.outputs.length !== entries.length + maps.length) {
 			throw new Error(`Unexpected editor assets: ${target}`);
 		}
 
 		const map = sourcemap ? JSON.parse(await maps[0].text()) : undefined;
+
 		if (map) {
 			map.mappings = `;${map.mappings}`;
 		}
+
 		return { source: await entries[0].text(), map };
 	};
+
 	const write = async (path, source) => {
 		await mkdir(dirname(path), { recursive: true });
 		await writeFile(path, source);
 		paths.push(path);
 	};
+
 	let entryBuild = await compile(resolve(root, entry), 'iife');
 	const entryMap = `${basename(entryOutput)}.map`;
+
 	if (sharing === 'native') {
 		if (chunks.size) {
 			const nativeDiscovery = discovery ? eightshiftDiscovery({ ...discovery, root, outputDir: inside(discovery.outputDir ?? 'discovery') }) : undefined;
@@ -154,14 +173,18 @@ export async function buildEditor({ root, directory, entry, buildOptions = {}, p
 				buildOptions: { ...buildOptions, loader: options.loader, sourcemap: options.sourcemap },
 				plugins: [...(nativeDiscovery ? [nativeDiscovery] : []), ...plugins],
 			});
+
 			for (const [target, name] of names) {
 				chunks.set(target, name);
 			}
+
 			// Compile against final URLs rather than rewriting code after source-map generation.
 			entryBuild = await compile(resolve(root, entry), 'iife');
+
 			if (chunks.size !== names.size) {
 				throw new Error('Editor lazy entries changed during native compilation');
 			}
+
 			for (const output of outputs) {
 				if (output.sourcemap) {
 					await write(output.path, `${await output.text()}\n//# sourceMappingURL=${basename(output.sourcemap.path)}\n`);
@@ -170,10 +193,13 @@ export async function buildEditor({ root, directory, entry, buildOptions = {}, p
 				}
 			}
 		}
+
 		await write(entryOutput, `((${scriptUrlIdentifier}) => {\n${entryBuild.source}\n})(document.currentScript.src);\n${entryBuild.map ? `//# sourceMappingURL=${entryMap}\n` : ''}`);
+
 		if (entryBuild.map) {
 			await write(`${entryOutput}.map`, JSON.stringify(entryBuild.map));
 		}
+
 		return { entry: entryOutput, paths };
 	}
 
@@ -182,12 +208,15 @@ export async function buildEditor({ root, directory, entry, buildOptions = {}, p
 	for (const [target, name] of chunks) {
 		const output = inside(`${chunkDir}/${name}`);
 		let entryPath = relative(dirname(output), entryOutput).split(sep).join('/');
+
 		if (!entryPath.startsWith('.')) {
 			entryPath = `./${entryPath}`;
 		}
+
 		const chunk = await compile(target, 'esm');
 		await write(output, `const ${scriptUrlIdentifier} = new URL(${JSON.stringify(entryPath)}, import.meta.url).href;\n${chunk.source}${chunk.map ? `\n//# sourceMappingURL=${basename(output)}.map\n` : ''}`);
 		lazyPaths.push(output);
+
 		if (chunk.map) {
 			await write(`${output}.map`, JSON.stringify(chunk.map));
 		}
@@ -195,18 +224,22 @@ export async function buildEditor({ root, directory, entry, buildOptions = {}, p
 
 	const digest = createHash('sha256').update(entryBuild.source);
 	const contents = new Map();
+
 	for (const path of lazyPaths.sort()) {
 		const source = await readFile(path, 'utf8');
 		contents.set(path, source);
 		digest.update(path.slice(directory.length)).update('\0').update(source).update('\0');
 	}
+
 	const version = digest.digest('hex').slice(0, 20);
 	const withVersion = (source) => source.replaceAll('?v=00000000000000000000', `?v=${version}`);
+
 	for (const [path, source] of contents) {
 		await writeFile(path, withVersion(source));
 	}
 
 	await write(entryOutput, `((${scriptUrlIdentifier}) => {\n${withVersion(entryBuild.source)}\n})(document.currentScript.src);\n${entryBuild.map ? `//# sourceMappingURL=${entryMap}\n` : ''}`);
+
 	if (entryBuild.map) {
 		await write(`${entryOutput}.map`, JSON.stringify(entryBuild.map));
 	}

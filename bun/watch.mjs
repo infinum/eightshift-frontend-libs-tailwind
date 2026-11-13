@@ -20,6 +20,7 @@ export function watchBuild({ projectDir, sources, ignored = [], ignore = () => f
 
 		return rel === '' || (rel !== '..' && !rel.startsWith(`..${sep}`) && !isAbsolute(rel));
 	};
+
 	const paths = (items) =>
 		items.map((item) => {
 			if (typeof item !== 'string' || !item) {
@@ -64,6 +65,7 @@ export function watchBuild({ projectDir, sources, ignored = [], ignore = () => f
 			console.error(callbackError);
 		}
 	};
+
 	const run = () => {
 		if (stopped || running || !pending) {
 			return;
@@ -81,6 +83,7 @@ export function watchBuild({ projectDir, sources, ignored = [], ignore = () => f
 				}
 			});
 	};
+
 	const schedule = () => {
 		if (stopped) {
 			return;
@@ -93,14 +96,17 @@ export function watchBuild({ projectDir, sources, ignored = [], ignore = () => f
 			run();
 		}, debounce);
 	};
+
 	const stop = async () => {
 		if (!stopped) {
 			stopped = true;
 			pending = false;
 			clearTimeout(timer);
+
 			for (const watcher of watchers.values()) {
 				watcher.close();
 			}
+
 			watchers.clear();
 		}
 
@@ -122,6 +128,7 @@ export function watchBuild({ projectDir, sources, ignored = [], ignore = () => f
 			}
 		} catch (error) {
 			report(error);
+
 			return;
 		}
 
@@ -129,23 +136,29 @@ export function watchBuild({ projectDir, sources, ignored = [], ignore = () => f
 			schedule();
 		}
 	};
+
 	const refresh = () => {
 		if (stopped) {
 			return;
 		}
+
 		const desired = new Map();
 		const add = (directory, recursive, name) => {
 			const key = `${recursive ? 'recursive' : 'parent'}:${directory}`;
+
 			if (!desired.has(key)) {
 				desired.set(key, { directory, recursive, names: new Set() });
 			}
+
 			if (name) {
 				desired.get(key).names.add(name);
 			}
 		};
+
 		for (const input of inputs) {
 			let current = input;
 			let info;
+
 			while (true) {
 				try {
 					info = statSync(current);
@@ -154,17 +167,22 @@ export function watchBuild({ projectDir, sources, ignored = [], ignore = () => f
 					if (error.code !== 'ENOENT' && error.code !== 'ENOTDIR') {
 						throw error;
 					}
+
 					if (current === root) {
 						throw error;
 					}
+
 					current = dirname(current);
 				}
 			}
+
 			if (current === input && info.isDirectory()) {
 				if (filterDirectoryEvents && !directoryStamps.has(input)) {
 					directoryStamps.set(input, directoryStamp(input));
 				}
+
 				add(input, true);
+
 				if (input !== root) {
 					add(dirname(input), false, basename(input));
 				}
@@ -174,21 +192,28 @@ export function watchBuild({ projectDir, sources, ignored = [], ignore = () => f
 				add(directory, false, next);
 			}
 		}
+
 		for (const [key, config] of desired) {
 			const existing = watchers.get(key);
+
 			if (existing) {
 				existing.names = config.names;
 				continue;
 			}
+
 			const watcher = watch(config.directory, { recursive: config.recursive }, (_event, filename) => {
 				if (!filename || stopped) {
 					return;
 				}
+
 				const name = String(filename);
+
 				if (!config.recursive && !watcher.names.has(name)) {
 					return;
 				}
+
 				const path = resolve(config.directory, name);
+
 				try {
 					// Bun on macOS can report unchanged watched directories as changes.
 					if (filterDirectoryEvents && _event === 'change') {
@@ -203,6 +228,7 @@ export function watchBuild({ projectDir, sources, ignored = [], ignore = () => f
 								if (error.code !== 'ENOENT') {
 									throw error;
 								}
+
 								directory = config.directory;
 							}
 						}
@@ -213,11 +239,13 @@ export function watchBuild({ projectDir, sources, ignored = [], ignore = () => f
 							if (stamp && directoryStamps.get(directory) === stamp) {
 								return;
 							}
+
 							if (stamp) {
 								directoryStamps.set(directory, stamp);
 							}
 						}
 					}
+
 					if (filterDirectoryEvents && config.recursive) {
 						const stamp = directoryStamp(config.directory);
 
@@ -225,6 +253,7 @@ export function watchBuild({ projectDir, sources, ignored = [], ignore = () => f
 							directoryStamps.set(config.directory, stamp);
 						}
 					}
+
 					onEvent(path);
 					refresh();
 				} catch (error) {
@@ -239,6 +268,7 @@ export function watchBuild({ projectDir, sources, ignored = [], ignore = () => f
 			});
 			watchers.set(key, watcher);
 		}
+
 		for (const [key, watcher] of watchers) {
 			if (!desired.has(key)) {
 				watcher.close();
@@ -246,12 +276,14 @@ export function watchBuild({ projectDir, sources, ignored = [], ignore = () => f
 			}
 		}
 	};
+
 	try {
 		refresh();
 	} catch (error) {
 		for (const watcher of watchers.values()) {
 			watcher.close();
 		}
+
 		throw error;
 	}
 

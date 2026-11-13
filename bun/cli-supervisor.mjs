@@ -11,7 +11,10 @@ export async function supervise(invocation) {
 				try {
 					return readFileSync(path).toString('base64');
 				} catch (error) {
-					if (error.code === 'ENOENT') return null;
+					if (error.code === 'ENOENT') {
+						return null;
+					}
+
 					throw error;
 				}
 			}),
@@ -28,18 +31,30 @@ export async function supervise(invocation) {
 		failure = 0;
 	let draining;
 	const drain = () => {
-		if (!child) return Promise.resolve();
+		if (!child) {
+			return Promise.resolve();
+		}
+
 		if (!draining) {
 			const current = child;
 			draining = (async () => {
 				await Promise.race([ready, current.exited]);
-				if (current.exitCode === null) current.send('stop');
+
+				if (current.exitCode === null) {
+					current.send('stop');
+				}
+
 				await current.exited;
-				if (child === current) child = undefined;
+
+				if (child === current) {
+					child = undefined;
+				}
 			})();
 		}
+
 		return draining;
 	};
+
 	const launch = () => {
 		draining = undefined;
 		ready = new Promise((done) => {
@@ -52,48 +67,82 @@ export async function supervise(invocation) {
 			stdout: 'inherit',
 			stderr: 'inherit',
 			ipc(message) {
-				if (message === 'ready') resolveReady();
+				if (message === 'ready') {
+					resolveReady();
+				}
 			},
 		});
 		const current = child;
 		void current.exited.then((code) => {
 			if (child === current && !busy && !closing) {
 				failure = code || failure;
-				if (watching) console.error(`[eightshift-build] Worker exited (${code}); waiting for a restart input change.`);
+
+				if (watching) {
+					console.error(`[eightshift-build] Worker exited (${code}); waiting for a restart input change.`);
+				}
 			}
 		});
 	};
+
 	const stop = async () => {
-		if (closing) return;
+		if (closing) {
+			return;
+		}
+
 		closing = true;
+
+		if (!watching) {
+			failure ||= 1;
+		}
+
 		clearInterval(timer);
-		while (busy) await Bun.sleep(20);
+
+		while (busy) {
+			await Bun.sleep(20);
+		}
+
 		await drain();
 		process.exitCode = failure;
 	};
+
 	process.on('SIGINT', stop);
 	process.on('SIGTERM', stop);
+
 	try {
 		launch();
+
 		if (!watching) {
-			failure = await child.exited;
+			failure = (await child.exited) || failure;
+
 			return;
 		}
+
 		timer = setInterval(async () => {
-			if (closing || busy) return;
+			if (closing || busy) {
+				return;
+			}
+
 			try {
 				const next = snapshot();
+
 				if (next !== observed) {
 					observed = next;
 					changedAt = Date.now();
 					pending = true;
 				}
-				if (!pending || Date.now() - changedAt < 200) return;
+
+				if (!pending || Date.now() - changedAt < 200) {
+					return;
+				}
+
 				busy = true;
 				await drain();
 				observed = snapshot();
 				pending = false;
-				if (!closing) launch();
+
+				if (!closing) {
+					launch();
+				}
 			} catch (error) {
 				console.error(error);
 				failure = 1;
@@ -102,10 +151,17 @@ export async function supervise(invocation) {
 				busy = false;
 			}
 		}, 100);
-		while (!closing) await Bun.sleep(100);
+
+		while (!closing) {
+			await Bun.sleep(100);
+		}
+
 		await stop();
 	} finally {
-		while (busy) await Bun.sleep(20);
+		while (busy) {
+			await Bun.sleep(20);
+		}
+
 		await drain();
 		clearInterval(timer);
 		process.removeListener('SIGINT', stop);

@@ -12,6 +12,7 @@ import { dirname, relative, resolve, sep } from 'node:path';
  * to an empty object. JSON contexts return parsed values; other synchronous
  * imports return module namespaces. Regenerate after changing source files.
  * Symlinks are skipped. Missing directories are treated as empty contexts.
+ * Names cannot shadow the generated helpers or Map, Promise and Error.
  */
 export async function generateDiscovery({ root, output, definitions }) {
 	if (typeof root !== 'string' || typeof output !== 'string' || !Array.isArray(definitions)) {
@@ -29,7 +30,17 @@ export async function generateDiscovery({ root, output, definitions }) {
 	for (const definition of definitions) {
 		const { name, directory, pattern, mode = 'sync' } = definition;
 
-		if (typeof name !== 'string' || !/^[$A-Z_a-z][$\w]*$/.test(name) || !isValidExportName(name) || name === 'createContext' || /^module\d+$/.test(name) || names.has(name) || typeof directory !== 'string' || !(pattern instanceof RegExp) || !['sync', 'lazy'].includes(mode)) {
+		if (
+			typeof name !== 'string' ||
+			!/^[$A-Z_a-z][$\w]*$/.test(name) ||
+			!isValidExportName(name) ||
+			['createContext', 'Map', 'Promise', 'Error'].includes(name) ||
+			/^module\d+$/.test(name) ||
+			names.has(name) ||
+			typeof directory !== 'string' ||
+			!(pattern instanceof RegExp) ||
+			!['sync', 'lazy'].includes(mode)
+		) {
 			throw new TypeError('Invalid or duplicate discovery definition');
 		}
 

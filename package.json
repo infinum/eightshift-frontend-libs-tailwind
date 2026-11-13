@@ -64,7 +64,6 @@
 		"stylelint-config-standard": "^40.0.0"
 	},
 	"devDependencies": {
-		"@wordpress/api-fetch": "^7.51.0",
 		"lint-staged": "^17.1.0"
 	},
 	"peerDependencies": {

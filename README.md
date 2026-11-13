@@ -18,7 +18,7 @@ The Webpack configuration and `webpack/*` imports have been removed. Projects mu
 
 The Bun helpers are not a drop-in replacement for Webpack. Start with the theme preset for the conventional Eightshift theme layout. Use the lower-level API below for other layouts.
 
-The conventional theme build requires a stable WordPress 7.0 or newer installation. Each build reads `wp-includes/version.php` before modifying output and fails if the version is missing, unrecognized, or too old. By default, the WordPress root is three directories above the theme root; set `EIGHTSHIFT_WP_ROOT` to its absolute path for other layouts. The public asset URL defaults to the theme's path under that root plus `/public/`. If that does not match the site's URL layout, set `publicPrefix` in `defineThemeBuild` or `EIGHTSHIFT_PUBLIC_PREFIX` in the environment to the root-relative public URL path, including its trailing slash (for example, `/wp-content/themes/example/public/`). The option takes precedence over the environment variable. The lower-level build API does not enforce this version check.
+The conventional theme build requires a stable WordPress 7.0 or newer installation. Each build reads `wp-includes/version.php` before modifying output and fails if the version is missing, unrecognized, or too old. By default, the WordPress root is three directories above the theme root; set `EIGHTSHIFT_WP_ROOT` to its absolute path for other layouts. The public asset URL defaults to the theme's path under that root plus `/public/`. If that does not match the site's URL layout, set `publicPrefix` in `defineThemeBuild` or `EIGHTSHIFT_PUBLIC_PREFIX` in the environment to the root-relative public URL path, including its trailing slash (for example, `/wp-content/themes/example/public/`). The option takes precedence over the environment variable. The editor store ID is derived from this prefix and remains stable across rebuilds. Builds loaded together must use distinct public prefixes to avoid sharing a store. The lower-level build API does not enforce this version check.
 
 ### Migrate a conventional theme
 
@@ -71,7 +71,7 @@ export default defineThemeBuild({
     sharing: 'independent',
     discovery: {
       filter: /application-blocks-editor\.js$/,
-      omitContexts: ({ pattern }) => pattern.source === 'styles-editor.css$',
+      omitContexts: ({ pattern }) => ['styles-editor.css$', 'styles-editor\\.css$'].includes(pattern.source),
     },
   },
 });
@@ -145,7 +145,7 @@ export default defineThemeBuild({
     sharing: 'native',
     discovery: {
       filter: /application-blocks-editor\.js$/,
-      omitContexts: ({ pattern }) => pattern.source === 'styles-editor.css$',
+      omitContexts: ({ pattern }) => ['styles-editor.css$', 'styles-editor\\.css$'].includes(pattern.source),
     },
   },
 });
@@ -202,13 +202,13 @@ The earlier `editor.sharedPackages` vendor-bridge experiment was removed. Existi
 
 For `defineBuild` watch configurations with `ssr` or `publish` callbacks, explicitly set `watch.sources` or `watch.ignored`. Exclude every path those callbacks write inside the project root, including paths outside the preset output directory, to avoid rebuild loops.
 
-`defineThemeBuild` from `bun/theme-build.mjs` supplies the conventional theme layout and flat publication. `entries` replaces the complete entry map; `editor` replaces the editor preset or may be `false`. `responsive` accepts the preset's options or `false`. `css` accepts an async callback receiving `{ root, outdir, stage, responsive, require }` or `false`; `extraCss` still runs afterwards. `discovery` accepts a plugin factory receiving `{ root, setEditorWorker, getEditorWorker }` (also async) or `false`; with either override, callers must provide discovery compatible with their entry sources. `frontendStyles` applies only to default discovery. The built-in editor worker plugin runs before plugins returned by `createPlugins`; replace it via `media.editorWorker` when custom handling is needed. The returned plugin array is not modified. `ssr` replaces `buildSsr` or can be `false`; do not specify both. `publish` replaces the flat publisher with an async callback receiving the build state, or `false` leaves the intermediate build unpublished in `public/.build`. With custom or disabled publication, the SSR callback runs after the browser build and receives the build state and `mode: 'production'`.
+`defineThemeBuild` from `bun/theme-build.mjs` supplies the conventional theme layout and flat publication. `entries` replaces the complete entry map; `editor` replaces the editor preset or may be `false`. `responsive` accepts the preset's options or `false`. `css` accepts an async callback receiving `{ root, outdir, stage, responsive, require }` or `false`; `extraCss` still runs afterwards. `discovery` accepts a plugin factory receiving `{ root, setEditorWorker, getEditorWorker }` (also async) or `false`; with either override, callers must provide discovery compatible with their entry sources. `frontendStyles` applies only to default discovery. The built-in worker plugin runs before plugins returned by `createPlugins`; it resolves worker URLs for frontend, admin and editor bundles using `publicPrefix` and the selected publication layout. When used separately without a public prefix, it can use the configured editor script URL identifier. Replace it via `media.editorWorker` when custom handling is needed. The returned plugin array is not modified. `ssr` replaces `buildSsr` or can be `false`; do not specify both. `publish` replaces the flat publisher with an async callback receiving the build state, or `false` leaves the intermediate build unpublished in `public/.build`. With custom or disabled publication, the SSR callback runs after the browser build and receives the build state, `mode: 'production'`, and `outdir` pointing to `public/.build/ssr/production`.
 
 ### Shared same-origin UI Components fonts (opt-in)
 
 Set `sharedFonts: true` in `defineThemeBuild` only after installing compatible PHP shared-font integration (`infinum/eightshift-libs` 14.0.0-alpha.3) and a UI Components release containing `dist/assets/fonts-manifest.json` (`@eightshift/ui-components` 8.5.0-beta.1). These are the first published versions containing the shared-font contract; earlier releases do not provide it. Fonts remain required: this option changes their provider, not typography. The default is `false`, preserving standalone builds.
 
-The current shared-provider contract supports WOFF2 only and rejects other manifest formats. The build verifies UI Components font bytes against their SHA-256 manifest, extracts matching compiled `@font-face` rules from the published CSS, and stages `shared-fonts.json` plus `fonts/<sha256>.<extension>` alongside other assets. Unrelated or mixed-source faces remain untouched. Extraction occurs before final stylesheet hashes are calculated. The default staged publisher is required; custom publication is rejected for this option. Missing manifests, integrity mismatches or no matching faces fail the build rather than silently omitting fonts.
+The current shared-provider contract supports WOFF2 only and rejects other manifest formats. The build verifies UI Components font bytes against their SHA-256 manifest, extracts matching compiled top-level `@font-face` rules from the published CSS, and stages `shared-fonts.json` plus `fonts/<sha256>.<extension>` alongside other assets. Unrelated or mixed-source faces, faces nested inside rules such as `@media`, `@supports` or `@layer`, and faces in separately loaded stylesheets remain in their original stylesheets. Extraction occurs before final stylesheet hashes are calculated. The default staged publisher is required; custom publication is rejected for this option. Missing manifests, integrity mismatches or no matching faces fail the build rather than silently omitting fonts.
 
 Compatible Eightshift PHP integration must read the generated manifest and enqueue the required font declarations with same-origin URLs shared across participating themes/plugins. Deploy PHP support and the matching assets together. Existing consumers that embed their own font faces still download their own URLs until rebuilt with this integration. Separate frames still need declarations; browser caching can reuse common URLs when enabled. No remote CDN, database cache or shared-directory write is required.
 
@@ -254,6 +254,11 @@ are replaced on successful publication: they cannot preserve old browser session
 like content-hashed filenames. Additional manifest generation and automatic
 multi-release retention are not provided. Aliases join the primary manifest and
 PHP asset cache; consumers needing separate manifests must use custom publication.
+The lower-level `packageRelease` keeps a stylesheet's hashed output in the same
+release directory as its input, preserving relative asset and `@import` URLs.
+Empty stylesheets are valid and retain their manifest entries; missing stylesheets
+and missing or empty JavaScript entries still fail packaging.
+Its `omit` option cannot remove a JavaScript entry targeted by a generated bootstrap.
 
 ### Optimizing package imports
 
@@ -293,6 +298,10 @@ export default defineThemeBuild({
 - `keys` optionally lists frontend importer keys, such as `components/video` or `custom/example`. Each must match a discovered `src/Blocks/{components,custom}/**/assets/index.js` file, and a key can belong to only one stylesheet group. When an importer is used, its stylesheet loads before the JavaScript; the load is shared between callers. A failed load rejects, removes the link, and can be retried. Without `keys`, the file is built and published but is not loaded automatically.
 - `href` optionally overrides the URL used by those importers. By default it points to the generated output; custom URLs must be deployed and kept in sync by the project. It has no effect without `keys`.
 
+Frontend and admin CSS imported by JavaScript is compiled with Tailwind and loaded before the importing module executes. Styles imported by lazy modules remain unloaded until those modules are requested. Imported stylesheets that generate utilities also scan the generated frontend responsive class list when responsive generation is enabled. Direct imports already included unconditionally by the default conventional CSS compiler are not loaded twice; conditional imports and `@reference` do not suppress a separate JavaScript import. A direct import that matches a single-file keyed `extraCss` group uses the same stylesheet URL as the keyed loader; multi-file groups and CSS modules are compiled independently. Existing `frontendStyles` and other multi-file group contents are not automatically deduplicated against JavaScript imports. When a stylesheet imports CSS modules, Tailwind `@import` modifiers such as `source()`, `prefix()` and `theme()` are not supported there. Import that configured Tailwind entry separately and use `@reference`; unsupported combinations fail the build rather than producing incorrect styles.
+
+The generated browser modules use top-level `await` and add stylesheet requests, which can affect startup or lazy-load timings. If a keyed `extraCss` load fails before its module is imported, the loader can retry; a failed JavaScript module evaluation can remain cached by the browser and may require a page reload. Custom build plugins must not bypass the theme CSS loader unless they also provide custom publication; unexpected Bun CSS output fails the build instead of being silently omitted.
+
 The default flat publisher includes generated stylesheets in `public/` and its manifest; no alias is required for lazy loading. The output hash changes when compiled CSS changes, including rewritten asset URLs. CSS assets are copied with their own content-hashed names. Publication replaces `public/`, so cached older pages can request files no longer present; retain old releases externally if that matters. For a stable PHP manifest key, set an explicit `output` and an appropriate `aliases` entry. Custom publishers must preserve the CSS and the URL expected by the importer.
 
 The build regenerates discovery and CSS on each rebuild. Watch monitors the configured project paths, not `node_modules` or arbitrary external files by default; customize `watch.sources` for additional inputs. Default theme builds use production CSS processing, including Lightning CSS minification and its browser targets, even in watch mode. `extraCss` may also be an async hook receiving `{ root, stage, require }`, or `false` to disable it. Hooks are responsible for their own filenames and loading behavior. `frontendStyles` separately attaches existing URLs to keys; both automatic mechanisms require default discovery.
@@ -301,9 +310,13 @@ Default flat publication requires frontend, admin and editor entries, an editor 
 
 The default SSR builder compiles all discovered entries together into standalone Node CJS bundles, without shared chunks or sourcemaps. Output filenames remain `<block-or-component-directory>.js`; duplicate names are rejected before compilation. Caller-supplied plugins retain one sequential compilation per entry to preserve their per-build lifecycle. Compilation omits Bun's `outdir` so it stays in memory (Bun 1.4.4 can write files when `outdir` is set even with `write: false`). All outputs are validated before explicit writes; compilation failures leave existing files untouched. Returned `outputs[].path` is the publication path, while `outputs[].output.path` is Bun's intermediate artifact path. `write: false` never creates the output directory. The low-level builder does not prune old files when entries are removed; the theme preset rebuilds its owned staging directory. Writes are sequential, not an atomic transaction for I/O failures. Multi-entry compilation can retain additional dependency definitions and change bundle bytes; it does not guarantee byte identity with separate compilations.
 
-WordPress externalization is enabled by default. Set `wpRoot` to the WordPress installation when using externalized `@wordpress/*` imports; export discovery reads its core scripts and requires compatible installed package metadata. The adapter also maps React and selected common dependencies to WordPress globals. Those globals and script handles must be available at runtime. Set `wordpress: false` to disable this adapter. For direct Bun integration, `wordpressPlugin({ projectRoot, wpRoot })` returns `{ plugin, dependencies, getEmittedDependencies }`; use a fresh adapter for each build and absolute paths. `dependencies` contains all resolved handles. Request a Bun metafile and pass it to `getEmittedDependencies(metafile)` to derive handles from every emitted output; invalid metadata falls back to all resolved handles. Some Bun versions can throw when reading `result.metafile` itself, so catch that access and fall back to `dependencies` too.
+Externalized `@wordpress/*` browser imports do not require matching JavaScript packages in the theme or plugin. Their exports and default-global mappings come from the target WordPress installation. Packages deliberately bundled by the adapter, and packages used by SSR or builds with `wordpress: false`, still need to be installed. React, React DOM and `lodash-es` also retain their installed-package export-discovery requirements.
 
-`processCss` compiles the `files` array in order into one output file. Each item is a path or `{ file, scan, sources, scanFiles, removeSources }`: scanning is opt-in; `sources` adds Tailwind scanner source objects, `scanFiles` adds explicit candidate files, and `removeSources` removes exact source-rule strings (and fails if absent). Relative paths resolve from `projectDir`. Local URL assets are copied next to the CSS with content-hashed names. Production uses Lightning CSS and the `browsers` option (default `>= 0.25%`); the return value includes `outputFile` and discovered `dependencies`. Watch does not automatically use those dependencies. `responsive: {}` generates frontend and editor class lists from `src/**/manifest.json`, expanding responsive classes for `sm` and `md`; customize `breakpoints`, `manifestGlob`, and `output`. Pass the relevant generated list to CSS scanning, as above. The standalone `generateResponsiveClasses({ projectDir, ... })` is also exported from `bun/build.mjs`.
+WordPress externalization is enabled by default. Set `wpRoot` to the WordPress installation when using externalized `@wordpress/*` imports; export discovery reads its core scripts without requiring installed package metadata. WordPress scripts without an export table are treated as side-effect-only dependencies: no exported global is required, and their handles are retained even when Bun erases the empty adapter. Resolved side-effect-only handles are retained conservatively, including when their importing code is later tree-shaken. The adapter also maps React and selected common dependencies to WordPress globals. Those globals and script handles must be available at runtime. Set `wordpress: false` to disable this adapter. For direct Bun integration, `wordpressPlugin({ projectRoot, wpRoot })` returns `{ plugin, dependencies, getEmittedDependencies }`; use a fresh adapter for each build and absolute paths. `dependencies` contains all resolved handles. Request a Bun metafile and pass it to `getEmittedDependencies(metafile)` to derive handles from every emitted output; invalid metadata falls back to all resolved handles. Some Bun versions can throw when reading `result.metafile` itself, so catch that access and fall back to `dependencies` too.
+
+`processCss` compiles the `files` array in order into one output file. Each item is a path or `{ file, content, scan, sources, scanFiles, removeSources }`: optional `content` replaces the source text while `file` remains the base for imports; scanning is opt-in; `scan: 'auto'` scans only when the stylesheet requests utility generation; `sources` adds Tailwind scanner source objects, `scanFiles` adds explicit candidate files even when those paths are excluded from automatic scanning, and `removeSources` removes exact source-rule strings (and fails if absent). Relative paths resolve from `projectDir`. Local URL assets, including string URLs in `image-set()` and `-webkit-image-set()`, are copied next to the CSS with content-hashed names. Production uses Lightning CSS and the `browsers` option (default `>= 0.25%`); the return value includes `outputFile` and discovered `dependencies`. Watch does not automatically use those dependencies. `responsive: {}` generates frontend and editor class lists from `src/**/manifest.json`, expanding responsive classes for `sm` and `md`; customize `breakpoints`, `manifestGlob`, and `output`. Pass the relevant generated list to CSS scanning, as above. The standalone `generateResponsiveClasses({ projectDir, ... })` is also exported from `bun/build.mjs`.
+
+The editor discovery transforms match parsed JavaScript call expressions, not comments, string contents or JSX text. Generated context bindings avoid identifiers already present in the source. Unsupported executable `require.context` arguments still fail the build.
 
 For Webpack context replacements, generate a module before building and import its named context in your application:
 
@@ -394,7 +407,9 @@ nested package's exports alone does not trigger a restart; changing a root resta
 input afterward loads it fresh. Install transactions should finish before restarting.
 Programmatic `defineBuild`/`watchBuild` behavior and custom watch options are unchanged.
 
-SIGINT/SIGTERM request shutdown even during configuration loading. The CLI waits
+SIGINT/SIGTERM request shutdown even during configuration loading. Interrupted
+one-shot builds exit nonzero, including when stopped before the build begins.
+The CLI waits
 for config loading and the watcher's `stop()` promise; it never force-kills a slow
 build or launches a concurrent replacement. A hung import or callback can therefore
 hold shutdown indefinitely. Custom watchers must stop scheduling and drain all
@@ -402,3 +417,62 @@ work in `stop()`. Custom SSR/publication callbacks remain responsible for their 
 transactional guarantees: process serialization does not provide rollback across
 browser assets, SSR and custom publication. Reported build errors retain the
 configured watcher's existing reporting/recovery behavior.
+
+### Structured publication (only built-in layout; breaking change)
+
+Conventional `defineThemeBuild` publication retains compiler surface subdirectories
+(`frontend/`, `admin/`, `editor/`, `css/`). Public manifest keys remain stable, but
+their target URLs change. Consumers must resolve assets through the manifest rather
+than assuming root-level filenames. The `publicationLayout` option has been removed:
+remove it even when its value was `'structured'`. Explicit use is rejected rather
+than silently ignored. The legacy `flattenAssets` implementation/export is removed.
+
+Migrate `publication` hooks to use the provided `publicationRoot` for the prepared
+public tree, not `resolve(outdir, 'flat')`. This is a stable directory contract:
+the directory contains the collected nested outputs before packaging, and aliases
+are relative to it. Its absolute path is staging-only; do not persist it or depend
+on its basename. Enumerate nested files when needed and include their directory
+names in aliases. `outdir` remains the compiler staging directory. Fixed UTM/player
+outputs remain supported through `extraFiles: [{ source, destination }]` and aliases
+mapping public manifest keys to those destinations.
+
+Custom `publish` functions and `publish: false` remain supported and own publication,
+but theme compiler URLs now always target structured surface directories. Custom
+publishers must preserve those paths or explicitly implement their own relocation.
+A `publication` hook is preferred for extending the built-in publisher. Low-level
+`defineBuild`, `packageRelease` and `packageFlatRelease` remain layout-neutral and
+keep their existing defaults. Despite their historical names, `packageFlatRelease`
+and `publishFlatRelease` in `bun/flat-publication.mjs` operate on prepared trees,
+including nested files; their API is retained for existing custom publishers.
+
+Structured conventional CSS omits unreferenced stable entry styles only after the
+same-directory hashed stylesheet and manifest are generated. Alias targets and
+references in packaged files or generated wrappers retain the stable stylesheet;
+queries, fragments and escaped names are considered conservatively. Custom `css`
+callbacks retain their entry styles. Hooks that construct CSS URLs dynamically
+must pin the stable path with an alias; static inspection cannot certify computed
+URLs. Extra styles, script intermediates and source maps are not blanket-removed.
+Low-level packagers can opt into this scoped behavior with
+`removeUnreferencedStyles: true`; this is not a general unused-asset collector.
+
+This default does not change cache synchronization, retention, rollback policy,
+or active site configuration. Reverting to explicit `'flat'` rebuilds the old
+layout; keep the previous complete release when deploying or rolling back.
+Low-level builds and presets optionally accept `entryPublicPaths`, an object mapping
+existing entry names to root-relative public URL prefixes ending in `/`. Omitted
+entries continue using `buildOptions.publicPath`; editor output keeps its editor
+builder URL contract. Shared fonts support nested stylesheet paths.
+
+Local CSS asset URL pathnames are percent-decoded once before filesystem resolution.
+Query strings and fragments are preserved on published URLs. Encode literal `%`
+characters as `%25`; malformed pathname encoding fails with an explicit error.
+Remote URLs are left unchanged.
+
+## Source formatting
+
+Run `bun run lintJs bun bin linters scripts eslint.config.mjs` to check maintained
+JavaScript sources. Add `--fix --fix-type layout,suggestion` to apply formatting
+fixes. The repository configuration requires braces for control-flow statements,
+blank lines before control flow and returns, and separation after blocks. These
+rules also cover `.mjs` build helpers. Tests, packaged output, dependencies and
+compiled output are excluded; the published consumer lint configuration is unchanged.

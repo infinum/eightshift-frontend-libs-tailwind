@@ -56,8 +56,37 @@ async function coreExports(root, request) {
 	const script = await readFile(resolve(root, 'wp-includes/js/dist', `${name}.js`), 'utf8');
 	const matches = [...script.matchAll(/__export\(index_exports, \{([\s\S]*?)\n\s*\}\);/g)];
 
+	if (!matches.length && !/\bindex_exports\b/.test(script)) {
+		// Core's generated PEG parser uses a single CommonJS factory, not an ESM export table.
+		const commonJs = script.match(/var (require_[\w$]+) = __commonJS\(\{\s*"[^"\n]+"\(exports, module\) \{[\s\S]*?\bmodule\.exports\s*=\s*\{([^{}]*)\};\s*\}\s*\}\);\s*return \1\(\);\s*\}\)\(\);/);
+
+		if (commonJs && [...script.matchAll(/\bmodule\s*(?:\.\s*exports|\[)/g)].length === 1 && !/\bexports\s*(?:\.|\[)/.test(script.replace(/\bmodule\.exports\b/g, ''))) {
+			const names = commonJs[2]
+				.trim()
+				.replace(/,$/, '')
+				.split(',')
+				.map((entry) => entry.trim().match(/^([A-Za-z_$][\w$]*):\s*[A-Za-z_$][\w$]*$/)?.[1]);
+
+			if (names.length && names.every((name) => name && name !== '__proto__') && new Set(names).size === names.length) {
+				return { names, defaultGlobal: false };
+			}
+		}
+
+		// Only these core entry points are known to have no public exports. Unknown
+		// bundle formats must fail rather than silently erase their exported API.
+		if (['base-styles', 'format-library', 'list-reusable-blocks'].includes(name) && !/return\s+(?:__toCommonJS\(|require_[\w$]+\(\);\s*\}\)\(\);)/.test(script)) {
+			return { names: [], defaultGlobal: false };
+		}
+
+		throw new Error(`Cannot identify WordPress core exports for ${request}`);
+	}
+
 	if (matches.length !== 1 || !script.includes('return __toCommonJS(index_exports);')) {
 		throw new Error(`Cannot identify WordPress core exports for ${request}`);
+	}
+
+	if (!matches[0][1].trim()) {
+		return { names: [], defaultGlobal: false };
 	}
 
 	const names = matches[0][1]
@@ -69,7 +98,10 @@ async function coreExports(root, request) {
 		throw new Error(`Cannot parse WordPress core exports for ${request}`);
 	}
 
-	return names;
+	const property = name.replace(/-([a-z])/g, (_, letter) => letter.toUpperCase());
+	const defaultGlobal = new RegExp(`\\bwp\\.${property}\\s*=\\s*wp\\.${property}\\.default\\s*;`).test(script);
+
+	return { names, defaultGlobal };
 }
 
 /** Create a fresh adapter for each Bun build. Paths must be absolute. */
@@ -80,6 +112,7 @@ export function wordpressPlugin({ projectRoot = process.cwd(), wpRoot } = {}) {
 
 	const projectRequire = createRequire(resolve(projectRoot, 'package.json'));
 	const dependencies = new Set();
+	const sideEffectDependencies = new Set();
 	const modules = new Map();
 	const handles = new Map();
 
@@ -94,7 +127,8 @@ export function wordpressPlugin({ projectRoot = process.cwd(), wpRoot } = {}) {
 					return [...dependencies].sort();
 				}
 
-				const emitted = new Set();
+				// Empty adapters may be erased, but WordPress must still run their scripts.
+				const emitted = new Set(sideEffectDependencies);
 
 				for (const output of outputs) {
 					if (!output?.inputs || typeof output.inputs !== 'object') {
@@ -142,25 +176,7 @@ export function wordpressPlugin({ projectRoot = process.cwd(), wpRoot } = {}) {
 
 					const [global, handle, kind] = external;
 					const require = isAbsolute(args.importer) ? createRequire(args.importer) : projectRequire;
-					let metadata;
 					let entry;
-					let fallback = false;
-
-					if (kind === 'wordpress') {
-						try {
-							metadata = require(`${request}/package.json`);
-						} catch (error) {
-							if (error.code !== 'MODULE_NOT_FOUND' || !['@wordpress/plugins', '@wordpress/core-data'].includes(request)) {
-								throw error;
-							}
-
-							fallback = true;
-						}
-
-						if (!fallback && metadata.wpScript !== true) {
-							throw new Error(`Missing wpScript metadata: ${request}`);
-						}
-					}
 
 					if (kind !== 'commonjs' && kind !== 'wordpress') {
 						const importer = isAbsolute(args.importer) ? args.importer : resolve(projectRoot, '__wordpress_plugin__.mjs');
@@ -168,14 +184,15 @@ export function wordpressPlugin({ projectRoot = process.cwd(), wpRoot } = {}) {
 						entry = kind === 'react' ? require.resolve(request) : Bun.resolveSync(request, dirname(importer));
 					}
 
-					const key = JSON.stringify([request, entry || '', fallback]);
+					const key = JSON.stringify([request, entry || '']);
 
 					if (!modules.has(key)) {
 						let names = [];
+						let defaultGlobal = false;
 
 						try {
 							if (kind === 'wordpress') {
-								names = await coreExports(wpRoot, request);
+								({ names, defaultGlobal } = await coreExports(wpRoot, request));
 							} else if (kind === 'react') {
 								names = ['default', ...Object.keys(require(entry)).filter((name) => name !== 'default')];
 							} else if (kind !== 'commonjs') {
@@ -188,6 +205,15 @@ export function wordpressPlugin({ projectRoot = process.cwd(), wpRoot } = {}) {
 							throw new Error(`Cannot determine exports for ${request}: ${error.message}`);
 						}
 
+						if (kind === 'wordpress' && !names.length) {
+							sideEffectDependencies.add(handle);
+							modules.set(key, 'export {};');
+							dependencies.add(handle);
+							handles.set(key, handle);
+
+							return { path: key, namespace: 'wordpress-global' };
+						}
+
 						const path = Array.isArray(global) ? global : [global];
 						const lines = [`const value = ${path.reduce((expression, part) => `${expression}?.[${JSON.stringify(part)}]`, 'globalThis')};`, `if (value == null) throw new Error(${JSON.stringify(`Missing WordPress global for ${request}`)});`];
 
@@ -198,7 +224,7 @@ export function wordpressPlugin({ projectRoot = process.cwd(), wpRoot } = {}) {
 						} else {
 							for (const [index, name] of names.entries()) {
 								if (name === 'default') {
-									lines.push(kind === 'esm' || metadata?.wpScriptDefaultExport === true ? 'export default value;' : 'export default value.default;');
+									lines.push(kind === 'esm' || defaultGlobal ? 'export default value;' : 'export default value.default;');
 								} else {
 									lines.push(`const export${index} = value[${JSON.stringify(name)}];`, `export { export${index} as ${name} };`);
 								}

@@ -37,6 +37,7 @@ export function defineBuild({ root = process.cwd(), preset, ssr, publish, watch 
 		if (Object.hasOwn(options, 'timings')) {
 			throw new Error('The timings option is no longer supported');
 		}
+
 		if (options.quiet && options.verbose) {
 			throw new Error('quiet and verbose cannot be combined');
 		}
@@ -47,6 +48,7 @@ export function defineBuild({ root = process.cwd(), preset, ssr, publish, watch 
 	const outputs = new Set();
 	const run = async (options = {}) => {
 		validateOptions(options);
+
 		if (active) {
 			throw new Error('A build is already running');
 		}
@@ -65,13 +67,17 @@ export function defineBuild({ root = process.cwd(), preset, ssr, publish, watch 
 			const configured = typeof preset === 'function' ? await preset(context) : preset;
 			outputs.clear();
 			const output = typeof configured?.outdir === 'string' && configured.outdir ? resolve(root, configured.outdir) : undefined;
+
 			if (output) {
 				const rootFromOutput = relative(output, root);
+
 				if (!rootFromOutput || (!isAbsolute(rootFromOutput) && rootFromOutput !== '..' && !rootFromOutput.startsWith(`..${sep}`))) {
 					throw new Error('outdir must not contain the project root');
 				}
+
 				outputs.add(output);
 			}
+
 			report('Building browser assets…');
 			const result = await buildPreset({ ...configured, root });
 			const state = { ...context, result };
@@ -87,6 +93,7 @@ export function defineBuild({ root = process.cwd(), preset, ssr, publish, watch 
 			}
 
 			report(`Build completed in ${((performance.now() - started) / 1000).toFixed(2)}s.`);
+
 			return state;
 		})();
 
@@ -101,6 +108,7 @@ export function defineBuild({ root = process.cwd(), preset, ssr, publish, watch 
 		build: run,
 		watch: (options = {}) => {
 			validateOptions(options);
+
 			if ((ssr || publish) && watch.sources === undefined && !watch.ignored?.length) {
 				throw new Error('Watch builds with ssr or publish callbacks require explicit watch.sources or watch.ignored');
 			}
@@ -113,22 +121,28 @@ export function defineBuild({ root = process.cwd(), preset, ssr, publish, watch 
 					if (watch.ignore?.(path)) {
 						return true;
 					}
+
 					for (const output of outputs) {
 						const location = relative(output, path);
+
 						if (!location || (!isAbsolute(location) && location !== '..' && !location.startsWith(`..${sep}`))) {
 							return true;
 						}
+
 						const sibling = relative(dirname(output), path).split(sep)[0];
+
 						if (sibling.startsWith(`.${basename(output)}-stage-`) || sibling.startsWith(`.${basename(output)}-backup-`)) {
 							return true;
 						}
 					}
+
 					return false;
 				},
 				build: async () => {
 					while (active) {
 						await active.catch(() => {});
 					}
+
 					return run(options);
 				},
 			});

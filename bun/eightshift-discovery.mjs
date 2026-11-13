@@ -1,3 +1,4 @@
+import { Linter } from 'eslint';
 import { createHash } from 'node:crypto';
 import { realpathSync } from 'node:fs';
 import { readFile } from 'node:fs/promises';
@@ -5,6 +6,51 @@ import { createRequire } from 'node:module';
 import { dirname, resolve, relative, sep } from 'node:path';
 import { generateDiscovery } from './discovery.mjs';
 import { allowPureJsxGrouping } from './plugin-capabilities.mjs';
+
+const linter = new Linter();
+
+function executableCalls(source, path) {
+	const contexts = [];
+	const imports = [];
+	const identifiers = new Set();
+	const messages = linter.verify(
+		source,
+		[
+			{
+				languageOptions: { ecmaVersion: 'latest', sourceType: 'module', parserOptions: { ecmaFeatures: { jsx: true } } },
+				linterOptions: { noInlineConfig: true },
+				plugins: {
+					capture: {
+						rules: {
+							calls: {
+								create: () => ({
+									Identifier: (node) => identifiers.add(node.name),
+									CallExpression: (node) => {
+										const callee = node.callee;
+
+										if (callee.type === 'MemberExpression' && !callee.computed && callee.object.type === 'Identifier' && callee.object.name === 'require' && callee.property.name === 'context') {
+											contexts.push(node);
+										}
+									},
+									ImportExpression: (node) => imports.push(node),
+								}),
+							},
+						},
+					},
+				},
+				rules: { 'capture/calls': 'error' },
+			},
+		],
+		{ filename: 'module.js' },
+	);
+	const fatal = messages.find((message) => message.fatal);
+
+	if (fatal) {
+		throw new Error(`Cannot parse ${path}: ${fatal.message}`);
+	}
+
+	return { contexts: contexts.sort((a, b) => a.start - b.start), imports, identifiers };
+}
 
 /**
  * Migrate literal webpack require.context calls in selected source files.
@@ -31,15 +77,14 @@ export function eightshiftDiscovery({ root, outputDir, filter = /\.[cm]?jsx?$/, 
 
 				const source = await readFile(path, 'utf8');
 
-				if (!source.includes('require.context')) {
+				if (!source.includes('require') || !source.includes('context')) {
 					return;
 				}
 
-				const pattern = /require\.context\(\s*(['"])([^'"\n]+)\1\s*,\s*(true|false)\s*,\s*\/(?!\*)(?!\/)((?:\\.|[^/\n])+)\/([dgimsuvy]*)\s*(?:,\s*(['"])(sync|lazy)\6\s*)?\)/g;
-				const matches = [...source.matchAll(pattern)];
+				const { contexts: matches, identifiers } = executableCalls(source, path);
 
 				if (!matches.length) {
-					throw new Error(`Unsupported require.context in ${path}`);
+					return;
 				}
 
 				const definitions = [];
@@ -47,16 +92,38 @@ export function eightshiftDiscovery({ root, outputDir, filter = /\.[cm]?jsx?$/, 
 				let offset = 0;
 
 				for (const match of matches) {
-					const [, , directory, recursive, expression, flags, , webpackMode] = match;
+					const [directoryNode, recursiveNode, patternNode, modeNode] = match.arguments;
 
-					if (recursive !== 'true') {
+					if (
+						match.optional ||
+						match.arguments.length < 3 ||
+						match.arguments.length > 4 ||
+						directoryNode?.type !== 'Literal' ||
+						typeof directoryNode.value !== 'string' ||
+						recursiveNode?.type !== 'Literal' ||
+						typeof recursiveNode.value !== 'boolean' ||
+						!patternNode?.regex ||
+						(modeNode && (modeNode.type !== 'Literal' || !['sync', 'lazy'].includes(modeNode.value)))
+					) {
+						throw new Error(`Unsupported require.context in ${path}`);
+					}
+
+					if (!recursiveNode.value) {
 						throw new Error(`Nonrecursive require.context is unsupported in ${path}`);
 					}
 
-					const context = { path, directory, pattern: new RegExp(expression, flags), mode: webpackMode || 'sync' };
-					const name = `context${definitions.length}`;
+					const directory = directoryNode.value;
+					const context = { path, directory, pattern: new RegExp(patternNode.regex.pattern, patternNode.regex.flags), mode: modeNode?.value ?? 'sync' };
+					let index = definitions.length;
+					let name = `context${index}`;
 
-					contents += source.slice(offset, match.index);
+					while (identifiers.has(name)) {
+						name = `context${++index}`;
+					}
+
+					identifiers.add(name);
+
+					contents += source.slice(offset, match.start);
 
 					if (omitContexts(context)) {
 						contents += 'Object.assign(() => ({}), { keys: () => [] })';
@@ -65,14 +132,10 @@ export function eightshiftDiscovery({ root, outputDir, filter = /\.[cm]?jsx?$/, 
 						contents += name;
 					}
 
-					offset = match.index + match[0].length;
+					offset = match.end;
 				}
 
 				contents += source.slice(offset);
-
-				if (contents.includes('require.context')) {
-					throw new Error(`Unsupported require.context remains in ${path}`);
-				}
 
 				if (definitions.length) {
 					const id = createHash('sha256').update(relative(root, path)).digest('hex').slice(0, 20);
@@ -88,6 +151,7 @@ export function eightshiftDiscovery({ root, outputDir, filter = /\.[cm]?jsx?$/, 
 			});
 		},
 	};
+
 	return transformSource ? plugin : allowPureJsxGrouping(plugin);
 }
 
@@ -106,18 +170,30 @@ export function editorLazyImports({ root, chunks, chunkDir = 'editor-chunks', sc
 
 	root = realpathSync(resolve(root));
 	const require = createRequire(import.meta.url);
-	const transformSource = (source, path) =>
-		!include(path)
-			? source
-			: source.replace(/import\(\s*(?:\/\*[\s\S]*?\*\/\s*)?(['"])(\.[^'"\n]+)\1\s*\)/g, (_match, _quote, specifier) => {
-					const target = require.resolve(resolve(dirname(path), specifier));
-					const name = chunks.get(target) ?? `${createHash('sha256').update(relative(root, target)).digest('hex').slice(0, 20)}.js`;
+	const transformSource = (source, path) => {
+		if (!include(path) || !source.includes('import')) {
+			return source;
+		}
 
-					chunks.set(target, name);
-					const version = versioned ? '?v=00000000000000000000' : '';
+		const { imports } = executableCalls(source, path);
+		let contents = source;
 
-					return `import(new URL(${JSON.stringify(`${chunkDir}/${name}${version}`)}, ${scriptUrlIdentifier}).href)`;
-				});
+		for (const node of imports.sort((a, b) => b.start - a.start)) {
+			if (node.source.type !== 'Literal' || typeof node.source.value !== 'string' || !node.source.value.startsWith('.') || node.options) {
+				continue;
+			}
+
+			const target = require.resolve(resolve(dirname(path), node.source.value));
+			const name = chunks.get(target) ?? `${createHash('sha256').update(relative(root, target)).digest('hex').slice(0, 20)}.js`;
+			chunks.set(target, name);
+			const version = versioned ? '?v=00000000000000000000' : '';
+			const replacement = `import(new URL(${JSON.stringify(`${chunkDir}/${name}${version}`)}, ${scriptUrlIdentifier}).href)`;
+			contents = contents.slice(0, node.start) + replacement + contents.slice(node.end);
+		}
+
+		return contents;
+	};
+
 	const plugin = {
 		name: 'eightshift-editor-lazy-imports',
 		setup(builder) {

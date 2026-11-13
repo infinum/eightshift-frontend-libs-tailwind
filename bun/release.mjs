@@ -8,6 +8,7 @@ async function ensureDirectory(directory, root) {
 	const location = root && relative(root, directory);
 	const withinRoot = root && (!location || (!isAbsolute(location) && location !== '..' && !location.startsWith(`..${sep}`)));
 	const parent = dirname(directory);
+
 	if (parent !== directory && (!withinRoot || directory !== root)) {
 		await ensureDirectory(parent, root);
 	}
@@ -21,6 +22,7 @@ async function ensureDirectory(directory, root) {
 	}
 
 	const info = await lstat(directory);
+
 	if (!info.isDirectory() || info.isSymbolicLink()) {
 		throw new Error(`Release path must be a real directory: ${directory}`);
 	}
@@ -47,7 +49,7 @@ const releasePath = (value) => {
  * Returns { release, version, manifest }. A failed staging directory is retained.
  * outputDirectory writes directly to an existing directory instead of staging.
  */
-export async function packageRelease({ root, files, entries, aliases = {}, outputDirectory, omit = [] }) {
+export async function packageRelease({ root, files, entries, aliases = {}, outputDirectory, omit = [], removeUnreferencedStyles = false }) {
 	if (typeof root !== 'string' || !root || !Array.isArray(files) || !Array.isArray(entries) || !entries.length || !aliases || typeof aliases !== 'object' || Array.isArray(aliases)) {
 		throw new TypeError('Expected root, files, entries and optional aliases');
 	}
@@ -62,6 +64,7 @@ export async function packageRelease({ root, files, entries, aliases = {}, outpu
 
 		contents.set(path, bytes);
 	};
+
 	const collect = async (source, destination) => {
 		const info = await lstat(source);
 
@@ -101,6 +104,7 @@ export async function packageRelease({ root, files, entries, aliases = {}, outpu
 
 		manifest[key] = value;
 	};
+
 	const scripts = new Map();
 
 	for (const entry of entries) {
@@ -111,8 +115,12 @@ export async function packageRelease({ root, files, entries, aliases = {}, outpu
 		const target = releasePath(entry.entry);
 		const style = releasePath(entry.style);
 
-		if (!contents.has(target) || !contents.has(style) || !contents.get(target).length || !contents.get(style).length) {
-			throw new Error(`Missing or empty entry or style for ${entry.name}`);
+		if (!contents.has(target) || !contents.get(target).length) {
+			throw new Error(`Missing or empty entry for ${entry.name}`);
+		}
+
+		if (!contents.has(style)) {
+			throw new Error(`Missing style for ${entry.name}`);
 		}
 
 		if (entry.script !== undefined && (typeof entry.script !== 'string' || !entry.script.trim())) {
@@ -122,9 +130,11 @@ export async function packageRelease({ root, files, entries, aliases = {}, outpu
 		if (entry.format !== undefined && entry.format !== 'module') {
 			throw new TypeError(`Unsupported script format for ${entry.name}`);
 		}
+
 		if (entry.format === 'module' && (entry.readiness !== 'eightshift-editor-v1' || entry.script === undefined)) {
 			throw new TypeError(`Module entry ${entry.name} requires an explicit script and readiness contract`);
 		}
+
 		if (entry.readiness !== undefined && entry.format !== 'module') {
 			throw new TypeError(`Readiness requires a module entry: ${entry.name}`);
 		}
@@ -138,7 +148,9 @@ export async function packageRelease({ root, files, entries, aliases = {}, outpu
 		scripts.set(entry.name, { script, dependencies: entry.dependencies, ...(entry.format === 'module' ? { format: entry.format, readiness: entry.readiness } : {}) });
 		const scriptName = `${entry.name}-${digest(script)}.js`;
 		const styleBytes = contents.get(style);
-		const styleName = `${entry.name}-${digest(styleBytes)}.css`;
+		// Preserve the stylesheet's base directory for relative URLs and imports.
+		const styleDirectory = style.slice(0, style.lastIndexOf('/') + 1);
+		const styleName = `${styleDirectory}${entry.name}-${digest(styleBytes)}.css`;
 
 		if (contents.has(scriptName)) {
 			throw new Error(`Duplicate release path: ${scriptName}`);
@@ -166,13 +178,53 @@ export async function packageRelease({ root, files, entries, aliases = {}, outpu
 	if (!Array.isArray(omit)) {
 		throw new TypeError('omit must be an array');
 	}
+
 	for (const path of omit) {
 		releasePath(path);
+
+		if (entries.some((entry) => entry.script === undefined && entry.entry === path)) {
+			throw new Error(`Cannot omit a script bootstrap target: ${path}`);
+		}
+
 		if (Object.values(manifest).includes(path)) {
 			throw new Error(`Cannot omit manifest target: ${path}`);
 		}
+
 		if (!contents.delete(path)) {
 			throw new Error(`Cannot omit missing release file: ${path}`);
+		}
+	}
+
+	if (typeof removeUnreferencedStyles !== 'boolean') {
+		throw new TypeError('removeUnreferencedStyles must be a boolean');
+	}
+
+	if (removeUnreferencedStyles) {
+		// Only entry styles have a generated, same-directory hashed replacement.
+		// Conservative name matching also retains ambiguous and absolute references.
+		const referenceText = (bytes) =>
+			bytes
+				.toString()
+				.replace(/\\(?:u\{([\da-f]+)\}|u([\da-f]{4})|x([\da-f]{2}))/gi, (match, point, unicode, hex) => {
+					const code = Number.parseInt(point ?? unicode ?? hex, 16);
+
+					return code <= 0x10ffff ? String.fromCodePoint(code) : match;
+				})
+				.replace(/\\([\da-f]{1,6})[ \t\r\n\f]?/gi, (match, hex) => {
+					const code = Number.parseInt(hex, 16);
+
+					return code > 0 && code <= 0x10ffff ? String.fromCodePoint(code) : match;
+				})
+				.replace(/\\([^\r\n])/g, '$1')
+				.replace(/%([\da-f]{2})/gi, (_match, hex) => String.fromCharCode(Number.parseInt(hex, 16)));
+		const texts = [...contents.values(), ...[...scripts.values()].map(({ script }) => script)].map(referenceText);
+
+		for (const { style } of entries) {
+			const name = style.slice(style.lastIndexOf('/') + 1);
+
+			if (!Object.values(manifest).includes(style) && !texts.some((text) => text.includes(name))) {
+				contents.delete(style);
+			}
 		}
 	}
 

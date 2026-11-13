@@ -1,5 +1,5 @@
 import { randomUUID } from 'node:crypto';
-import { cp, lstat, mkdir, readFile, readdir, rename, rm, unlink, writeFile } from 'node:fs/promises';
+import { chmod, cp, lstat, mkdir, readFile, readdir, rename, rm, unlink, writeFile } from 'node:fs/promises';
 import { dirname, isAbsolute, join, relative, resolve, sep } from 'node:path';
 
 const exists = async (path) => {
@@ -13,6 +13,7 @@ const exists = async (path) => {
 		throw error;
 	}
 };
+
 const pathName = (value) => {
 	if (typeof value !== 'string' || !value || isAbsolute(value) || value.includes('\\') || value.includes('\0') || value.split('/').some((part) => !part || part === '.' || part === '..')) {
 		throw new Error(`Invalid manifest path: ${String(value)}`);
@@ -20,6 +21,7 @@ const pathName = (value) => {
 
 	return value;
 };
+
 const inside = (parent, child) => {
 	const path = relative(parent, child);
 
@@ -30,8 +32,8 @@ const inside = (parent, child) => {
  * Publish a packageRelease directory without deleting unrelated public files.
  * root is the theme root; publicDir defaults to root/public. publicPrefix is
  * the URL prefix including its trailing slash. manifest maps keys to paths in
- * release. Existing PHP manifest cache assets are updated;
- * missing caches are left alone. Returns { publicDir, manifest }.
+ * release. Existing PHP manifest cache assets are updated with their permission
+ * bits preserved; missing caches are left alone. Returns { publicDir, manifest }.
  */
 export async function publishRelease({ root, release, manifest, publicDir, publicPrefix }) {
 	if (
@@ -182,7 +184,8 @@ export async function publishRelease({ root, release, manifest, publicDir, publi
 
 			cacheData.assets.assets = publicManifest;
 			cacheTemporary = `${cachePath}.${randomUUID()}`;
-			await writeFile(cacheTemporary, JSON.stringify(cacheData), { flag: 'wx', mode: cacheInfo.mode });
+			await writeFile(cacheTemporary, JSON.stringify(cacheData), { flag: 'wx', mode: cacheInfo.mode & 0o7777 });
+			await chmod(cacheTemporary, cacheInfo.mode & 0o7777);
 		}
 
 		if (publicInfo) {

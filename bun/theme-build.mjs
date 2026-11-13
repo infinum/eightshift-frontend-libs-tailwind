@@ -1,12 +1,14 @@
 import { createHash, randomUUID } from 'node:crypto';
-import { link, mkdir, readFile, unlink } from 'node:fs/promises';
+import { link, mkdir, readFile, realpath, unlink } from 'node:fs/promises';
 import { createRequire } from 'node:module';
 import { basename, dirname, isAbsolute, relative, resolve, sep } from 'node:path';
 import { defineBuild } from './index.mjs';
 import { clearBuildDirectory } from './build.mjs';
 import { generateThemeDiscovery, generateThemeImporters, themeDiscoveryPlugin } from './theme-discovery.mjs';
-import { processEightshiftCss } from './eightshift-css.mjs';
-import { flattenAssets, packageFlatRelease, publishFlatRelease } from './flat-publication.mjs';
+import { eightshiftCssEntries } from './eightshift-css.mjs';
+import { preserveAssets } from './structured-publication.mjs';
+import { packageFlatRelease, publishFlatRelease } from './flat-publication.mjs';
+import { browserCssPlugin, browserCssRuntime, collectConventionalCss } from './browser-css.mjs';
 import { editorWorkerPlugin } from './media.mjs';
 import { allowPureJsxGrouping } from './plugin-capabilities.mjs';
 import { processCss } from './css.mjs';
@@ -17,33 +19,42 @@ import { prepareSharedFonts } from './shared-fonts.mjs';
  * Define a conventional theme build. extraCss may be a hook or an array of
  * { files, output?, keys?, href? }; package files use the `package:` prefix.
  * Omitted output names use a content hash. Keys attach CSS to frontend importers.
+ * Frontend/admin JS imports compile styles separately and load them before the
+ * importing module; styles imported by lazy modules remain lazy.
+ * Direct imports already in conventional CSS are not loaded twice.
  * SSR is built when conventional entries exist; ssr: false disables it.
  * optimizeImports controls Bun's package barrel optimization for browser builds.
  * UI Components is optimized by default; pass [] to disable the explicit default.
  * watch: false disables watching; an object overrides the safe watch defaults.
  */
-export function defineThemeBuild({
-	root,
-	publicPrefix: configuredPublicPrefix,
-	buildSsr,
-	createPlugins = () => [],
-	frontendStyles = [],
-	optimizeImports = ['@eightshift/ui-components'],
-	sharedFonts = false,
-	extraCss = async () => {},
-	aliases = {},
-	publication = async () => ({}),
-	requireEditorWorker = false,
-	media = {},
-	watch = {},
-	entries,
-	editor,
-	responsive = {},
-	css,
-	discovery,
-	ssr,
-	publish,
-} = {}) {
+export function defineThemeBuild(options = {}) {
+	if (Object.hasOwn(options, 'publicationLayout')) {
+		throw new TypeError('publicationLayout has been removed; theme builds use structured publication. Remove the option and migrate publication hooks to publicationRoot.');
+	}
+
+	const {
+		root,
+		publicPrefix: configuredPublicPrefix,
+		buildSsr,
+		createPlugins = () => [],
+		frontendStyles = [],
+		optimizeImports = ['@eightshift/ui-components'],
+		sharedFonts = false,
+		extraCss = async () => {},
+		aliases = {},
+		publication = async () => ({}),
+		requireEditorWorker = false,
+		media = {},
+		watch = {},
+		entries,
+		editor,
+		responsive = {},
+		css,
+		discovery,
+		ssr,
+		publish,
+	} = options;
+
 	if (typeof root !== 'string' || !root) {
 		throw new TypeError('root must be a non-empty string');
 	}
@@ -158,34 +169,47 @@ export function defineThemeBuild({
 	const wpRoot = process.env.EIGHTSHIFT_WP_ROOT ? resolve(process.env.EIGHTSHIFT_WP_ROOT) : resolve(root, '../../..');
 	const themePath = relative(wpRoot, resolve(root));
 	let publicPath = configuredPublicPrefix ?? process.env.EIGHTSHIFT_PUBLIC_PREFIX;
+
 	if (publicPath === undefined) {
 		if (!themePath || themePath === '..' || themePath.startsWith(`..${sep}`) || isAbsolute(themePath)) {
 			throw new Error('Theme must be inside the WordPress root unless publicPrefix is configured');
 		}
+
 		publicPath = `/${themePath.split(sep).join('/')}/public/`;
 	}
+
 	if (typeof publicPath !== 'string' || !publicPath.startsWith('/') || publicPath.startsWith('//') || !publicPath.endsWith('/') || publicPath.includes('\\') || /[?#\s\x00-\x1f]/.test(publicPath) || publicPath.split('/').some((part) => part === '.' || part === '..')) {
 		throw new Error('publicPrefix must be a root-relative URL path ending in /');
 	}
+
 	let outdir;
 	let editorWorker;
+	let retainedStyles;
 	const makePreset = async ({ sourcemaps }) => {
 		const versionFile = resolve(wpRoot, 'wp-includes/version.php');
 		let versionSource;
+
 		try {
 			versionSource = await readFile(versionFile, 'utf8');
 		} catch (error) {
 			throw new Error(`Cannot read WordPress version at ${versionFile}. Set EIGHTSHIFT_WP_ROOT to a WordPress installation.`, { cause: error });
 		}
+
 		const version = versionSource.match(/^\s*\$wp_version\s*=\s*['"](\d+)\.(\d+)(?:\.(\d+))?(['"]);/m);
+
 		if (!version) {
 			throw new Error(`Cannot determine a stable WordPress version from ${versionFile}; WordPress 7.0 or newer is required.`);
 		}
+
 		if (Number(version[1]) < 7) {
 			throw new Error(`WordPress 7.0 or newer is required; found ${version[1]}.${version[2]}${version[3] === undefined ? '' : `.${version[3]}`}.`);
 		}
 
 		editorWorker = undefined;
+		retainedStyles = new Set();
+		const extraCssByFile = new Map();
+		const conventionalCss = new Map();
+		const responsiveFiles = {};
 		const publicDir = resolve(root, 'public');
 		outdir = publish === undefined ? resolve(root, '.bun-pilot/theme-build') : resolve(publicDir, '.build');
 		await clearBuildDirectory(outdir, root);
@@ -225,7 +249,7 @@ export function defineThemeBuild({
 								...manifestReplacements,
 								['return import(/* webpackMode: "lazy" */ `./../../${importBasePath}/${directory}/assets/index.js`);', 'const importer = bunFrontendImporters[`${importBasePath}/${directory}`]; if (!importer) return Promise.reject(new Error("Missing frontend asset")); return importer();'],
 							],
-							remove: [/dynamicImport\(require\.context\([^\n]+\)\);/g],
+							omitContexts: ({ directory, pattern }) => css === undefined && ['components', 'custom', 'wrapper'].some((group) => directory === resolve(root, 'src/Blocks', group)) && ['styles-frontend.css$', 'styles-frontend\\.css$'].includes(pattern.source) && !pattern.flags,
 						},
 						{
 							path: 'src/Blocks/assets/scripts/application-admin.js',
@@ -238,7 +262,7 @@ export function defineThemeBuild({
 								["require.context('./../../custom', true, /assets-admin\\/index\\.js$/)", 'customAdminAssets'],
 								['return import(/* webpackMode: "lazy" */ `./../../${importBasePath}/${directory}/assets-admin/index.js`);', 'return assetContext(assetPath);'],
 							],
-							remove: [/dynamicImport\(require\.context\([^\n]+\)\);/g],
+							omitContexts: ({ directory, pattern }) => css === undefined && ['components', 'custom'].some((group) => directory === resolve(root, 'src/Blocks', group)) && ['styles-admin.css$', 'styles-admin\\.css$'].includes(pattern.source) && !pattern.flags,
 						},
 					],
 				}).setup(builder);
@@ -246,6 +270,8 @@ export function defineThemeBuild({
 		};
 		const pluginContext = {
 			root,
+			publicPrefix: publicPath,
+			scriptUrlIdentifier: editor?.scriptUrlIdentifier ?? '__eightshiftEditorScriptUrl',
 			setEditorWorker: (worker) => {
 				editorWorker = worker;
 			},
@@ -259,6 +285,10 @@ export function defineThemeBuild({
 
 		const workerFactory = media.editorWorker === undefined ? editorWorkerPlugin : media.editorWorker;
 		const plugins = workerFactory ? [workerFactory(pluginContext), ...callerPlugins] : [...callerPlugins];
+
+		if (publish === undefined) {
+			plugins.push(browserCssPlugin({ root, outdir, conventionalCss, extraCssByFile, responsiveFiles, retainedStyles }));
+		}
 
 		if (discovery === undefined) {
 			plugins.push(allowPureJsxGrouping(discoveryPlugin));
@@ -285,17 +315,23 @@ export function defineThemeBuild({
 				sharing: 'unified',
 				discovery: {
 					filter: /application-blocks-editor\.js$/,
-					omitContexts: ({ pattern }) => pattern.source === 'styles-editor.css$',
+					omitContexts: ({ pattern }) => ['styles-editor.css$', 'styles-editor\\.css$'].includes(pattern.source),
 				},
 			},
 			css: async (context) => {
 				const { outdir: stage, responsive: generated } = context;
+				Object.assign(responsiveFiles, generated);
 
 				if (css === undefined) {
 					for (const surface of ['frontend', 'editor', 'admin']) {
 						const name = surface === 'admin' ? 'applicationAdmin' : `applicationBlocks${surface === 'frontend' ? 'Frontend' : 'Editor'}`;
 
-						await processEightshiftCss({ projectDir: root, surface, responsiveFile: generated[surface], outputFile: resolve(stage, 'css', `${name}.css`), production: true });
+						const files = await eightshiftCssEntries({ projectDir: root, surface, responsiveFile: generated[surface] });
+						await processCss({ projectDir: root, files, outputFile: resolve(stage, 'css', `${name}.css`), production: true });
+
+						if (surface !== 'editor' && publish === undefined) {
+							conventionalCss.set(surface, await collectConventionalCss({ root, files }));
+						}
 					}
 				} else if (css) {
 					await css({ ...context, stage, require });
@@ -316,10 +352,12 @@ export function defineThemeBuild({
 
 						return file.startsWith('package:') ? require.resolve(file.slice(8)) : isAbsolute(file) ? file : resolve(root, file);
 					};
+
 					const temporary = resolve(stage, 'css', `.extra-${randomUUID()}.css`);
 					const outputFile = output ? resolve(stage, 'css', output) : temporary;
+					const resolvedFiles = files.map((entry) => (typeof entry === 'string' ? resolveFile(entry) : { ...entry, file: resolveFile(entry?.file) }));
 
-					await processCss({ projectDir: root, outputFile, files: files.map((entry) => (typeof entry === 'string' ? resolveFile(entry) : { ...entry, file: resolveFile(entry?.file) })), production: true });
+					await processCss({ projectDir: root, outputFile, files: resolvedFiles, production: true });
 					let name = output;
 
 					if (!name) {
@@ -339,8 +377,20 @@ export function defineThemeBuild({
 						await unlink(temporary);
 					}
 
+					retainedStyles.add(name);
+
 					if (keys) {
-						styles.push({ keys, href: href ?? `../css/${name}` });
+						const group = { href: href ?? `../css/${name}`, files: resolvedFiles };
+						styles.push({ keys, href: group.href });
+
+						if (publish === undefined) {
+							for (const entry of resolvedFiles) {
+								const file = await realpath(typeof entry === 'string' ? entry : entry.file);
+								const groups = extraCssByFile.get(file) ?? [];
+								groups.push(group);
+								extraCssByFile.set(file, groups);
+							}
+						}
 					}
 				}
 
@@ -350,11 +400,13 @@ export function defineThemeBuild({
 						glob: 'src/Blocks/{components,custom}/**/assets/index.js',
 						key: (file) => file.replace(/^src\/Blocks\//, '').replace(/\/assets\/index\.js$/, ''),
 						styles,
+						...(publish === undefined ? { styleRuntime: browserCssRuntime } : {}),
 					});
 					discoveryDir = resolve(stage, 'discovery');
 					await generateThemeDiscovery({ root, outputDir: discoveryDir, surfaces });
 				}
 			},
+			entryPublicPaths: Object.fromEntries(['frontend', 'admin'].filter((name) => entries === undefined || Object.hasOwn(entries, name)).map((name) => [name, `${publicPath}${name}/`])),
 			buildOptions: {
 				optimizeImports,
 				minify: true,
@@ -362,11 +414,12 @@ export function defineThemeBuild({
 				naming: { entry: '[name]-[hash].[ext]', chunk: '[name]-[hash].[ext]', asset: '[name]-[hash].[ext]' },
 				sourcemap: sourcemaps ? 'external' : 'none',
 				loader: { '.js': 'jsx', '.svg': 'file' },
-				define: { 'process.browser': 'true', 'process.env.NODE_ENV': '"production"', 'process.env.VERSION': '"library-release"' },
+				define: { 'process.browser': 'true', 'process.env.NODE_ENV': '"production"', 'process.env.VERSION': JSON.stringify(createHash('sha256').update(publicPath).digest('hex').slice(0, 20)) },
 				plugins,
 			},
 		};
 	};
+
 	const defaultPublish = async ({ result, verbose, quiet }) => {
 		const editorScript = await readFile(resolve(outdir, result.entries.editor.entry), 'utf8');
 
@@ -401,14 +454,18 @@ export function defineThemeBuild({
 			}
 		}
 
+		for (const surface of ['frontend', 'admin']) {
+			if (result.entries[surface].styles.length) {
+				throw new Error(`Unexpected Bun CSS output for ${surface}; a custom plugin bypassed the theme CSS loader. Configure a compatible plugin or custom publication.`);
+			}
+		}
+
 		const surfaces = { frontend: 'applicationBlocksFrontend', editor: 'applicationBlocksEditor', admin: 'applicationAdmin' };
-		const flatDir = resolve(outdir, 'flat');
-		const { rewrite } = await flattenAssets({
+		const flatDir = resolve(outdir, 'structured');
+		await preserveAssets({
 			outdir,
 			flatDir,
 			extraSources: editorWorker ? { [`editor/editor-assets/${basename(editorWorker)}`]: editorWorker } : {},
-			editorEntry: result.entries.editor.entry,
-			editorScript,
 		});
 		// Webpack exposed standalone images by basename, even when not imported by JS.
 		const standaloneAssets = new Map();
@@ -425,7 +482,22 @@ export function defineThemeBuild({
 
 		const entries = Object.entries(surfaces).map(([surface, name]) => {
 			const entry = result.entries[surface];
-			const script = surface === 'editor' ? rewrite(editorScript, entry.entry) : undefined;
+			let script;
+
+			if (surface === 'editor') {
+				if (entry.format === 'module') {
+					script = editorScript.replace(/^(import ["'])\.\//gm, `$1./${entry.entry.slice(0, entry.entry.lastIndexOf('/') + 1)}`);
+				} else {
+					const wrapper = '})(document.currentScript.src);\n';
+
+					if (editorScript.split(wrapper).length !== 2) {
+						throw new Error('Cannot relocate the classic editor script wrapper');
+					}
+
+					script = editorScript.replace(wrapper, () => `})(new URL(${JSON.stringify(entry.entry)}, document.currentScript.src).href);\n`);
+					script = script.replace(/^(\/\/# sourceMappingURL=)([^\r\n]+)$/m, (_match, prefix, map) => `${prefix}${entry.entry.slice(0, entry.entry.lastIndexOf('/') + 1)}${map}`);
+				}
+			}
 
 			if (verbose && !quiet) {
 				console.log(`${surface}: ${entry.entry}; dependencies: ${entry.dependencies.join(', ') || 'none'}`);
@@ -433,14 +505,14 @@ export function defineThemeBuild({
 
 			return {
 				name,
-				entry: surface === 'editor' ? 'editor-entry.js' : basename(entry.entry),
-				style: `${name}.css`,
+				entry: entry.entry,
+				style: `css/${name}.css`,
 				dependencies: entry.dependencies,
 				...(script && { script }),
 				...(entry.format === 'module' ? { format: entry.format, readiness: entry.readiness } : {}),
 			};
 		});
-		const publicationResult = await publication({ root, outdir, result });
+		const publicationResult = await publication({ root, outdir, result, publicationRoot: flatDir });
 		const additions = publicationResult === undefined ? {} : publicationResult;
 
 		if (!additions || typeof additions !== 'object' || Array.isArray(additions)) {
@@ -460,16 +532,19 @@ export function defineThemeBuild({
 				throw new Error(`Duplicate publication alias: ${key}`);
 			}
 		}
-		const fontAssets = sharedFonts ? await prepareSharedFonts({ root, flatDir }) : { extraFiles: [], aliases: {} };
+
+		const fontAssets = sharedFonts ? await prepareSharedFonts({ root, flatDir, retainedStyles }) : { extraFiles: [], aliases: {} };
+
 		if (sharedFonts && (Object.hasOwn(aliases, 'shared-fonts.json') || Object.hasOwn(additions.aliases ?? {}, 'shared-fonts.json'))) {
 			throw new Error('shared-fonts.json is reserved when sharedFonts is enabled');
 		}
+
 		const { release, version, manifest } = await packageFlatRelease({
 			extraFiles: [...fontAssets.extraFiles, ...(additions.extraFiles ?? [])],
 			retain: additions.retain,
 			previousPublic: resolve(root, 'public'),
 			root: outdir,
-			removeIntermediates: true,
+			removeUnreferencedStyles: css === undefined,
 			flatDir,
 			entries,
 			ssrDir,
@@ -481,6 +556,7 @@ export function defineThemeBuild({
 		await publishFlatRelease({ root, wpRoot, release, manifest, version, publicPrefix: publicPath });
 		await clearBuildDirectory(outdir, root);
 	};
+
 	const defaultSsr = ({ root, mode }) => buildDefaultSsr({ root, mode, outdir: resolve(outdir, 'ssr', mode) });
 	const customSsr = ssr ?? buildSsr;
 	const definition = defineBuild({
@@ -490,7 +566,7 @@ export function defineThemeBuild({
 			publish !== undefined && ssr !== false
 				? async (state) => {
 						if (customSsr) {
-							return customSsr({ ...state, mode: 'production' });
+							return customSsr({ ...state, mode: 'production', outdir: resolve(outdir, 'ssr', 'production') });
 						}
 
 						for await (const _file of new Bun.Glob('src/**/assets-ssr/ssr.{js,mjs}').scan({ cwd: root, onlyFiles: true })) {

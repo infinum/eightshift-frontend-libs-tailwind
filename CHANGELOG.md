@@ -10,11 +10,24 @@ This projects adheres to [Semantic Versioning](https://semver.org/) and [Keep a 
 
 ### 4.0.0-beta.4
 
+- **Breaking:** make structured directories the only built-in `defineThemeBuild` publication layout. Remove `publicationLayout` from configuration (all explicit values are rejected) and remove the legacy `flattenAssets` export. Migrate publication hooks from `outdir/flat` to the stable `publicationRoot` directory contract and nested relative aliases; fixed special outputs remain supported through `extraFiles`. Custom `publish` callbacks remain supported but must account for structured compiler URLs. Low-level build and prepared-tree packaging APIs retain their existing defaults.
+- Omit unreferenced conventional structured entry stylesheet intermediates after generating hashed replacements; retain aliases, referenced styles, custom CSS and script paths. Cache synchronization, retention and rollback policy are unchanged.
+
 - Default conventional theme editor builds to unified sharing; compatible PHP module-readiness integration is required.
 - Add opt-in shared same-origin font publication, requiring UI Components 8.5.0-beta.1 and Eightshift Libs 14.0.0-alpha.3 shared-font support.
 - Compile default SSR entries together as standalone CommonJS bundles; preserve sequential compilation for caller plugins and prevent implicit writes during compilation.
 - Restart CLI watch workers on selected configuration, root package manifest and Bun lockfile changes, draining active work before replacement.
 - Accept both verified generated Smart Image worker URL forms.
+- Resolve externalized WordPress package exports and default globals from core scripts without requiring installed package metadata; remove the API-fetch peer requirement.
+- Preserve isolated editor store IDs across projects without changing them on every rebuild.
+- Compile JavaScript-imported frontend and admin CSS and load it with its importing module, preserving lazy boundaries; resolve Smart Image workers on each surface.
+- Preserve relative asset URLs in nested release stylesheets and retain conditional shared-font rules in their original stylesheets.
+- Preserve eager JavaScript discovery contexts and recognize escaped editor stylesheet patterns.
+- Preserve CommonJS-style WordPress core exports instead of treating them as side-effect-only scripts.
+- Publish local string image URLs in CSS `image-set()` declarations.
+- Decode percent-encoded local CSS asset paths once, preserving query strings and fragments; report malformed path encoding clearly.
+- Allow empty release stylesheets while continuing to reject missing files and empty JavaScript entries.
+- Exit nonzero when a one-shot CLI build is interrupted, including during configuration loading.
 
 ### Changed
 

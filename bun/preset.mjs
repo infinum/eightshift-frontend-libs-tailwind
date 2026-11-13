@@ -1,5 +1,5 @@
 import { isAbsolute, relative, resolve, sep } from 'node:path';
-import { build } from './build.mjs';
+import { build, validateEntryPublicPaths } from './build.mjs';
 import { processEightshiftCss } from './eightshift-css.mjs';
 
 const checkOptions = (value, keys, label) => {
@@ -39,8 +39,8 @@ const feature = (value, keys, label) => {
  * Both are opt-in, and all filenames and discovery behavior are overridable.
  */
 export function createPreset(options = {}) {
-	checkOptions(options, ['root', 'outdir', 'entries', 'wpRoot', 'wordpress', 'discovery', 'responsive', 'css', 'editor', 'buildOptions', 'direct'], 'preset');
-	const { root = process.cwd(), outdir, entries, wpRoot, wordpress = true, buildOptions = {}, direct = false } = options;
+	checkOptions(options, ['root', 'outdir', 'entries', 'wpRoot', 'wordpress', 'discovery', 'responsive', 'css', 'editor', 'buildOptions', 'entryPublicPaths', 'direct'], 'preset');
+	const { root = process.cwd(), outdir, entries, wpRoot, wordpress = true, buildOptions = {}, entryPublicPaths = {}, direct = false } = options;
 
 	if (typeof root !== 'string' || !root || typeof outdir !== 'string' || !outdir) {
 		throw new TypeError('root and outdir must be non-empty strings');
@@ -49,6 +49,8 @@ export function createPreset(options = {}) {
 	if (!entries || typeof entries !== 'object' || Array.isArray(entries) || !Object.keys(entries).length) {
 		throw new TypeError('entries must contain named entrypoints');
 	}
+
+	validateEntryPublicPaths(entryPublicPaths, entries);
 
 	if (typeof wordpress !== 'boolean') {
 		throw new TypeError('wordpress must be a boolean');
@@ -111,7 +113,7 @@ export function createPreset(options = {}) {
 		}
 	}
 
-	return { root, outdir, entries: { ...entries }, wpRoot, wordpress, discovery, responsive, css, editor, direct, buildOptions: { ...buildOptions } };
+	return { root, outdir, entries: { ...entries }, wpRoot, wordpress, discovery, responsive, css, editor, direct, entryPublicPaths: { ...entryPublicPaths }, buildOptions: { ...buildOptions } };
 }
 
 /** Build and atomically publish a configured preset. */

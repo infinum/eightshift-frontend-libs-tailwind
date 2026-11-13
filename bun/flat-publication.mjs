@@ -1,6 +1,6 @@
 import { randomUUID } from 'node:crypto';
 import { chmod, lstat, mkdir, readFile, readdir, rename, rmdir, unlink, writeFile } from 'node:fs/promises';
-import { basename, dirname, isAbsolute, posix, relative, resolve, sep } from 'node:path';
+import { dirname, isAbsolute, relative, resolve, sep } from 'node:path';
 import { packageRelease } from './release.mjs';
 
 const pathName = (value) => {
@@ -11,203 +11,30 @@ const pathName = (value) => {
 	return value;
 };
 
-/** Collect build outputs and flatten them, rewriting relative JS, CSS and map references.
- * sources maps output-relative paths to source files. Returns the rewrite function.
- */
-export async function flattenAssets({ outdir, flatDir, directories = ['frontend', 'editor', 'admin', 'css'], extraSources = {}, editorEntry, editorScript }) {
-	const sources = new Map();
-	const collect = async (directory, prefix) => {
-		for (const item of await readdir(directory, { withFileTypes: true })) {
-			const path = `${prefix}/${item.name}`;
-
-			if (path === 'editor/discovery' || (item.isFile() && !prefix.includes('/') && item.name === `${prefix}.asset.json`)) {
-				continue;
-			}
-
-			if (item.isDirectory()) {
-				await collect(resolve(directory, item.name), path);
-			} else if (item.isFile()) {
-				sources.set(path, resolve(directory, item.name));
-			} else {
-				throw new Error(`Unsupported build output: ${path}`);
-			}
-		}
-	};
-
-	for (const directory of directories) {
-		await collect(resolve(outdir, pathName(directory)), directory);
-	}
-
-	for (const [path, source] of Object.entries(extraSources)) {
-		sources.set(pathName(path), source);
-	}
-
-	const targetsByName = new Map();
-	for (const target of sources.keys()) {
-		const name = basename(target);
-		const targets = targetsByName.get(name) ?? [];
-		targets.push(target);
-		targetsByName.set(name, targets);
-	}
-	const unusualTargets = [...targetsByName].filter(([name]) => !/^[\w.@+-]+$/.test(name)).flatMap(([, targets]) => targets);
-	const rewriteLegacy = (input, path) => {
-		let source = input;
-		const candidates = new Set(unusualTargets);
-
-		for (const match of input.matchAll(/[/'"=]([\w.@+-]+)/g)) {
-			for (const target of targetsByName.get(match[1]) ?? []) {
-				candidates.add(target);
-			}
-		}
-
-		for (const target of candidates) {
-			const reference = posix.relative(posix.dirname(path), target);
-
-			if (!reference) {
-				continue;
-			}
-
-			const variants = [reference];
-
-			if (!reference.startsWith('.')) {
-				variants.push(`./${reference}`);
-			}
-
-			if (target.startsWith('editor/editor-assets/') || (target.startsWith('editor/') && path.startsWith('editor/'))) {
-				variants.push(target.slice('editor/'.length));
-			}
-
-			for (const value of variants) {
-				for (const quote of ['"', "'"]) {
-					source = source.replaceAll(`${quote}${value}${quote}`, `${quote}./${basename(target)}${quote}`);
-					source = source.replaceAll(`${quote}${value}?`, `${quote}./${basename(target)}?`);
-					source = source.replaceAll(`${quote}${value}#`, `${quote}./${basename(target)}#`);
-				}
-
-				source = source.replaceAll(`sourceMappingURL=${value}`, `sourceMappingURL=./${basename(target)}`);
-			}
-		}
-
-		return source;
-	};
-
-	const referencePatterns = new Map();
-	const rewrite = (input, path) => {
-		// Keep the existing source-map comment handling for map-bearing files.
-		if (input.includes('sourceMappingURL=')) {
-			return rewriteLegacy(input, path);
-		}
-
-		const directory = posix.dirname(path);
-		const editorPath = path.startsWith('editor/');
-		const cacheKey = `${directory}:${editorPath}`;
-		let cached = referencePatterns.get(cacheKey);
-
-		if (!cached) {
-			const references = new Map();
-
-			for (const target of sources.keys()) {
-				const reference = posix.relative(directory, target);
-				if (!reference) {
-					continue;
-				}
-
-				const variants = [reference];
-				if (!reference.startsWith('.')) {
-					variants.push(`./${reference}`);
-				}
-				if (target.startsWith('editor/editor-assets/') || (target.startsWith('editor/') && editorPath)) {
-					variants.push(target.slice('editor/'.length));
-				}
-				for (const value of variants) {
-					references.set(value, `./${basename(target)}`);
-				}
-			}
-
-			const alternatives = [...references.keys()].map((value) => value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('|');
-			let pattern;
-			let fallback = alternatives.length > 200000;
-
-			if (alternatives && !fallback) {
-				try {
-					pattern = new RegExp(`(["'])(?:${alternatives})(?=\\1|[?#])`, 'g');
-				} catch (error) {
-					if (!(error instanceof SyntaxError)) {
-						throw error;
-					}
-					fallback = true;
-				}
-			}
-			cached = { references, pattern, fallback };
-			referencePatterns.set(cacheKey, cached);
-		}
-
-		if (cached.fallback) {
-			return rewriteLegacy(input, path);
-		}
-		if (!cached.pattern) {
-			return input;
-		}
-		return input.replace(cached.pattern, (match, quote) => `${quote}${cached.references.get(match.slice(1))}`);
-	};
-
-	const contentFor = async (path) => {
-		const content = await readFile(sources.get(path));
-		return /\.(?:js|css|map)$/.test(basename(path)) ? Buffer.from(rewrite(content.toString(), path)) : content;
-	};
-	const outputNames = new Map();
-	for (const path of sources.keys()) {
-		if (path === editorEntry) {
-			continue;
-		}
-		const name = basename(path);
-		const previous = outputNames.get(name);
-		if (previous !== undefined) {
-			if (!(await contentFor(path)).equals(await contentFor(previous))) {
-				throw new Error(`Flat output collision: ${path} and ${previous}`);
-			}
-		} else {
-			outputNames.set(name, path);
-		}
-	}
-
-	await mkdir(flatDir);
-
-	for (const [path] of sources) {
-		const name = basename(path);
-
-		if (path === editorEntry || outputNames.get(name) !== path) {
-			continue;
-		}
-
-		await writeFile(resolve(flatDir, name), await contentFor(path), { flag: 'wx' });
-	}
-
-	if (editorEntry !== undefined) {
-		await writeFile(resolve(flatDir, 'editor-entry.js'), rewrite(editorScript, editorEntry), { flag: 'wx' });
-	}
-
-	return { sources, rewrite };
-}
-
-/** Package flattened files, optional SSR files and standalone assets. */
-export async function packageFlatRelease({ root, flatDir, entries, ssrDir, ssrNames = [], standaloneAssets = new Map(), aliases = {}, extraFiles = [], retain = [], previousPublic, outputDirectory, removeIntermediates = false }) {
+/** Package prepared files, optional SSR files and standalone assets. */
+export async function packageFlatRelease({ root, flatDir, entries, ssrDir, ssrNames = [], standaloneAssets = new Map(), aliases = {}, extraFiles = [], retain = [], previousPublic, outputDirectory, removeIntermediates = false, removeUnreferencedStyles = false }) {
 	if (!Array.isArray(extraFiles) || !Array.isArray(retain) || (retain.length && !previousPublic)) {
 		throw new TypeError('extraFiles and retain must be arrays; retention requires previousPublic');
 	}
+
 	const files = [...extraFiles];
+
 	for (const name of retain) {
 		pathName(name);
 		let source = resolve(previousPublic);
+
 		for (const part of name.split('/')) {
 			source = resolve(source, part);
+
 			if ((await lstat(source)).isSymbolicLink()) {
 				throw new Error(`Symlink in retained path: ${name}`);
 			}
 		}
+
 		if (!(await lstat(source)).isFile()) {
 			throw new Error(`Retained path must be an exact file: ${name}`);
 		}
+
 		files.push({ source, destination: name });
 	}
 
@@ -235,15 +62,17 @@ export async function packageFlatRelease({ root, flatDir, entries, ssrDir, ssrNa
 	}
 
 	const omitted = removeIntermediates ? entries.flatMap((entry) => [entry.style, ...(entry.script !== undefined ? [entry.entry] : [])]) : [];
+
 	for (const entry of entries) {
 		if (entry.script === undefined && omitted.includes(entry.entry)) {
 			throw new Error(`Cannot omit a script bootstrap target: ${entry.entry}`);
 		}
 	}
-	return packageRelease({ root, files, entries, aliases: { ...extraAliases, ...aliases }, outputDirectory, omit: [...new Set(omitted)] });
+
+	return packageRelease({ root, files, entries, aliases: { ...extraAliases, ...aliases }, outputDirectory, omit: [...new Set(omitted)], removeUnreferencedStyles });
 }
 
-/** Publish a flat release and synchronize an existing PHP asset cache.
+/** Publish a prepared release and synchronize an existing PHP asset cache.
  * Staged publication restores the previous public directory on cache failure.
  * Direct publication writes in public and does not roll back. Missing caches are ignored.
  */
@@ -342,14 +171,17 @@ export async function publishFlatRelease({ root, wpRoot, release, manifest, vers
 		if (!direct) {
 			await rename(release, publicDir);
 		}
+
 		const cachePath = resolve(root, 'eightshift/manifests.json');
 		let cacheExists = false;
 
 		try {
 			const cacheInfo = await lstat(cachePath);
+
 			if (!cacheInfo.isFile() || cacheInfo.isSymbolicLink()) {
 				throw new Error(`Manifest cache must be a regular file: ${cachePath}`);
 			}
+
 			cacheExists = true;
 		} catch (error) {
 			if (error.code !== 'ENOENT') {
@@ -362,9 +194,11 @@ export async function publishFlatRelease({ root, wpRoot, release, manifest, vers
 
 			try {
 				const cacheInfo = await lstat(cachePath);
+
 				if (!cacheInfo.isFile() || cacheInfo.isSymbolicLink()) {
 					throw new Error(`Manifest cache must be a regular file: ${cachePath}`);
 				}
+
 				const data = JSON.parse(await readFile(cachePath, 'utf8'));
 
 				if (!data?.assets || Array.isArray(data.assets) || typeof data.assets !== 'object' || !data.assets.assets || Array.isArray(data.assets.assets) || typeof data.assets.assets !== 'object') {
@@ -391,6 +225,7 @@ export async function publishFlatRelease({ root, wpRoot, release, manifest, vers
 		if (direct) {
 			throw error;
 		}
+
 		try {
 			await rename(publicDir, release);
 		} catch (rollbackError) {

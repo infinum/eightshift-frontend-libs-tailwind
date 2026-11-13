@@ -1,5 +1,6 @@
 import { readFile } from 'node:fs/promises';
-import { dirname, resolve } from 'node:path';
+import { basename, dirname, resolve } from 'node:path';
+import { Linter } from 'eslint';
 import { generateDiscovery } from './discovery.mjs';
 
 /**
@@ -34,8 +35,8 @@ export async function generateThemeDiscovery({ root, outputDir, surfaces }) {
  * loads remove their link and can be retried. URLs resolve relative to the
  * generated JavaScript module, matching Bun's import.meta.url behavior.
  */
-export async function generateThemeImporters({ root, glob, key, styles = [] }) {
-	if (!root || typeof glob !== 'string' || typeof key !== 'function' || !Array.isArray(styles)) {
+export async function generateThemeImporters({ root, glob, key, styles = [], styleRuntime }) {
+	if (!root || typeof glob !== 'string' || typeof key !== 'function' || !Array.isArray(styles) || (styleRuntime !== undefined && (typeof styleRuntime !== 'string' || !styleRuntime))) {
 		throw new TypeError('Expected root, glob, key and styles');
 	}
 
@@ -71,9 +72,10 @@ export async function generateThemeImporters({ root, glob, key, styles = [] }) {
 	}
 
 	const loaders = styles
-		.map(
-			({ href }, index) =>
-				`let stylePromise${index};
+		.map(({ href }, index) =>
+			styleRuntime
+				? `const loadStyle${index} = () => __eightshiftLoadStylesheet(new URL(${JSON.stringify(href)}, import.meta.url).href);`
+				: `let stylePromise${index};
 const loadStyle${index} = () => stylePromise${index} ??= new Promise((resolve, reject) => {
 	const link = document.createElement('link');
 	link.rel = 'stylesheet';
@@ -95,15 +97,115 @@ const loadStyle${index} = () => stylePromise${index} ??= new Promise((resolve, r
 		return `${JSON.stringify(name)}: ${style === undefined ? importer : `() => loadStyle${style}().then(${importer})`}`;
 	});
 
-	return `${loaders}\nconst bunFrontendImporters = {${importers.join(',')}};`;
+	return `${styleRuntime && styles.length ? `import { loadStylesheet as __eightshiftLoadStylesheet } from ${JSON.stringify(styleRuntime)};\n` : ''}${loaders}\nconst bunFrontendImporters = {${importers.join(',')}};`;
+}
+
+async function transformEagerContexts(source, path, root, output, omitContexts) {
+	const calls = [];
+	const identifiers = new Set();
+	const messages = new Linter().verify(
+		source,
+		[
+			{
+				languageOptions: { ecmaVersion: 'latest', sourceType: 'module', parserOptions: { ecmaFeatures: { jsx: true } } },
+				linterOptions: { noInlineConfig: true },
+				plugins: {
+					capture: {
+						rules: {
+							contexts: {
+								create: () => ({
+									Identifier: (node) => identifiers.add(node.name),
+									CallExpression: (node) => {
+										const context = node.arguments[0];
+
+										if (
+											node.callee.type === 'Identifier' &&
+											node.callee.name === 'dynamicImport' &&
+											!node.optional &&
+											node.arguments.length === 1 &&
+											context?.type === 'CallExpression' &&
+											context.callee.type === 'MemberExpression' &&
+											!context.callee.computed &&
+											context.callee.object.name === 'require' &&
+											context.callee.property.name === 'context'
+										) {
+											calls.push({ node, context });
+										}
+									},
+								}),
+							},
+						},
+					},
+				},
+				rules: { 'capture/contexts': 'error' },
+			},
+		],
+		{ filename: 'module.js' },
+	);
+	const fatal = messages.find((message) => message.fatal);
+
+	if (fatal) {
+		throw new Error(`Cannot parse ${path}: ${fatal.message}`);
+	}
+
+	const definitions = [];
+	const replacements = [];
+
+	for (const { node, context } of calls) {
+		const [directory, recursive, pattern, mode] = context.arguments;
+
+		if (
+			context.optional ||
+			context.arguments.length < 3 ||
+			context.arguments.length > 4 ||
+			directory?.type !== 'Literal' ||
+			typeof directory.value !== 'string' ||
+			recursive?.type !== 'Literal' ||
+			recursive.value !== true ||
+			!pattern?.regex ||
+			(mode && (mode.type !== 'Literal' || mode.value !== 'sync'))
+		) {
+			throw new Error(`Unsupported eager require.context in ${path}`);
+		}
+
+		const definition = { directory: resolve(dirname(path), directory.value), pattern: new RegExp(pattern.regex.pattern, pattern.regex.flags) };
+		let replacement = 'void 0';
+
+		if (!omitContexts?.({ ...definition, path })) {
+			let index = definitions.length;
+			let name = `eagerContext${index}`;
+
+			while (identifiers.has(name)) {
+				name = `eagerContext${++index}`;
+			}
+
+			identifiers.add(name);
+			definitions.push({ ...definition, name });
+			replacement = `${name}.keys().forEach(${name})`;
+		}
+
+		replacements.push({ start: node.start, end: node.end, replacement });
+	}
+
+	for (const { start, end, replacement } of replacements.sort((a, b) => b.start - a.start)) {
+		source = source.slice(0, start) + replacement + source.slice(end);
+	}
+
+	if (definitions.length) {
+		await generateDiscovery({ root, output, definitions });
+		source = `import { ${definitions.map(({ name }) => name).join(', ')} } from ${JSON.stringify(output)};\n${source}`;
+	}
+
+	return source;
 }
 
 /**
  * Transform only explicitly selected entry paths. Each entry specifies
  * { path, module, imports, importStatement, replacements, prefix, remove }.
  * Replacements are [literal, replacement] pairs and must occur exactly once.
- * `remove` is an optional array of RegExps; remaining webpack discovery is
- * rejected. `prefix` can contain the generated importer map.
+ * `remove` is an optional array of RegExps. Remaining eager dynamicImport
+ * contexts are generated; `omitContexts` selects separately handled styles.
+ * Other webpack discovery is rejected. `prefix` can contain the importer map.
  */
 export function themeDiscoveryPlugin({ root, entries }) {
 	if (!root || !Array.isArray(entries)) {
@@ -159,6 +261,8 @@ export function themeDiscoveryPlugin({ root, entries }) {
 
 					source = source.replace(pattern, '');
 				}
+
+				source = await transformEagerContexts(source, path, root, resolve(dirname(resolve(root, entry.module)), `${basename(path)}.contexts.mjs`), entry.omitContexts);
 
 				if (source.includes('require.context') || source.includes('dynamicImport(')) {
 					throw new Error(`Unsupported discovery remains in ${path}`);

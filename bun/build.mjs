@@ -6,6 +6,18 @@ import { generateResponsiveClasses } from './responsive.mjs';
 import { buildEditor } from './editor.mjs';
 import { wordpressPlugin } from './wordpress.mjs';
 
+export function validateEntryPublicPaths(paths, entries) {
+	if (!paths || typeof paths !== 'object' || Array.isArray(paths)) {
+		throw new TypeError('entryPublicPaths must be an object');
+	}
+
+	for (const [name, path] of Object.entries(paths)) {
+		if (!Object.hasOwn(entries, name) || typeof path !== 'string' || !path.startsWith('/') || path.startsWith('//') || !path.endsWith('/') || /[\\?#\s\x00-\x1f]/.test(path) || path.split('/').some((part) => part === '.' || part === '..')) {
+			throw new TypeError(`Invalid entryPublicPaths entry: ${name}`);
+		}
+	}
+}
+
 const markerName = '.eightshift-bun-build';
 const markerContents = 'eightshift-bun-build-v1\n';
 
@@ -67,9 +79,11 @@ export async function clearBuildDirectory(directory, root) {
 
 	try {
 		const info = await lstat(directory);
+
 		if (!info.isDirectory() || info.isSymbolicLink()) {
 			throw new Error(`Output must be a real directory: ${directory}`);
 		}
+
 		await inspectTree(directory);
 		await removeTree(directory);
 	} catch (error) {
@@ -139,13 +153,14 @@ async function assertOwned(directory) {
  * `direct: true` writes to a fresh output directory without staging or rollback.
  * Generated discovery and responsive files are included in the published tree.
  */
-export async function build({ root = process.cwd(), outdir, entries, wpRoot, wordpress = true, discovery, responsive, css, editor, buildOptions = {}, direct = false } = {}) {
+export async function build({ root = process.cwd(), outdir, entries, wpRoot, wordpress = true, discovery, responsive, css, editor, buildOptions = {}, entryPublicPaths = {}, direct = false } = {}) {
 	root = resolve(root);
 
 	if (typeof outdir !== 'string' || !outdir || !entries || typeof entries !== 'object' || Array.isArray(entries) || !Object.keys(entries).length) {
 		throw new TypeError('outdir and at least one named entry are required');
 	}
 
+	validateEntryPublicPaths(entryPublicPaths, entries);
 	outdir = resolve(root, outdir);
 	const rootFromOutput = relative(outdir, root);
 
@@ -195,6 +210,7 @@ export async function build({ root = process.cwd(), outdir, entries, wpRoot, wor
 
 			return file;
 		};
+
 		let generatedDiscovery;
 
 		if (discovery) {
@@ -259,6 +275,7 @@ export async function build({ root = process.cwd(), outdir, entries, wpRoot, wor
 				splitting: true,
 				naming: { entry: '[name]-[hash].[ext]', chunk: 'chunks/[name]-[hash].[ext]', asset: 'assets/[name]-[hash].[ext]' },
 				...buildOptions,
+				...(Object.hasOwn(entryPublicPaths, name) ? { publicPath: entryPublicPaths[name] } : {}),
 				metafile: Boolean(wp) || buildOptions.metafile,
 				entrypoints: [resolve(root, entry)],
 				outdir: directory,
@@ -314,8 +331,10 @@ export async function build({ root = process.cwd(), outdir, entries, wpRoot, wor
 		await inspectTree(stage);
 		await writeFile(join(stage, 'manifest.json'), `${JSON.stringify(manifest, null, 2)}\n`);
 		await writeFile(join(stage, markerName), markerContents, { flag: 'wx' });
+
 		if (direct) {
 			published = true;
+
 			return { outdir, entries: manifest };
 		}
 
