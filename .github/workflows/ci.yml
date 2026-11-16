@@ -24,6 +24,9 @@ jobs:
       matrix:
         node: ['latest']
     steps:
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: 1.4.4
       - name: Lint assets
         uses: infinum/eightshift-deploy-actions-public/.github/actions/lint/assets@main
         with:
