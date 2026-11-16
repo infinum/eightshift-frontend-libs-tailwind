@@ -8,6 +8,20 @@ This projects adheres to [Semantic Versioning](https://semver.org/) and [Keep a 
 
 ## [4.0.0]
 
+### Stable release summary
+
+- **Breaking:** replace the Webpack configuration and `webpack/*` API with Bun build helpers. Migrate build scripts, configuration and WordPress asset integration; this is not a drop-in replacement.
+- Require Bun 1.4.4 or newer for the build and formatting workflow. Conventional theme builds require stable WordPress 7.0 or newer and compatible PHP metadata/enqueue integration.
+- **Breaking:** conventional theme editors default to unified sharing and require the `eightshift-editor-v1` PHP readiness bootstrap. Explicit editor presets and lower-level APIs retain their independent default; `native` sharing and pure JSX grouping remain opt-in.
+- **Breaking:** built-in theme publication uses structured directories only. Remove `publicationLayout`, `flattenAssets`, and the experimental `editor.sharedPackages` option; migrate publication hooks to `publicationRoot` and nested aliases.
+- Stage publication before replacing public assets; support aliases, retained files, extra files, shared asset handling and explicit custom-CSS cleanup through `removeUnreferencedStyles`.
+- Build frontend, admin, editor and standalone CommonJS SSR assets; preserve lazy CSS boundaries, WordPress dependency metadata, worker URLs and relative CSS assets. Restart CLI watch workers when configuration, package manifests or Bun lockfiles change.
+- Add deferred `createChunkedComponent` loaders and optional shared same-origin font publication. Shared fonts require the UI Components font manifest and compatible PHP shared-font integration; they remain disabled by default.
+- Move formatting to Bun's native formatter. The published ESLint configuration no longer runs Prettier; consumers must run a separate formatting check. Keep `eslint-config-prettier` to disable conflicting lint rules.
+- Support stable UI Components 8 (including 8.5) and explicitly allow 8.5.0-beta.1. The local validation dependency remains pinned to that beta; no dependency upgrade is included.
+
+The prerelease notes below are retained as release history. Their validation versions describe those prereleases, not an automatic upgrade of consumer dependencies.
+
 ### 4.0.0-beta.7
 
 - Export `createChunkedComponent` from `/scripts` and `/scripts/helpers`, with deferred loaders, promise compatibility, explicit or inferred exports, and a configurable Suspense fallback (default `null`).
@@ -448,7 +462,7 @@ Co-authored with @piqusy
 
 - Initial release.
 
-[4.0.0]: https://github.com/infinum/eightshift-frontend-libs-tailwind/compare/3.5.0...4.0.0
+[4.0.0]: https://github.com/infinum/eightshift-frontend-libs-tailwind/compare/3.5.1...4.0.0
 [3.5.0]: https://github.com/infinum/eightshift-frontend-libs-tailwind/compare/3.4.0...3.5.0
 [3.4.0]: https://github.com/infinum/eightshift-frontend-libs-tailwind/compare/3.4.0...3.4.0
 [3.3.0]: https://github.com/infinum/eightshift-frontend-libs-tailwind/compare/3.2.0...3.3.0
