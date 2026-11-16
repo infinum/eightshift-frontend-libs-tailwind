@@ -8,6 +8,10 @@ This projects adheres to [Semantic Versioning](https://semver.org/) and [Keep a 
 
 ## [4.0.0]
 
+### 4.0.0-beta.7
+
+- Export `createChunkedComponent` from `/scripts` and `/scripts/helpers`, with deferred loaders, promise compatibility, explicit or inferred exports, and a configurable Suspense fallback (default `null`).
+
 ### 4.0.0-beta.6
 
 - Add the boolean `removeUnreferencedStyles` option to `defineThemeBuild` so custom CSS callbacks can opt into removing unreferenced entry stylesheet originals after generating hashed replacements. Existing defaults remain unchanged; aliases and detected references retain originals. Custom or disabled publishers cannot use this option.

@@ -12,6 +12,42 @@ This library is meant to bring you the modern front-end development tools to the
 ## Documentation
 **For the full documentation please check this [link](https://eightshift.com).**
 
+## Lazy React components
+
+Import `createChunkedComponent` from `@eightshift/frontend-libs-tailwind/scripts`
+(or `/scripts/helpers`) after installing a published version containing this helper.
+Create the wrapper at module scope, not inside render:
+
+```jsx
+import { createChunkedComponent } from '@eightshift/frontend-libs-tailwind/scripts';
+import { Spinner } from '@eightshift/ui-components/icons';
+
+const BlockEditor = createChunkedComponent(
+  () => import('./block-editor'),
+  'BlockEditor',
+  <Spinner className='m-16 size-32!' />,
+);
+```
+
+The optional third argument is the Suspense fallback; it defaults to `null` (no loading UI).
+Supply your existing spinner to retain project-specific appearance. Props pass through
+unchanged. The lazy component is created once per factory call. Use a loader function
+for deferred loading: it is first called when React renders the component. An existing
+promise is also accepted, but its loading has already started.
+
+Specify `'default'` for a default export or the exact name for a named export.
+Without an export name, exactly one function export (excluding `__esModule`) must
+exist; default exports are not preferred over other function exports. Explicitly name
+`memo` and `forwardRef` exports, which are objects and are not inferred. Unresolvable
+exports reject with `Unable to resolve chunked component` (including the requested
+name when provided). Import failures propagate unchanged; handle failures with an
+error boundary, not the Suspense fallback.
+
+To replace a local helper after release, change its consumers to the package import
+and pass the existing fallback as the third argument. No icon registry or static/runtime
+icon lookup changes are required. This helper is independent of Bun and does not
+replace `dynamicImport`, which eagerly iterates discovery contexts.
+
 ## Bun build migration
 
 The Webpack configuration and `webpack/*` imports have been removed. Projects must replace their Webpack configuration and scripts; this is a breaking change. The Bun helpers are available from `@eightshift/frontend-libs-tailwind/bun/build.mjs`, including `build`, `generateDiscovery`, `generateResponsiveClasses`, and `wordpressPlugin`.
