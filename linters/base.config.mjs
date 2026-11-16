@@ -30,6 +30,7 @@ export default [
 			'unused-imports': unusedImports,
 		},
 		rules: {
+			'react/jsx-uses-vars': 'error',
 			'newline-before-return': 'error',
 			'no-constant-binary-expression': 'error',
 			'no-implicit-coercion': 'error',
