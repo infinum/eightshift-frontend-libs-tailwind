@@ -26,6 +26,9 @@ import { prepareSharedFonts } from './shared-fonts.mjs';
  * optimizeImports controls Bun's package barrel optimization for browser builds.
  * UI Components is optimized by default; pass [] to disable the explicit default.
  * watch: false disables watching; an object overrides the safe watch defaults.
+ * @param {object} [options]
+ * @param {boolean} [options.removeUnreferencedStyles] Override entry CSS cleanup
+ * for default publication; omitted enables it only with the default CSS compiler.
  */
 export function defineThemeBuild(options = {}) {
 	if (Object.hasOwn(options, 'publicationLayout')) {
@@ -50,6 +53,7 @@ export function defineThemeBuild(options = {}) {
 		editor,
 		responsive = {},
 		css,
+		removeUnreferencedStyles = css === undefined,
 		discovery,
 		ssr,
 		publish,
@@ -61,6 +65,14 @@ export function defineThemeBuild(options = {}) {
 
 	if (typeof sharedFonts !== 'boolean' || (sharedFonts && publish !== undefined)) {
 		throw new TypeError('sharedFonts must be a boolean and requires default theme publication');
+	}
+
+	if (typeof removeUnreferencedStyles !== 'boolean') {
+		throw new TypeError('removeUnreferencedStyles must be a boolean');
+	}
+
+	if (Object.hasOwn(options, 'removeUnreferencedStyles') && publish !== undefined) {
+		throw new TypeError('removeUnreferencedStyles requires default theme publication');
 	}
 
 	if (typeof createPlugins !== 'function') {
@@ -544,7 +556,7 @@ export function defineThemeBuild(options = {}) {
 			retain: additions.retain,
 			previousPublic: resolve(root, 'public'),
 			root: outdir,
-			removeUnreferencedStyles: css === undefined,
+			removeUnreferencedStyles,
 			flatDir,
 			entries,
 			ssrDir,

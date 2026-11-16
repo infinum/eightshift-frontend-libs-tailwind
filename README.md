@@ -449,7 +449,14 @@ Structured conventional CSS omits unreferenced stable entry styles only after th
 same-directory hashed stylesheet and manifest are generated. Alias targets and
 references in packaged files or generated wrappers retain the stable stylesheet;
 queries, fragments and escaped names are considered conservatively. Custom `css`
-callbacks retain their entry styles. Hooks that construct CSS URLs dynamically
+callbacks retain their entry styles by default. With the default publisher, set
+`defineThemeBuild({ root, css: customCss, removeUnreferencedStyles: true })` to opt
+custom CSS into the same scoped cleanup, or set `removeUnreferencedStyles: false`
+to retain originals with the conventional compiler. The option must be a boolean
+and cannot be supplied with custom or disabled `publish`. It does not change CSS
+compilation, order, hashed stylesheet contents, or `extraCss` handling. Install a
+library version `4.0.0-beta.6` or newer before enabling it; beta.5 ignores it.
+Hooks that construct CSS URLs dynamically
 must pin the stable path with an alias; static inspection cannot certify computed
 URLs. Extra styles, script intermediates and source maps are not blanket-removed.
 Low-level packagers can opt into this scoped behavior with

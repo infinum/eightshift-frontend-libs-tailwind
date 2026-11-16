@@ -8,6 +8,11 @@ This projects adheres to [Semantic Versioning](https://semver.org/) and [Keep a 
 
 ## [4.0.0]
 
+### 4.0.0-beta.6
+
+- Add the boolean `removeUnreferencedStyles` option to `defineThemeBuild` so custom CSS callbacks can opt into removing unreferenced entry stylesheet originals after generating hashed replacements. Existing defaults remain unchanged; aliases and detected references retain originals. Custom or disabled publishers cannot use this option.
+- Document the cleanup opt-in and the requirement to pin dynamically constructed stable CSS URLs with aliases; extra styles, lazy CSS, source maps and CSS compilation remain unchanged.
+
 ### 4.0.0-beta.5
 
 - Use ESLint 9 to satisfy the React lint plugin peer range without changing lint rules.
