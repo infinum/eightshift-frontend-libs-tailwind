@@ -50,7 +50,7 @@ replace `dynamicImport`, which eagerly iterates discovery contexts.
 
 ## Bun build migration
 
-The Webpack configuration and `webpack/*` imports have been removed. Projects must replace their Webpack configuration and scripts; this is a breaking change. The Bun helpers are available from `@eightshift/frontend-libs-tailwind/bun/build.mjs`, including `build`, `generateDiscovery`, `generateResponsiveClasses`, and `wordpressPlugin`.
+Bun 1.4.4 or newer is required. The Webpack configuration and `webpack/*` imports have been removed. Projects must replace their Webpack configuration and scripts; this is a breaking change. The Bun helpers are available from `@eightshift/frontend-libs-tailwind/bun/build.mjs`, including `build`, `generateDiscovery`, `generateResponsiveClasses`, and `wordpressPlugin`.
 
 The Bun helpers are not a drop-in replacement for Webpack. Start with the theme preset for the conventional Eightshift theme layout. Use the lower-level API below for other layouts.
 
@@ -230,7 +230,7 @@ A second native build compiles the original graph with bounded groups. Static na
 
 **Conservative fallbacks:** only production builds with `buildOptions.define['process.env.NODE_ENV']` set to `'"production"'` qualify. External source maps use the original ungrouped build with a warning: synthesized group source maps are not published. Custom Bun plugins/resolvers, discovery `transformSource`, and `buildOptions.alias` also disable grouping with a warning, so custom transforms are never bypassed. Audited built-in WordPress adapters, worker handling and default discovery are supported; trusted plugin identity is checked, not merely the plugin name. Unknown graph forms, changed sources, changed runtime resolution or a non-grouped source moving to an earlier lazy depth similarly keep the first native build. Existing native inlined-dynamic-import rejection remains in force.
 
-In an isolated production-release comparison using Bun 1.4.4-canary.1, 4 KiB grouping reduced startup theme-JavaScript requests from 34 to 16 while increasing gzip bytes from 307108 to 309447. After rendering a CTA block, requests fell from 37 to 19 and gzip bytes increased from 388459 to 390798. Both variants registered 33 theme blocks and rendered three editable CTA fields without browser errors. These measurements used a synthetic editor page with the PHP readiness bootstrap and disabled browser cache; WordPress core assets are excluded. The same-source Webpack reference used 10 startup requests / 287529 gzip bytes and 12 requests / 366641 gzip bytes after the CTA. These results do **not** establish a repeatable latency improvement or Webpack parity. Measure your own editor and lazy interactions before opting in. Remove `pureJsxGroups` or set it to `false` and rebuild to roll back; independent and native-lazy modes remain unchanged.
+Pure JSX grouping trades request count against bundle bytes; measure your own editor startup and lazy interactions before enabling it. Remove `pureJsxGroups` or set it to `false` and rebuild to roll back; independent and native modes remain unchanged.
 
 The earlier `editor.sharedPackages` vendor-bridge experiment was removed. Existing experimental configurations must remove that option; it now fails configuration validation rather than silently changing initialization behavior. The lower-level API retains independent mode by default; the theme preset uses unified mode with the PHP compatibility requirements above. Native sharing remains opt-in.
 
@@ -513,9 +513,18 @@ Remote URLs are left unchanged.
 
 ## Source formatting
 
-Run `bun run lintJs bun bin linters scripts eslint.config.mjs` to check maintained
-JavaScript sources. Add `--fix --fix-type layout,suggestion` to apply formatting
-fixes. The repository configuration requires braces for control-flow statements,
-blank lines before control flow and returns, and separation after blocks. These
-rules also cover `.mjs` build helpers. Tests, packaged output, dependencies and
-compiled output are excluded; the published consumer lint configuration is unchanged.
+Formatting requires Bun 1.4.4 or newer. Run `bun run fmt` to format maintained sources, or `bun run fmt:check` to check without writing. Settings and output/test exclusions live in `bunfig.toml`. Native Tailwind sorting uses the installed Tailwind version; without Tailwind installed, classes are left unchanged.
+
+Run `bun run lintJs bun bin linters scripts eslint.config.mjs` to check formatting and lint maintained JavaScript sources. To apply ESLint-only fixes, run `bun x eslint bun bin linters scripts eslint.config.mjs --fix --fix-type layout,suggestion`. The repository configuration still requires braces, blank lines before control flow and returns, and separation after blocks.
+
+The published ESLint configuration no longer runs Prettier. It retains `eslint-config-prettier` to disable conflicting stylistic rules. Consumers must define a separate `fmt:check` script with explicit maintained-source paths and run it alongside ESLint and configure formatting in their own `bunfig.toml`; existing Prettier configs are also supported by Bun. Formatter output can differ from previous releases; this tooling migration does not reformat sources.
+
+### Agent formatting rules
+
+Run commands from this package directory.
+
+- `bun run fmt:check` is the authoritative, read-only formatting gate; it also runs before JavaScript linting.
+- Agents must format only explicitly changed source files: `bun run fmt:files -- path/to/changed-file.js path/to/other-file.js`. Always supply file paths; no directories or broad globs. This command does not append the full source scope.
+- `bun run fmt` formats the full configured source scope and requires explicit user approval. Never run it for routine changes.
+- Use repository commands, not Prettier, editor formatters, or direct dependency formatters. Do not reformat unrelated files, tests, dependencies, generated output, public assets, or ext-player.
+- Existing formatting violations remain blockers; do not hide them or bulk-fix them during tooling work.
