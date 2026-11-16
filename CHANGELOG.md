@@ -8,6 +8,14 @@ This projects adheres to [Semantic Versioning](https://semver.org/) and [Keep a 
 
 ## [4.0.0]
 
+### 4.0.0-beta.5
+
+- Use ESLint 9 to satisfy the React lint plugin peer range without changing lint rules.
+- Support stable UI Components 8 and explicitly allow 8.5.0-beta.1; validate locally against that exact published beta.
+
+- Preserve generic PHP class extraction alongside the documented Tailwind helper patterns.
+- ESLint 9 remains a known end-of-life risk; a major upgrade is deferred pending React plugin peer compatibility.
+
 ### 4.0.0-beta.4
 
 - **Breaking:** make structured directories the only built-in `defineThemeBuild` publication layout. Remove `publicationLayout` from configuration (all explicit values are rejected) and remove the legacy `flattenAssets` export. Migrate publication hooks from `outdir/flat` to the stable `publicationRoot` directory contract and nested relative aliases; fixed special outputs remain supported through `extraFiles`. Custom `publish` callbacks remain supported but must account for structured compiler URLs. Low-level build and prepared-tree packaging APIs retain their existing defaults.
