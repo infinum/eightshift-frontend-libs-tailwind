@@ -1,3 +1,4 @@
+import { lazyComponentPlugins } from './lazy-component.mjs';
 import { createHash } from 'node:crypto';
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { basename, dirname, isAbsolute, relative, resolve, sep } from 'node:path';
@@ -127,7 +128,7 @@ export async function buildEditor({ root, directory, entry, buildOptions = {}, p
 		format: 'iife',
 		splitting: false,
 		write: false,
-		plugins: [...(discoveryPlugin ? [discoveryPlugin] : []), ...plugins, lazyImports.plugin],
+		plugins: lazyComponentPlugins([...(discoveryPlugin ? [discoveryPlugin] : []), ...plugins, lazyImports.plugin], { transformSource: lazyImports.transformSource, sourcemap: buildOptions.sourcemap }),
 	};
 	const paths = [];
 	const compile = async (target, format) => {

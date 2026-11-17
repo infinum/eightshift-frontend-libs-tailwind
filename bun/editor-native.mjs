@@ -1,3 +1,4 @@
+import { lazyComponentPlugins } from './lazy-component.mjs';
 import { randomUUID } from 'node:crypto';
 import { mkdir, readdir, rmdir, unlink } from 'node:fs/promises';
 import { dirname, isAbsolute, relative, resolve, sep } from 'node:path';
@@ -93,7 +94,7 @@ async function compileNativeEditorChunks({ chunks, directory, scriptDirectory, e
 		banner: `const ${scriptUrlIdentifier} = new URL(${JSON.stringify(entryPath)}, import.meta.url).href;\n${buildOptions.banner ?? ''}`,
 		plugins,
 	};
-	let result = await Bun.build(options);
+	let result = await Bun.build({ ...options, plugins: lazyComponentPlugins(options.plugins, { sourcemap: options.sourcemap }) });
 
 	if (!result.success) {
 		throw new AggregateError(result.logs, 'Native editor sharing build failed');
@@ -155,7 +156,7 @@ async function compileNativeEditorChunks({ chunks, directory, scriptDirectory, e
 				grouping = plan.summary;
 
 				if (plan.groups.length) {
-					const grouped = await Bun.build({ ...options, plugins: [plan.plugin, ...plugins] });
+					const grouped = await Bun.build({ ...options, plugins: lazyComponentPlugins([plan.plugin, ...plugins], { sourcemap: options.sourcemap }) });
 
 					if (!grouped.success) {
 						throw new AggregateError(grouped.logs, 'Grouped native editor compilation failed');

@@ -3,7 +3,7 @@ import { Writable } from 'node:stream';
 import { test } from 'node:test';
 import { createElement, createRef, forwardRef } from 'react';
 import { renderToPipeableStream, renderToString } from 'react-dom/server';
-import { createChunkedComponent } from '../scripts/helpers/chunked-component.js';
+import { lazyComponent } from '../scripts/helpers/lazy-component.js';
 
 const render = (element) =>
 	new Promise((resolve, reject) => {
@@ -34,7 +34,7 @@ test('lazy components forward object and callback refs with props', async () => 
 			receivedRef = forwardedRef;
 			return createElement('div', null, label);
 		});
-		const ChunkedField = createChunkedComponent(() => {
+		const ChunkedField = lazyComponent(() => {
 			loads++;
 			return Promise.resolve({ Field });
 		}, 'Field');
@@ -47,7 +47,7 @@ test('lazy components forward object and callback refs with props', async () => 
 });
 
 test('lazy components still render regular function exports without a ref', async () => {
-	const ChunkedLabel = createChunkedComponent(Promise.resolve({ default: ({ label }) => createElement('span', null, label) }), 'default');
+	const ChunkedLabel = lazyComponent(Promise.resolve({ default: ({ label }) => createElement('span', null, label) }), 'default');
 
 	assert.match(await render(createElement(ChunkedLabel, { label: 'Ready' })), /<span>Ready<\/span>/);
 });
@@ -58,8 +58,8 @@ test('infers nested chunked components and default forwardRef exports', async ()
 		receivedRef = ref;
 		return createElement('span', null, label);
 	});
-	const Inner = createChunkedComponent(Promise.resolve({ default: Field }));
-	const Outer = createChunkedComponent(Promise.resolve({ Inner, __esModule: true }));
+	const Inner = lazyComponent(Promise.resolve({ default: Field }));
+	const Outer = lazyComponent(Promise.resolve({ Inner, __esModule: true }));
 	const ref = createRef();
 
 	assert.match(await render(createElement(Outer, { label: 'Nested', ref })), /<span>Nested<\/span>/);
@@ -69,7 +69,7 @@ test('infers nested chunked components and default forwardRef exports', async ()
 test('prefers the sole function export over forwardRef exports', async () => {
 	const FunctionComponent = () => createElement('span', null, 'Function');
 	const ForwardedComponent = forwardRef(() => createElement('span', null, 'Forwarded'));
-	const Chunked = createChunkedComponent(Promise.resolve({ FunctionComponent, ForwardedComponent }));
+	const Chunked = lazyComponent(Promise.resolve({ FunctionComponent, ForwardedComponent }));
 
 	assert.match(await render(createElement(Chunked)), /<span>Function<\/span>/);
 });
@@ -81,7 +81,7 @@ test('does not infer ambiguous function or forwardRef exports', async () => {
 	const ForwardedSecond = forwardRef(Second);
 
 	for (const exports of [{ First, Second, ForwardedFirst }, { ForwardedFirst, ForwardedSecond }]) {
-		const Chunked = createChunkedComponent(Promise.resolve(exports));
+		const Chunked = lazyComponent(Promise.resolve(exports));
 
 		await assert.rejects(render(createElement(Chunked)), /Unable to resolve chunked component/);
 	}
@@ -89,7 +89,7 @@ test('does not infer ambiguous function or forwardRef exports', async () => {
 
 test('lazy components keep the configured fallback while loading', () => {
 	const pending = new Promise(() => {});
-	const ChunkedLabel = createChunkedComponent(() => pending, 'default', createElement('span', null, 'Loading'));
+	const ChunkedLabel = lazyComponent(() => pending, 'default', createElement('span', null, 'Loading'));
 
 	assert.match(renderToString(createElement(ChunkedLabel)), /<span>Loading<\/span>/);
 });
