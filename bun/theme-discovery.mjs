@@ -102,7 +102,10 @@ const loadStyle${index} = () => stylePromise${index} ??= new Promise((resolve, r
 
 async function transformEagerContexts(source, path, root, output, omitContexts) {
 	const calls = [];
+	const unsupported = [];
 	const identifiers = new Set();
+	const isRequireContext = (node) =>
+		node.type === 'MemberExpression' && node.object.type === 'Identifier' && node.object.name === 'require' && ((!node.computed && node.property.type === 'Identifier' && node.property.name === 'context') || (node.computed && node.property.type === 'Literal' && node.property.value === 'context'));
 	const messages = new Linter().verify(
 		source,
 		[
@@ -115,21 +118,22 @@ async function transformEagerContexts(source, path, root, output, omitContexts) 
 							contexts: {
 								create: () => ({
 									Identifier: (node) => identifiers.add(node.name),
+									MemberExpression: (node) => {
+										if (isRequireContext(node)) {
+											unsupported.push(node);
+										}
+									},
 									CallExpression: (node) => {
+										if (node.callee.type !== 'Identifier' || node.callee.name !== 'dynamicImport') {
+											return;
+										}
+
 										const context = node.arguments[0];
 
-										if (
-											node.callee.type === 'Identifier' &&
-											node.callee.name === 'dynamicImport' &&
-											!node.optional &&
-											node.arguments.length === 1 &&
-											context?.type === 'CallExpression' &&
-											context.callee.type === 'MemberExpression' &&
-											!context.callee.computed &&
-											context.callee.object.name === 'require' &&
-											context.callee.property.name === 'context'
-										) {
+										if (!node.optional && node.arguments.length === 1 && context?.type === 'CallExpression' && isRequireContext(context.callee) && !context.callee.computed) {
 											calls.push({ node, context });
+										} else {
+											unsupported.push(node);
 										}
 									},
 								}),
@@ -146,6 +150,12 @@ async function transformEagerContexts(source, path, root, output, omitContexts) 
 
 	if (fatal) {
 		throw new Error(`Cannot parse ${path}: ${fatal.message}`);
+	}
+
+	const handledContexts = new Set(calls.map(({ context }) => context.callee));
+
+	if (unsupported.some((reference) => !handledContexts.has(reference))) {
+		throw new Error(`Unsupported discovery remains in ${path}`);
 	}
 
 	const definitions = [];
@@ -263,10 +273,6 @@ export function themeDiscoveryPlugin({ root, entries }) {
 				}
 
 				source = await transformEagerContexts(source, path, root, resolve(dirname(resolve(root, entry.module)), `${basename(path)}.contexts.mjs`), entry.omitContexts);
-
-				if (source.includes('require.context') || source.includes('dynamicImport(')) {
-					throw new Error(`Unsupported discovery remains in ${path}`);
-				}
 
 				return { contents: source, loader: 'jsx', resolveDir: dirname(path) };
 			});
