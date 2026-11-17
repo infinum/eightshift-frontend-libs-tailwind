@@ -1,4 +1,4 @@
-import { statSync, watch } from 'node:fs';
+import { lstatSync, readdirSync, statSync, watch } from 'node:fs';
 import { basename, dirname, isAbsolute, relative, resolve, sep } from 'node:path';
 
 /**
@@ -6,6 +6,7 @@ import { basename, dirname, isAbsolute, relative, resolve, sep } from 'node:path
  * Paths in sources and ignored are relative to projectDir unless absolute.
  * Ignored paths exclude themselves and their descendants, including outputs.
  * `ignore` optionally filters absolute event paths in addition to ignored paths.
+ * Events without filenames are reconciled against file metadata and directory entries.
  * Returns { stop }, whose promise settles after any running build finishes.
  * Build and watcher errors are passed to onError; watcher errors stop watching.
  */
@@ -56,6 +57,98 @@ export function watchBuild({ projectDir, sources, ignored = [], ignore = () => f
 
 			throw error;
 		}
+	};
+
+	const unavailable = (error) => ['ENOENT', 'ENOTDIR', 'EACCES', 'EPERM'].includes(error.code);
+	const stamp = (info) => {
+		const identity = `${info.dev}:${info.ino}:${info.mode}`;
+
+		// Directory timestamps also change for ignored children, including build outputs.
+		return info.isDirectory() ? identity : `${identity}:${info.size}:${info.mtimeMs}:${info.ctimeMs}`;
+	};
+
+	const snapshotPath = (snapshot, path, recursive, followLink = false) => {
+		if (!within(root, path) || exclusions.some((item) => within(item, path))) {
+			return;
+		}
+
+		let info;
+
+		try {
+			info = lstatSync(path);
+		} catch (error) {
+			if (unavailable(error)) {
+				return;
+			}
+
+			throw error;
+		}
+
+		let target = info;
+		const link = info.isSymbolicLink();
+
+		if (link) {
+			try {
+				target = statSync(path);
+			} catch (error) {
+				if (!unavailable(error) && error.code !== 'ELOOP') {
+					throw error;
+				}
+
+				target = undefined;
+			}
+		}
+
+		const directory = Boolean(target?.isDirectory());
+		snapshot.set(path, { stamp: `${stamp(info)}|${target && target !== info ? stamp(target) : ''}`, directory });
+
+		if (!recursive || !directory || (link && !followLink)) {
+			return;
+		}
+
+		let entries;
+
+		try {
+			entries = readdirSync(path);
+		} catch (error) {
+			if (unavailable(error)) {
+				return;
+			}
+
+			throw error;
+		}
+
+		for (const entry of entries) {
+			snapshotPath(snapshot, resolve(path, entry), true);
+		}
+	};
+
+	const capture = (directory, recursive, names) => {
+		const snapshot = new Map();
+
+		if (recursive) {
+			snapshotPath(snapshot, directory, true, true);
+		} else {
+			for (const name of names) {
+				snapshotPath(snapshot, resolve(directory, name), false);
+			}
+		}
+
+		return snapshot;
+	};
+
+	const updateSnapshot = (snapshot, path, recursive, followLink = false) => {
+		if (snapshot.get(path)?.directory) {
+			for (const item of snapshot.keys()) {
+				if (within(path, item)) {
+					snapshot.delete(item);
+				}
+			}
+		} else {
+			snapshot.delete(path);
+		}
+
+		snapshotPath(snapshot, path, recursive, followLink);
 	};
 
 	const report = (error) => {
@@ -134,7 +227,11 @@ export function watchBuild({ projectDir, sources, ignored = [], ignore = () => f
 
 		if (inputs.some((item) => within(item, path) || within(path, item))) {
 			schedule();
+
+			return true;
 		}
+
+		return false;
 	};
 
 	const refresh = () => {
@@ -197,24 +294,64 @@ export function watchBuild({ projectDir, sources, ignored = [], ignore = () => f
 			const existing = watchers.get(key);
 
 			if (existing) {
+				for (const name of existing.names) {
+					if (!config.names.has(name)) {
+						existing.snapshot.delete(resolve(config.directory, name));
+					}
+				}
+
+				for (const name of config.names) {
+					if (!existing.names.has(name)) {
+						snapshotPath(existing.snapshot, resolve(config.directory, name), false);
+					}
+				}
+
 				existing.names = config.names;
 				continue;
 			}
 
 			const watcher = watch(config.directory, { recursive: config.recursive }, (_event, filename) => {
-				if (!filename || stopped) {
+				if (stopped) {
 					return;
 				}
-
-				const name = String(filename);
-
-				if (!config.recursive && !watcher.names.has(name)) {
-					return;
-				}
-
-				const path = resolve(config.directory, name);
 
 				try {
+					if (!filename) {
+						const previous = watcher.snapshot;
+						const current = capture(config.directory, config.recursive, watcher.names);
+						watcher.snapshot = current;
+
+						if (filterDirectoryEvents) {
+							const directories = config.recursive ? [config.directory] : [...watcher.names].map((name) => resolve(config.directory, name)).filter((path) => inputs.includes(path));
+
+							for (const directory of directories) {
+								const value = directoryStamp(directory);
+
+								if (value) {
+									directoryStamps.set(directory, value);
+								}
+							}
+						}
+
+						for (const path of new Set([...previous.keys(), ...current.keys()])) {
+							if (previous.get(path)?.stamp !== current.get(path)?.stamp && onEvent(path)) {
+								break;
+							}
+						}
+
+						refresh();
+
+						return;
+					}
+
+					const name = String(filename);
+
+					if (!config.recursive && !watcher.names.has(name)) {
+						return;
+					}
+
+					const path = resolve(config.directory, name);
+
 					// Bun on macOS can report unchanged watched directories as changes.
 					if (filterDirectoryEvents && _event === 'change') {
 						let directory;
@@ -254,14 +391,28 @@ export function watchBuild({ projectDir, sources, ignored = [], ignore = () => f
 						}
 					}
 
-					onEvent(path);
+					const accepted = onEvent(path);
+
+					if (accepted && within(config.directory, path)) {
+						updateSnapshot(watcher.snapshot, path, config.recursive, path === config.directory);
+					}
+
 					refresh();
 				} catch (error) {
 					report(error);
 					void stop();
 				}
 			});
-			watcher.names = config.names;
+
+			try {
+				watcher.names = config.names;
+				watcher.snapshot = capture(config.directory, config.recursive, config.names);
+			} catch (error) {
+				watcher.close();
+
+				throw error;
+			}
+
 			watcher.on('error', (error) => {
 				report(error);
 				void stop();
