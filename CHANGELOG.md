@@ -8,73 +8,38 @@ This projects adheres to [Semantic Versioning](https://semver.org/) and [Keep a 
 
 ## [4.0.0]
 
-### Stable release summary
-
-- **Breaking:** replace the Webpack configuration and `webpack/*` API with Bun build helpers. Migrate build scripts, configuration and WordPress asset integration; this is not a drop-in replacement.
-- Require Bun 1.4.4 or newer for the build and formatting workflow. Conventional theme builds require stable WordPress 7.0 or newer and compatible PHP metadata/enqueue integration.
-- **Breaking:** conventional theme editors default to unified sharing and require the `eightshift-editor-v1` PHP readiness bootstrap. Explicit editor presets and lower-level APIs retain their independent default; `native` sharing and pure JSX grouping remain opt-in.
-- **Breaking:** built-in theme publication uses structured directories only. Remove `publicationLayout`, `flattenAssets`, and the experimental `editor.sharedPackages` option; migrate publication hooks to `publicationRoot` and nested aliases.
-- Stage publication before replacing public assets; support aliases, retained files, extra files, shared asset handling and explicit custom-CSS cleanup through `removeUnreferencedStyles`.
-- Build frontend, admin, editor and standalone CommonJS SSR assets; preserve lazy CSS boundaries, WordPress dependency metadata, worker URLs and relative CSS assets. Restart CLI watch workers when configuration, package manifests or Bun lockfiles change.
-- Add deferred `createChunkedComponent` loaders and optional shared same-origin font publication. Shared fonts require the UI Components font manifest and compatible PHP shared-font integration; they remain disabled by default.
-- Move formatting to Bun's native formatter. The published ESLint configuration no longer runs Prettier; consumers must run a separate formatting check. Keep `eslint-config-prettier` to disable conflicting lint rules.
-- Support stable UI Components 8 (including 8.5) and explicitly allow 8.5.0-beta.1. The local validation dependency remains pinned to that beta; no dependency upgrade is included.
-
-The prerelease notes below are retained as release history. Their validation versions describe those prereleases, not an automatic upgrade of consumer dependencies.
-
-### 4.0.0-beta.7
-
-- Export `createChunkedComponent` from `/scripts` and `/scripts/helpers`, with deferred loaders, promise compatibility, explicit or inferred exports, and a configurable Suspense fallback (default `null`).
-
-### 4.0.0-beta.6
-
-- Add the boolean `removeUnreferencedStyles` option to `defineThemeBuild` so custom CSS callbacks can opt into removing unreferenced entry stylesheet originals after generating hashed replacements. Existing defaults remain unchanged; aliases and detected references retain originals. Custom or disabled publishers cannot use this option.
-- Document the cleanup opt-in and the requirement to pin dynamically constructed stable CSS URLs with aliases; extra styles, lazy CSS, source maps and CSS compilation remain unchanged.
-
-### 4.0.0-beta.5
-
-- Use ESLint 9 to satisfy the React lint plugin peer range without changing lint rules.
-- Support stable UI Components 8 and explicitly allow 8.5.0-beta.1; validate locally against that exact published beta.
-
-- Preserve generic PHP class extraction alongside the documented Tailwind helper patterns.
-- ESLint 9 remains a known end-of-life risk; a major upgrade is deferred pending React plugin peer compatibility.
-
-### 4.0.0-beta.4
-
-- **Breaking:** make structured directories the only built-in `defineThemeBuild` publication layout. Remove `publicationLayout` from configuration (all explicit values are rejected) and remove the legacy `flattenAssets` export. Migrate publication hooks from `outdir/flat` to the stable `publicationRoot` directory contract and nested relative aliases; fixed special outputs remain supported through `extraFiles`. Custom `publish` callbacks remain supported but must account for structured compiler URLs. Low-level build and prepared-tree packaging APIs retain their existing defaults.
-- Omit unreferenced conventional structured entry stylesheet intermediates after generating hashed replacements; retain aliases, referenced styles, custom CSS and script paths. Cache synchronization, retention and rollback policy are unchanged.
-
-- Default conventional theme editor builds to unified sharing; compatible PHP module-readiness integration is required.
-- Add opt-in shared same-origin font publication, requiring UI Components 8.5.0-beta.1 and Eightshift Libs 14.0.0-alpha.3 shared-font support.
-- Compile default SSR entries together as standalone CommonJS bundles; preserve sequential compilation for caller plugins and prevent implicit writes during compilation.
-- Restart CLI watch workers on selected configuration, root package manifest and Bun lockfile changes, draining active work before replacement.
-- Accept both verified generated Smart Image worker URL forms.
-- Resolve externalized WordPress package exports and default globals from core scripts without requiring installed package metadata; remove the API-fetch peer requirement.
-- Preserve isolated editor store IDs across projects without changing them on every rebuild.
-- Compile JavaScript-imported frontend and admin CSS and load it with its importing module, preserving lazy boundaries; resolve Smart Image workers on each surface.
-- Preserve relative asset URLs in nested release stylesheets and retain conditional shared-font rules in their original stylesheets.
-- Preserve eager JavaScript discovery contexts and recognize escaped editor stylesheet patterns.
-- Preserve CommonJS-style WordPress core exports instead of treating them as side-effect-only scripts.
-- Publish local string image URLs in CSS `image-set()` declarations.
-- Decode percent-encoded local CSS asset paths once, preserving query strings and fragments; report malformed path encoding clearly.
-- Allow empty release stylesheets while continuing to reject missing files and empty JavaScript entries.
-- Exit nonzero when a one-shot CLI build is interrupted, including during configuration loading.
-
 ### Changed
 
-- Show build/watch progress and total duration by default, with `--quiet` and `--verbose` output modes.
-- Stage theme releases before replacing public assets, preserving the previous release on build or cache failures.
-- Support extra publication files, manifest aliases and explicit file retention through the shared publisher.
+- **Breaking:** Replace the bundled Webpack configuration and `webpack/*` API with Bun build helpers. Existing projects must migrate their build scripts, configuration and WordPress asset integration. Bun 1.4.4 or newer is required. See the [migration guide](README.md#bun-build-migration).
+- **Breaking:** Conventional theme builds require a stable WordPress 7.0 or newer installation and PHP integration that reads the generated asset metadata and enqueues its dependencies.
+- **Breaking:** Conventional theme editors use a unified ES module graph and register asynchronously by default. This requires PHP integration supporting `eightshift-editor-v1`. Dependent classic scripts must await readiness; projects requiring synchronous registration can configure independent editor sharing.
+- **Breaking:** Built-in theme publication uses structured asset directories. Integrations that assume flat asset paths must use the manifest and retain the generated directory structure. Successful default publication replaces `public/`; keep manually maintained files elsewhere.
+- Frontend and admin entry scripts load their bundled modules asynchronously. Keep their generated chunks alongside the entry scripts. Theme builds produce optimized assets even in watch mode; there is no hot reload.
+- Use Bun's formatter instead of Prettier for this repository. The published ESLint configuration no longer runs Prettier, so consumers must run a separate formatting check. Downgrade ESLint to 9 for compatibility with the React lint plugin.
+- Optimize `@eightshift/ui-components` imports by default in conventional theme builds.
 
-- **Breaking:** the conventional theme build requires a stable WordPress 7.0 or newer installation.
-- **Breaking:** removed the Webpack configuration, `webpack/*` API and its build dependencies. Migrate project build scripts to Bun or another independently configured build pipeline.
-- Added Bun build helpers with a conventional theme preset, CSS processing and watch support. These are not a drop-in replacement for Webpack; project configuration and WordPress asset integration must be migrated.
-- Enabled import optimization for `@eightshift/ui-components` by default in conventional theme builds.
-- Improved browser bundle tree-shaking and WordPress dependency metadata.
-- Prevented unnecessary watch rebuilds on macOS.
-- Removed the experimental `editor.sharedPackages` option. Existing configurations must remove it or migrate to a supported sharing mode.
-- **Breaking:** conventional theme builds now default to `unified` editor sharing, requiring matching PHP module-readiness integration (validated with eightshift-libs 14.0.0-alpha.2). The lower-level editor API still defaults to `independent`. Explicit editor presets retain their own sharing choice. `native` remains opt-in and shares lazy modules while keeping registration separate.
-- Added opt-in `editor.pureJsxGroups` to reduce chunk requests in unified production builds. Unsupported configurations, including source-map builds, fall back to ungrouped output.
+### Added
+
+- A conventional theme preset and lower-level Bun build APIs for frontend, editor and admin assets, Tailwind CSS, responsive classes, WordPress dependency metadata and standalone CommonJS SSR entries. External source maps are available on request.
+- Frontend and admin JavaScript imports of CSS, including package stylesheet exports and CSS modules. Lazy styles load with their importing modules, and local assets are published with their stylesheets.
+- The `eightshift-build` CLI with build and watch commands, progress output, and quiet and verbose modes. Watch builds run serially and restart the worker when the selected configuration, root package manifest or Bun lockfile changes.
+- Optional native editor sharing and `editor.pureJsxGroups` for unified builds. Lower-level editor builds default to independent sharing.
+- Staged theme publication with extra files, manifest aliases and explicit file retention. The `removeUnreferencedStyles` option enables cleanup for custom CSS when using the default publisher.
+- Optional same-origin shared fonts through `sharedFonts`. This is disabled by default and requires a compatible UI Components font manifest and PHP integration.
+- `createChunkedComponent` from `/scripts` and `/scripts/helpers` for deferred React components, with named or inferred exports, a Suspense fallback, and forwarded props and refs.
+
+## [3.5.1]
+
+### Fixed
+
+- Fixed stylelint false positives on Tailwind `@apply`: `at-rule-prelude-no-invalid` now ignores `@apply`, as the CSS Mixins spec `@apply` syntax only accepts dashed idents.
+- Fixed stylelint false positives on `&` inside `@utility` and `@custom-variant` (`nesting-selector-no-missing-scoping-root`).
+- Fixed stylelint false positives on declarations in at-rules nested inside `@utility`, such as `@supports` (`no-invalid-position-declaration`).
+
+### Updated
+
+- Updated dependencies (`@wordpress/dependency-extraction-webpack-plugin` 7, `@wordpress/api-fetch` 8, `stylelint`, `eslint`, `oxlint`, `webpack`, `webpack-cli`, `@swc/core`, `eslint-plugin-better-tailwindcss`, `prettier`, `lint-staged`).
+- `@wordpress/dependency-extraction-webpack-plugin` 7 requires Node.js 22.13 or newer.
 
 ## [3.5.0]
 
@@ -463,6 +428,7 @@ Co-authored with @piqusy
 - Initial release.
 
 [4.0.0]: https://github.com/infinum/eightshift-frontend-libs-tailwind/compare/3.5.1...4.0.0
+[3.5.1]: https://github.com/infinum/eightshift-frontend-libs-tailwind/compare/3.5.0...3.5.1
 [3.5.0]: https://github.com/infinum/eightshift-frontend-libs-tailwind/compare/3.4.0...3.5.0
 [3.4.0]: https://github.com/infinum/eightshift-frontend-libs-tailwind/compare/3.4.0...3.4.0
 [3.3.0]: https://github.com/infinum/eightshift-frontend-libs-tailwind/compare/3.2.0...3.3.0
