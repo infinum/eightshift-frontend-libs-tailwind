@@ -11,7 +11,7 @@ This projects adheres to [Semantic Versioning](https://semver.org/) and [Keep a 
 ### Changed
 
 - **Breaking:** Replace the bundled Webpack configuration and `webpack/*` API with Bun build helpers. Existing projects must migrate their build scripts, configuration and WordPress asset integration. Bun 1.4.4 or newer is required. See the [migration guide](README.md#bun-build-migration).
-- **Breaking:** Conventional theme builds require a stable WordPress 7.0 or newer installation and PHP integration that reads the generated asset metadata and enqueues its dependencies.
+- **Breaking:** Conventional theme builds target WordPress 7.0 or newer and require PHP integration that reads generated asset metadata and enqueues its dependencies. Coreless builds require a detectable target version; some WordPress import forms still require core files or installed packages.
 - **Breaking:** Conventional theme editors use a unified ES module graph and register asynchronously by default. This requires PHP integration supporting `eightshift-editor-v1`. Dependent classic scripts must await readiness; projects requiring synchronous registration can configure independent editor sharing.
 - **Breaking:** Built-in theme publication uses structured asset directories. Integrations that assume flat asset paths must use the manifest and retain the generated directory structure. Successful default publication replaces `public/`; keep manually maintained files elsewhere.
 - Frontend and admin entry scripts load their bundled modules asynchronously. Keep their generated chunks alongside the entry scripts. Theme builds produce optimized assets even in watch mode; there is no hot reload.
@@ -26,7 +26,7 @@ This projects adheres to [Semantic Versioning](https://semver.org/) and [Keep a 
 - Optional native editor sharing and `editor.pureJsxGroups` for unified builds. Lower-level editor builds default to independent sharing.
 - Staged theme publication with extra files, manifest aliases and explicit file retention. The `removeUnreferencedStyles` option enables cleanup for custom CSS when using the default publisher.
 - Optional same-origin shared fonts through `sharedFonts`. This is disabled by default and requires a compatible UI Components font manifest and PHP integration.
-- `createChunkedComponent` from `/scripts` and `/scripts/helpers` for deferred React components, with named or inferred exports, a Suspense fallback, and forwarded props and refs.
+- `lazyComponent` from `/scripts` and `/scripts/helpers` for deferred React components, with named or inferred exports, a Suspense fallback, and forwarded props and refs. It replaces `createChunkedComponent` without a compatibility alias; migrate imports to `lazyComponent` and review the default fallback.
 
 ## [3.5.1]
 
