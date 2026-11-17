@@ -1,6 +1,6 @@
 import { lazyComponentPlugins } from './lazy-component.mjs';
 import { createHash } from 'node:crypto';
-import { mkdir, readFile, writeFile } from 'node:fs/promises';
+import { mkdir, readFile, realpath, writeFile } from 'node:fs/promises';
 import { basename, dirname, isAbsolute, relative, resolve, sep } from 'node:path';
 import { eightshiftDiscovery, editorLazyImports } from './eightshift-discovery.mjs';
 import { buildNativeEditorChunks } from './editor-native.mjs';
@@ -70,7 +70,7 @@ export async function buildEditor({ root, directory, entry, buildOptions = {}, p
 			throw new TypeError('Unified editor sharing uses native imports and cannot apply lazy import rewriting');
 		}
 
-		const target = resolve(root, entry);
+		const target = await realpath(resolve(root, entry));
 		const nativeDiscovery = discovery ? eightshiftDiscovery({ ...discovery, root, outputDir: inside(discovery.outputDir ?? 'discovery') }) : undefined;
 		const {
 			names,

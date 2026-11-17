@@ -94,7 +94,7 @@ export async function publishRelease({ root, release, manifest, publicDir, publi
 		for (const [key, value] of Object.entries(manifest)) {
 			pathName(key);
 			pathName(value);
-			publicManifest[key] = `${publicPrefix}${value}`;
+			publicManifest[key] = `${publicPrefix}${value.split('/').map(encodeURIComponent).join('/')}`;
 		}
 
 		// Include unaliased flat files, as the theme's legacy publisher did.
@@ -106,7 +106,7 @@ export async function publishRelease({ root, release, manifest, publicDir, publi
 			}
 
 			if (info.isFile() && name !== 'manifest.json' && !Object.hasOwn(publicManifest, name)) {
-				publicManifest[name] = `${publicPrefix}${name}`;
+				publicManifest[name] = `${publicPrefix}${encodeURIComponent(name)}`;
 			}
 		}
 

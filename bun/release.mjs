@@ -9,12 +9,12 @@ async function ensureDirectory(directory, root) {
 	const withinRoot = root && (!location || (!isAbsolute(location) && location !== '..' && !location.startsWith(`..${sep}`)));
 	const parent = dirname(directory);
 
-	if (parent !== directory && (!withinRoot || directory !== root)) {
+	if (withinRoot && directory !== root) {
 		await ensureDirectory(parent, root);
 	}
 
 	try {
-		await mkdir(directory, { recursive: directory === root });
+		await mkdir(directory, { recursive: !withinRoot || directory === root });
 	} catch (error) {
 		if (error.code !== 'EEXIST') {
 			throw error;

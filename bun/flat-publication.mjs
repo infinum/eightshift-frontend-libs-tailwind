@@ -144,7 +144,7 @@ export async function publishFlatRelease({ root, wpRoot, release, manifest, vers
 		}
 	}
 
-	const publicManifest = Object.fromEntries(Object.entries(result).map(([key, value]) => [key, `${publicPrefix}${value}`]));
+	const publicManifest = Object.fromEntries(Object.entries(result).map(([key, value]) => [key, `${publicPrefix}${value.split('/').map(encodeURIComponent).join('/')}`]));
 
 	await writeFile(resolve(release, 'manifest.json'), `${JSON.stringify(publicManifest, null, 2)}\n`);
 	const backup = resolve(root, `.public-previous-${randomUUID()}`);
