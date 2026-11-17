@@ -1,4 +1,4 @@
-import { createElement, lazy, Suspense } from 'react';
+import { createElement, forwardRef, lazy, Suspense } from 'react';
 
 const resolveExportedComponent = (module, exportName) => {
 	if (exportName === 'default') {
@@ -9,9 +9,16 @@ const resolveExportedComponent = (module, exportName) => {
 		return module?.[exportName] ?? null;
 	}
 
-	const exportedEntries = Object.entries(module ?? {}).filter(([key, value]) => key !== '__esModule' && typeof value === 'function');
+	const entries = Object.entries(module ?? {}).filter(([key]) => key !== '__esModule');
+	const functions = entries.filter(([, value]) => typeof value === 'function');
 
-	return exportedEntries.length === 1 ? exportedEntries[0][1] : null;
+	if (functions.length) {
+		return functions.length === 1 ? functions[0][1] : null;
+	}
+
+	const forwarded = entries.filter(([, value]) => value !== null && typeof value === 'object' && value.$$typeof === Symbol.for('react.forward_ref'));
+
+	return forwarded.length === 1 ? forwarded[0][1] : null;
 };
 
 const resolveLazyModule = (moduleLoaderOrPromise, exportName) =>
@@ -22,28 +29,28 @@ const resolveLazyModule = (moduleLoaderOrPromise, exportName) =>
 			throw new Error(`Unable to resolve chunked component${exportName ? ` "${exportName}"` : ''}.`);
 		}
 
-		return { default: Component };
+		// React 18's server renderer does not forward refs through lazy boundaries.
+		return { default: ({ componentProps, componentRef }) => createElement(Component, { ...componentProps, ref: componentRef }) };
 	});
 
 /**
  * Create a stable lazy component. Call outside render; prefer a loader to defer loading.
  *
  * @param {Function|Promise} moduleLoaderOrPromise Module loader or already-started promise.
- * @param {string} [exportName] Explicit export; otherwise infer the only function export.
+ * @param {string} [exportName] Explicit export; otherwise infer a sole function or forwardRef export.
  * @param {import('react').ReactNode} [fallback=null] Content displayed while loading.
- * @returns {Function} Component forwarding props through a Suspense boundary.
+ * @returns {import('react').ForwardRefExoticComponent<any>} Component forwarding props and refs through a Suspense boundary.
  */
 export const createChunkedComponent = (moduleLoaderOrPromise, exportName, fallback = null) => {
 	const LazyComponent = lazy(() => resolveLazyModule(moduleLoaderOrPromise, exportName));
 
-	const ChunkedComponent = (props) =>
+	return forwardRef((props, ref) =>
 		createElement(
 			Suspense,
 			{
 				fallback,
 			},
-			createElement(LazyComponent, props),
-		);
-
-	return ChunkedComponent;
+			createElement(LazyComponent, { componentProps: props, componentRef: ref }),
+		),
+	);
 };
