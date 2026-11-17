@@ -1,5 +1,5 @@
 import { createHash, randomUUID } from 'node:crypto';
-import { link, mkdir, readFile, realpath, unlink } from 'node:fs/promises';
+import { link, lstat, mkdir, readFile, realpath, unlink } from 'node:fs/promises';
 import { createRequire } from 'node:module';
 import { basename, dirname, isAbsolute, relative, resolve, sep } from 'node:path';
 import { defineBuild } from './index.mjs';
@@ -545,7 +545,39 @@ export function defineThemeBuild(options = {}) {
 			}
 		}
 
-		const fontAssets = sharedFonts ? await prepareSharedFonts({ root, flatDir, retainedStyles }) : { extraFiles: [], aliases: {} };
+		let fontAssets = { extraFiles: [], aliases: {} };
+
+		if (sharedFonts) {
+			if (additions.retain !== undefined && !Array.isArray(additions.retain)) {
+				throw new TypeError('publication retain must be an array');
+			}
+
+			const additionalFiles = [...(additions.extraFiles ?? []), ...[...standaloneAssets].map(([destination, source]) => ({ source, destination }))];
+
+			for (const name of additions.retain ?? []) {
+				if (typeof name !== 'string' || !name || isAbsolute(name) || name.includes('\\') || name.includes('\0') || name.split('/').some((part) => !part || part === '.' || part === '..')) {
+					throw new Error(`Invalid path: ${String(name)}`);
+				}
+
+				let source = resolve(root, 'public');
+
+				for (const part of name.split('/')) {
+					source = resolve(source, part);
+
+					if ((await lstat(source)).isSymbolicLink()) {
+						throw new Error(`Symlink in retained path: ${name}`);
+					}
+				}
+
+				if (!(await lstat(source)).isFile()) {
+					throw new Error(`Retained path must be an exact file: ${name}`);
+				}
+
+				additionalFiles.push({ source, destination: name });
+			}
+
+			fontAssets = await prepareSharedFonts({ root, flatDir, retainedStyles, additionalFiles });
+		}
 
 		if (sharedFonts && (Object.hasOwn(aliases, 'shared-fonts.json') || Object.hasOwn(additions.aliases ?? {}, 'shared-fonts.json'))) {
 			throw new Error('shared-fonts.json is reserved when sharedFonts is enabled');

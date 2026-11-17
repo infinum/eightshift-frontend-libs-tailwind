@@ -1,12 +1,33 @@
 import { createHash } from 'node:crypto';
 import { createRequire } from 'node:module';
-import { readFile, readdir, writeFile } from 'node:fs/promises';
-import { basename, dirname, extname, isAbsolute, relative, resolve } from 'node:path';
+import { lstat, readFile, readdir, writeFile } from 'node:fs/promises';
+import { basename, dirname, extname, isAbsolute, relative, resolve, sep } from 'node:path';
 import postcss from 'postcss';
 import valueParser from 'postcss-value-parser';
+import { unescapeCss } from './css-url.mjs';
 
-/** Extract verified UI Components font faces before stylesheet hashes are calculated. */
-export async function prepareSharedFonts({ root, flatDir, retainedStyles = new Set() }) {
+/** Extract verified UI Components font faces before stylesheet hashes are calculated.
+ * additionalFiles maps other assets that the caller will package alongside flatDir.
+ */
+export async function prepareSharedFonts({ root, flatDir, retainedStyles = new Set(), additionalFiles = [] }) {
+	if (
+		!Array.isArray(additionalFiles) ||
+		additionalFiles.some(
+			(file) =>
+				!file ||
+				typeof file.source !== 'string' ||
+				!file.source ||
+				typeof file.destination !== 'string' ||
+				!file.destination ||
+				isAbsolute(file.destination) ||
+				file.destination.includes('\\') ||
+				file.destination.includes('\0') ||
+				file.destination.split('/').some((part) => !part || part === '.' || part === '..'),
+		)
+	) {
+		throw new TypeError('additionalFiles must contain valid source and destination paths');
+	}
+
 	const require = createRequire(resolve(root, 'package.json'));
 	const assets = dirname(require.resolve('@eightshift/ui-components/dist/assets/style.css'));
 	const manifest = JSON.parse(await readFile(resolve(assets, 'fonts-manifest.json'), 'utf8'));
@@ -30,6 +51,66 @@ export async function prepareSharedFonts({ root, flatDir, retainedStyles = new S
 
 		hashes.add(font.hash);
 	}
+
+	const readAsset = async (path, optional = false) => {
+		let originalError;
+
+		try {
+			return { path, bytes: await readFile(path) };
+		} catch (error) {
+			if (error.code !== 'ENOENT') {
+				throw error;
+			}
+
+			originalError = error;
+		}
+
+		const name = relative(flatDir, path).split(sep).join('/');
+
+		for (const { source, destination } of additionalFiles) {
+			if (name !== destination && !name.startsWith(`${destination}/`)) {
+				continue;
+			}
+
+			const parts = name === destination ? [] : name.slice(destination.length + 1).split('/');
+			let candidate = resolve(source);
+
+			try {
+				let info = await lstat(candidate);
+				let complete = true;
+
+				for (const part of parts) {
+					if (info.isSymbolicLink()) {
+						throw new Error(`Symlinks are not supported: ${candidate}`);
+					}
+
+					if (!info.isDirectory()) {
+						complete = false;
+						break;
+					}
+
+					candidate = resolve(candidate, part);
+					info = await lstat(candidate);
+				}
+
+				if (info.isSymbolicLink()) {
+					throw new Error(`Symlinks are not supported: ${candidate}`);
+				}
+
+				if (complete && info.isFile()) {
+					return { path: candidate, bytes: await readFile(candidate) };
+				}
+			} catch (error) {
+				if (error.code !== 'ENOENT' && error.code !== 'ENOTDIR') {
+					throw error;
+				}
+			}
+		}
+
+		if (!optional) {
+			throw originalError;
+		}
+	};
 
 	const faces = new Set();
 	let matched = false;
@@ -69,26 +150,35 @@ export async function prepareSharedFonts({ root, flatDir, retainedStyles = new S
 			const resolved = [];
 
 			for (const source of sources) {
-				if (/^(?:[a-z][a-z\d+.-]*:|\/|#)/i.test(source.url) || /[?#]/.test(source.url)) {
+				const url = unescapeCss(source.url);
+
+				if (/^(?:[a-z][a-z\d+.-]*:|\/|#)/i.test(url) || /[?#]/.test(url)) {
 					break;
 				}
 
-				const path = resolve(dirname(file), source.url);
+				let pathname;
+
+				try {
+					pathname = decodeURIComponent(url);
+				} catch (cause) {
+					throw new Error(`Invalid percent encoding in shared font URL ${JSON.stringify(url)} in ${file}`, { cause });
+				}
+
+				const path = resolve(dirname(file), pathname);
 				const rel = relative(flatDir, path);
 
 				if (isAbsolute(rel) || rel.startsWith('..') || !/\.woff2$/.test(path)) {
 					break;
 				}
 
-				const hash = createHash('sha256')
-					.update(await readFile(path))
-					.digest('hex');
+				const asset = await readAsset(path);
+				const hash = createHash('sha256').update(asset.bytes).digest('hex');
 
 				if (!hashes.has(hash)) {
 					break;
 				}
 
-				resolved.push({ ...source, path, hash, file: `fonts/${hash}${extname(path)}` });
+				resolved.push({ ...source, path: asset.path, hash, file: `fonts/${hash}${extname(path)}` });
 			}
 
 			// Leave mixed or unrelated font declarations entirely unchanged.
@@ -126,6 +216,20 @@ export async function prepareSharedFonts({ root, flatDir, retainedStyles = new S
 		throw new Error('Shared fonts enabled but no verified UI Components font faces were found.');
 	}
 
+	const extraFonts = [];
+
+	for (const { hash, file, source } of fonts.values()) {
+		const existing = await readAsset(resolve(flatDir, file), true);
+
+		if (existing && createHash('sha256').update(existing.bytes).digest('hex') !== hash) {
+			throw new Error(`Duplicate release path: ${file}`);
+		}
+
+		if (!existing) {
+			extraFonts.push({ source, destination: file });
+		}
+	}
+
 	const output = resolve(flatDir, '../shared-fonts.json');
 	await writeFile(output, JSON.stringify({ version: 1, fonts: [...fonts.values()].map(({ hash, file }) => ({ hash, file })), css: [...faces].join('\n') }, null, 2));
 
@@ -134,7 +238,7 @@ export async function prepareSharedFonts({ root, flatDir, retainedStyles = new S
 	}
 
 	return {
-		extraFiles: [{ source: output, destination: basename(output) }, ...[...fonts.values()].map(({ source, file }) => ({ source, destination: file }))],
+		extraFiles: [{ source: output, destination: basename(output) }, ...extraFonts],
 		aliases: { 'shared-fonts.json': 'shared-fonts.json' },
 	};
 }
