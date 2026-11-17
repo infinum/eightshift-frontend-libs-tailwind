@@ -37,6 +37,7 @@ export function defineThemeBuild(options = {}) {
 
 	const {
 		root,
+		wordpressVersion,
 		publicPrefix: configuredPublicPrefix,
 		buildSsr,
 		createPlugins = () => [],
@@ -61,6 +62,10 @@ export function defineThemeBuild(options = {}) {
 
 	if (typeof root !== 'string' || !root) {
 		throw new TypeError('root must be a non-empty string');
+	}
+
+	if (wordpressVersion !== undefined && (typeof wordpressVersion !== 'string' || !/^\d+\.\d+(?:\.\d+)?$/.test(wordpressVersion) || Number(wordpressVersion.split('.')[0]) < 7)) {
+		throw new TypeError('wordpressVersion must be a stable WordPress version 7.0 or newer');
 	}
 
 	if (typeof sharedFonts !== 'boolean' || (sharedFonts && publish !== undefined)) {
@@ -199,22 +204,88 @@ export function defineThemeBuild(options = {}) {
 	let retainedStyles;
 	const makePreset = async ({ sourcemaps }) => {
 		const versionFile = resolve(wpRoot, 'wp-includes/version.php');
-		let versionSource;
+		const readOptional = async (file) => {
+			try {
+				return await readFile(file, 'utf8');
+			} catch (error) {
+				if (error.code === 'ENOENT') {
+					return undefined;
+				}
 
-		try {
-			versionSource = await readFile(versionFile, 'utf8');
-		} catch (error) {
-			throw new Error(`Cannot read WordPress version at ${versionFile}. Set EIGHTSHIFT_WP_ROOT to a WordPress installation.`, { cause: error });
+				throw error;
+			}
+		};
+
+		const core = await readOptional(versionFile);
+		let target;
+		let source = versionFile;
+
+		if (core !== undefined) {
+			const matches = [...core.matchAll(/^\s*\$wp_version\s*=\s*(['"])([^'"\r\n]+)\1\s*;/gm)];
+
+			if (matches.length !== 1) {
+				throw new Error(`Cannot determine a stable WordPress version from ${source}; WordPress 7.0 or newer is required.`);
+			}
+
+			target = matches[0][2];
+		} else {
+			source = resolve(wpRoot, 'Dockerfile');
+			const dockerfile = await readOptional(source);
+
+			if (dockerfile !== undefined) {
+				const images = [...dockerfile.matchAll(/^\s*FROM\s+(?:--platform=\S+\s+)?([^\s]+)(?:\s+AS\s+\S+)?\s*(?:#.*)?$/gim)].map((match) => match[1]);
+				const wordpressImages = images.filter((image) => /^(?:docker\.io\/)?(?:library\/)?wordpress(?::|@|$)/i.test(image));
+
+				if (wordpressImages.length > 1) {
+					throw new Error(`Ambiguous WordPress images in ${source}.`);
+				}
+
+				if (wordpressImages.length === 1) {
+					const match = wordpressImages[0].match(/^(?:docker\.io\/)?(?:library\/)?wordpress:(\d+\.\d+(?:\.\d+)?)(?:-(?:php\d+\.\d+|apache|fpm|fpm-alpine|cli|cli-php\d+\.\d+)(?:-[a-z0-9.]+)*)?$/);
+
+					if (!match) {
+						throw new Error(`Cannot determine a pinned WordPress version from ${source}.`);
+					}
+
+					target = match[1];
+				}
+			}
+
+			if (target === undefined) {
+				source = resolve(wpRoot, 'setup.json');
+				const setup = await readOptional(source);
+
+				if (setup !== undefined) {
+					let data;
+
+					try {
+						data = JSON.parse(setup);
+					} catch (error) {
+						throw new Error(`Cannot parse ${source}.`, { cause: error });
+					}
+
+					if (data && Object.hasOwn(data, 'core')) {
+						target = data.core;
+					}
+				}
+			}
+
+			if (target === undefined) {
+				source = 'wordpressVersion';
+				target = wordpressVersion;
+			}
 		}
 
-		const version = versionSource.match(/^\s*\$wp_version\s*=\s*['"](\d+)\.(\d+)(?:\.(\d+))?(['"]);/m);
-
-		if (!version) {
-			throw new Error(`Cannot determine a stable WordPress version from ${versionFile}; WordPress 7.0 or newer is required.`);
+		if (target === undefined) {
+			throw new Error('Cannot read WordPress version from installed core, setup.json, Dockerfile, or wordpressVersion.');
 		}
 
-		if (Number(version[1]) < 7) {
-			throw new Error(`WordPress 7.0 or newer is required; found ${version[1]}.${version[2]}${version[3] === undefined ? '' : `.${version[3]}`}.`);
+		if (typeof target !== 'string' || !/^\d+\.\d+(?:\.\d+)?$/.test(target)) {
+			throw new Error(`Cannot determine a stable WordPress version from ${source}; WordPress 7.0 or newer is required.`);
+		}
+
+		if (Number(target.split('.')[0]) < 7) {
+			throw new Error(`WordPress 7.0 or newer is required; found ${target}.`);
 		}
 
 		editorWorker = undefined;
@@ -422,6 +493,7 @@ export function defineThemeBuild(options = {}) {
 			buildOptions: {
 				optimizeImports,
 				minify: true,
+				drop: ['console'],
 				publicPath,
 				naming: { entry: '[name]-[hash].[ext]', chunk: '[name]-[hash].[ext]', asset: '[name]-[hash].[ext]' },
 				sourcemap: sourcemaps ? 'external' : 'none',

@@ -238,12 +238,67 @@ export function themeDiscoveryPlugin({ root, entries }) {
 		byPath.set(path, entry);
 	}
 
+	const tokens = (source, wrapped = false) => {
+		const input = wrapped ? `function __match__() {\n${source}\n}` : source;
+		let result;
+		const literals = new Map();
+		const messages = new Linter().verify(
+			input,
+			[
+				{
+					languageOptions: { ecmaVersion: 'latest', sourceType: 'module', parserOptions: { ecmaFeatures: { jsx: true } } },
+					linterOptions: { noInlineConfig: true },
+					plugins: {
+						capture: {
+							rules: {
+								tokens: {
+									create: (context) => ({
+										Literal: (node) => literals.set(node.start, node.regex ? `regex:${node.regex.pattern}/${node.regex.flags}` : `${typeof node.value}:${String(node.value)}`),
+										'Program:exit': () => {
+											result = context.sourceCode.ast.tokens.map((token) => ({ ...token, key: literals.get(token.start) ?? `${token.type}:${token.value}` }));
+										},
+									}),
+								},
+							},
+						},
+					},
+					rules: { 'capture/tokens': 'error' },
+				},
+			],
+			{ filename: 'module.js' },
+		);
+		const fatal = messages.find((message) => message.fatal);
+
+		if (fatal) {
+			throw new Error(`Cannot parse discovery source: ${fatal.message}`);
+		}
+
+		return wrapped ? result.slice(5, -1) : result;
+	};
+
 	const replaceOnce = (source, original, replacement) => {
-		if (typeof original !== 'string' || !original || typeof replacement !== 'string' || source.split(original).length !== 2) {
+		if (typeof original !== 'string' || !original || typeof replacement !== 'string') {
 			throw new Error(`Source changed; cannot replace: ${original}`);
 		}
 
-		return source.replace(original, () => replacement);
+		const expected = tokens(original, !/^\s*import\s+(?:[{*]|[\w$])/.test(original));
+		const actual = tokens(source);
+		const matches = [];
+
+		for (let i = 0; expected.length && i <= actual.length - expected.length; i++) {
+			if (expected.every((token, offset) => token.key === actual[i + offset].key)) {
+				matches.push(i);
+			}
+		}
+
+		if (matches.length !== 1) {
+			throw new Error(`Source changed; cannot replace: ${original}`);
+		}
+
+		const start = actual[matches[0]].start;
+		const end = actual[matches[0] + expected.length - 1].end;
+
+		return source.slice(0, start) + replacement + source.slice(end);
 	};
 
 	return {

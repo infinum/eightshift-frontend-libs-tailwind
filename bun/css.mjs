@@ -25,7 +25,7 @@ const { CachedInputFileSystem, ResolverFactory } = enhancedResolve;
  * replace the source text, while file remains the base for relative imports.
  * scan enables candidate scanning, or 'auto' scans only when utilities are requested.
  * sources extends detected sources, scanFiles adds explicit candidate files,
- * and removeSources removes exact @source rules.
+ * and removeSources removes matching @source rules regardless of quote style.
  * Assets are copied beside outputFile with content-hashed names.
  */
 export async function processCss({ projectDir, outputFile, files, production = false, browsers = '>= 0.25%' }) {
@@ -182,11 +182,31 @@ export async function processCss({ projectDir, outputFile, files, production = f
 		dependencies.add(file);
 
 		for (const source of options.removeSources ?? []) {
-			if (!input.includes(source)) {
+			const expected = postcss.parse(source).nodes;
+			const tree = postcss.parse(input, { from: file });
+			const rule = expected.length === 1 && expected[0].type === 'atrule' && expected[0].name === 'source' ? expected[0] : null;
+			let found = false;
+
+			if (rule) {
+				const params = valueParser(rule.params).nodes.filter((node) => node.type !== 'space' && node.type !== 'comment');
+				tree.walkAtRules('source', (node) => {
+					const actual = valueParser(node.params).nodes.filter((part) => part.type !== 'space' && part.type !== 'comment');
+
+					if (!found && params.length === 1 && actual.length === 1 && params[0].type === 'string' && actual[0].type === 'string' && params[0].value === actual[0].value) {
+						node.remove();
+						found = true;
+					}
+				});
+			} else if (input.includes(source)) {
+				input = input.replace(source, '');
+				continue;
+			}
+
+			if (!found) {
 				throw new Error(`Missing source rule in ${file}: ${source}`);
 			}
 
-			input = input.replace(source, '');
+			input = tree.toString();
 		}
 
 		const compiler = await compile(await rewriteAssets(input, dirname(file)), {

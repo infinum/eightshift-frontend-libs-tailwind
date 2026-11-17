@@ -35,6 +35,10 @@ test('WordPress side-effect scripts retain their handles without requiring globa
 		await writeFile(join(root, 'side-only.js'), 'import "@wordpress/format-library";');
 		await writeFile(join(root, 'invalid.js'), 'import { missing } from "@wordpress/format-library"; console.log(missing);');
 		await writeFile(join(root, 'broken.js'), 'import "@wordpress/broken";');
+		await writeFile(join(root, 'coreless.js'), 'import { select as choose } from "@wordpress/data"; export { dispatch as send } from "@wordpress/data"; globalThis.corelessResult = choose();');
+		for (const [name, source] of Object.entries({ default: 'import value from "@wordpress/data";', namespace: 'import * as value from "@wordpress/data";', wildcard: 'export * from "@wordpress/data";', dynamic: 'import("@wordpress/data");', require: 'require("@wordpress/data");', sideEffect: 'import "@wordpress/data";', defaultExport: 'export { default } from "@wordpress/data";' })) {
+			await writeFile(join(root, `coreless-${name}.js`), source);
+		}
 		const adapter = pathToFileURL(resolve(import.meta.dirname, '../bun/wordpress.mjs')).href;
 		const script = `
 import assert from 'node:assert/strict';
@@ -52,6 +56,18 @@ for (const minify of [false, true]) {
  assert.equal(globalThis.result, 'ok');
  delete globalThis.wp;
  assert.throws(() => new Function(code)(), /Missing WordPress global/);
+}
+const coreless = wordpressPlugin({ projectRoot: root });
+const corelessBuild = await Bun.build({ entrypoints: [root + '/coreless.js'], target: 'browser', format: 'esm', write: false, plugins: [coreless.plugin] });
+assert.equal(corelessBuild.success, true);
+assert.deepEqual([...coreless.dependencies], ['wp-data']);
+globalThis.wp = { data: { select: () => 'coreless', dispatch: () => {} } };
+assert.match(await corelessBuild.outputs[0].text(), /dispatch/);
+for (const name of ['default', 'namespace', 'wildcard', 'dynamic', 'require', 'sideEffect', 'defaultExport']) {
+ const wp = wordpressPlugin({ projectRoot: root });
+ let failed = false;
+ try { const result = await Bun.build({ entrypoints: [root + '/coreless-' + name + '.js'], target: 'browser', format: 'esm', write: false, plugins: [wp.plugin] }); failed = !result.success; } catch { failed = true; }
+ assert.equal(failed, true, name + ' must fail without core or package');
 }
 const only = wordpressPlugin({ projectRoot: root, wpRoot: root });
 const sideOnly = await Bun.build({ entrypoints: [root + '/side-only.js'], target: 'browser', format: 'esm', minify: true, write: false, metafile: true, plugins: [only.plugin] });

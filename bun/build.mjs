@@ -1,3 +1,4 @@
+import { lazyComponentPlugins } from './lazy-component.mjs';
 import { createHash, randomUUID } from 'node:crypto';
 import { lstat, mkdir, readFile, readdir, rename, rmdir, unlink, writeFile } from 'node:fs/promises';
 import { basename, dirname, isAbsolute, join, relative, resolve, sep } from 'node:path';
@@ -160,6 +161,38 @@ export async function build({ root = process.cwd(), outdir, entries, wpRoot, wor
 		throw new TypeError('outdir and at least one named entry are required');
 	}
 
+	let packageName;
+
+	if (!Object.hasOwn(buildOptions.define ?? {}, 'process.env.VERSION')) {
+		try {
+			const manifest = JSON.parse(await readFile(resolve(root, 'package.json'), 'utf8'));
+
+			if (typeof manifest.name === 'string' && manifest.name.trim()) {
+				packageName = manifest.name;
+			}
+		} catch (error) {
+			if (error.code !== 'ENOENT') {
+				throw error;
+			}
+		}
+	}
+
+	buildOptions = {
+		...buildOptions,
+		define: {
+			'process.browser': 'true',
+			'process.env.NODE_ENV': JSON.stringify(buildOptions.minify ? 'production' : 'development'),
+			'process.env.VERSION': JSON.stringify(
+				packageName ??
+					createHash('sha256')
+						.update(buildOptions.publicPath || resolve(root, outdir))
+						.digest('hex')
+						.slice(0, 20),
+			),
+			...buildOptions.define,
+		},
+	};
+
 	validateEntryPublicPaths(entryPublicPaths, entries);
 	outdir = resolve(root, outdir);
 	const rootFromOutput = relative(outdir, root);
@@ -280,7 +313,7 @@ export async function build({ root = process.cwd(), outdir, entries, wpRoot, wor
 				entrypoints: [resolve(root, entry)],
 				outdir: directory,
 				write: true,
-				plugins: [...(buildOptions.plugins ?? []), ...(wp ? [wp.plugin] : [])],
+				plugins: lazyComponentPlugins([...(buildOptions.plugins ?? []), ...(wp ? [wp.plugin] : [])], { sourcemap: buildOptions.sourcemap }),
 			});
 
 			if (!result.success) {

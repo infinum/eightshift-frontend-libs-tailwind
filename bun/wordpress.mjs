@@ -3,6 +3,7 @@ import { dirname, isAbsolute, resolve } from 'node:path';
 import { readFile } from 'node:fs/promises';
 import { promisify } from 'node:util';
 import { execFile } from 'node:child_process';
+import { Linter } from 'eslint';
 import { allowPureJsxGrouping } from './plugin-capabilities.mjs';
 
 const execFileAsync = promisify(execFile);
@@ -18,6 +19,9 @@ const externals = {
 	'react/jsx-runtime': ['ReactJSXRuntime', 'react-jsx-runtime', 'react'],
 	'react/jsx-dev-runtime': ['ReactJSXRuntime', 'react-jsx-runtime', 'react'],
 };
+
+// WordPress 7.0 unwraps these entry points to their default export.
+const defaultWordPressGlobals = new Set(['api-fetch', 'dom-ready', 'server-side-render']);
 
 const bundledWordPressPackages = new Set(['admin-ui', 'dataviews', 'dataviews/wp', 'fields', 'global-styles-engine', 'global-styles-ui', 'grid', 'icons', 'interface', 'kebab-case', 'react-inert-value', 'style-runtime', 'sync', 'ui', 'undo-manager', 'views']);
 
@@ -56,11 +60,22 @@ function externalFor(request) {
 
 async function coreExports(root, request) {
 	if (!root) {
-		throw new Error(`WordPress root is required to discover exports for ${request}`);
+		return null;
 	}
 
 	const name = request.slice('@wordpress/'.length);
-	const script = await readFile(resolve(root, 'wp-includes/js/dist', `${name}.js`), 'utf8');
+	let script;
+
+	try {
+		script = await readFile(resolve(root, 'wp-includes/js/dist', `${name}.js`), 'utf8');
+	} catch (error) {
+		if (error.code === 'ENOENT') {
+			return null;
+		}
+
+		throw error;
+	}
+
 	const matches = [...script.matchAll(/__export\(index_exports, \{([\s\S]*?)\n\s*\}\);/g)];
 
 	if (!matches.length && !/\bindex_exports\b/.test(script)) {
@@ -109,6 +124,92 @@ async function coreExports(root, request) {
 	const defaultGlobal = new RegExp(`\\bwp\\.${property}\\s*=\\s*wp\\.${property}\\.default\\s*;`).test(script);
 
 	return { names, defaultGlobal };
+}
+
+async function importerExports(importer, request) {
+	if (!isAbsolute(importer)) {
+		throw new Error('Package-free discovery requires a readable source importer');
+	}
+
+	const source = await readFile(importer, 'utf8');
+	const names = new Set();
+	let found = false;
+	const linter = new Linter();
+	const messages = linter.verify(source, [
+		{
+			languageOptions: { ecmaVersion: 'latest', sourceType: 'module', parserOptions: { ecmaFeatures: { jsx: true } } },
+			plugins: {
+				discovery: {
+					rules: {
+						imports: {
+							create() {
+								return {
+									ImportDeclaration(node) {
+										if (node.source.value !== request) {
+											return;
+										}
+
+										found = true;
+
+										for (const specifier of node.specifiers) {
+											if (specifier.type !== 'ImportSpecifier' || specifier.imported.name === 'default' || specifier.imported.value === 'default') {
+												throw new Error(`Unsafe default or namespace import for ${request}; provide wpRoot or install the package`);
+											}
+
+											names.add(specifier.imported.name ?? specifier.imported.value);
+										}
+									},
+									ExportNamedDeclaration(node) {
+										if (node.source?.value !== request) {
+											return;
+										}
+
+										found = true;
+
+										for (const specifier of node.specifiers) {
+											const name = specifier.local.name ?? specifier.local.value;
+
+											if (name === 'default') {
+												throw new Error(`Unsafe default re-export for ${request}; provide wpRoot or install the package`);
+											}
+
+											names.add(name);
+										}
+									},
+									ExportAllDeclaration(node) {
+										if (node.source.value === request) {
+											throw new Error(`Unsafe wildcard re-export for ${request}; provide wpRoot or install the package`);
+										}
+									},
+									ImportExpression(node) {
+										if (node.source.value === request) {
+											throw new Error(`Unsafe dynamic import for ${request}; provide wpRoot or install the package`);
+										}
+									},
+									CallExpression(node) {
+										if (node.callee.name === 'require' && node.arguments[0]?.value === request) {
+											throw new Error(`Unsafe require for ${request}; provide wpRoot or install the package`);
+										}
+									},
+								};
+							},
+						},
+					},
+				},
+			},
+			rules: { 'discovery/imports': 'error' },
+		},
+	]);
+
+	if (messages.some((message) => message.fatal) || !found || [...names].some((name) => !/^[A-Za-z_$][\w$]*$/.test(name))) {
+		throw new Error(`Cannot safely parse imports for ${request}; provide wpRoot or install the package`);
+	}
+
+	if (!names.size) {
+		throw new Error(`Cannot infer exports for side-effect-only import ${request}; provide wpRoot or install the package`);
+	}
+
+	return [...names];
 }
 
 /** Create a fresh adapter for each Bun build. Paths must be absolute. */
@@ -191,7 +292,7 @@ export function wordpressPlugin({ projectRoot = process.cwd(), wpRoot } = {}) {
 						entry = kind === 'react' ? require.resolve(request) : Bun.resolveSync(request, dirname(importer));
 					}
 
-					const key = JSON.stringify([request, entry || '']);
+					const key = JSON.stringify([request, entry || (kind === 'wordpress' ? args.importer : '')]);
 
 					if (!modules.has(key)) {
 						let names = [];
@@ -199,7 +300,42 @@ export function wordpressPlugin({ projectRoot = process.cwd(), wpRoot } = {}) {
 
 						try {
 							if (kind === 'wordpress') {
-								({ names, defaultGlobal } = await coreExports(wpRoot, request));
+								const core = await coreExports(wpRoot, request);
+
+								if (core) {
+									({ names, defaultGlobal } = core);
+								} else {
+									const importer = isAbsolute(args.importer) ? args.importer : resolve(projectRoot, '__wordpress_plugin__.mjs');
+									let packageEntry;
+
+									try {
+										packageEntry = Bun.resolveSync(request, dirname(importer));
+									} catch (error) {
+										if (!['MODULE_NOT_FOUND', 'ERR_MODULE_NOT_FOUND'].includes(error.code)) {
+											throw error;
+										}
+
+										names = await importerExports(args.importer, request);
+									}
+
+									if (packageEntry) {
+										const script = `const r = await Bun.build({ entrypoints: [process.argv[1]], target: 'browser', format: 'esm', write: false }); if (!r.success || r.outputs.length !== 1) { console.error(r.logs.join('\\n')); process.exit(1); } console.log(JSON.stringify(new Bun.Transpiler().scan(await r.outputs[0].text()).exports));`;
+										const result = await execFileAsync(process.execPath, ['-e', script, packageEntry], { cwd: projectRoot, maxBuffer: 1024 * 1024 });
+										names = JSON.parse(result.stdout);
+
+										if (!Array.isArray(names) || !names.length || names.some((name) => typeof name !== 'string' || !/^[A-Za-z_$][\w$]*$/.test(name)) || new Set(names).size !== names.length) {
+											throw new Error('Installed package exports cannot establish the core global mapping; provide wpRoot');
+										}
+
+										if (names.includes('default')) {
+											if (!defaultWordPressGlobals.has(request.slice('@wordpress/'.length))) {
+												throw new Error('Installed package default export has an unknown core global mapping; provide wpRoot');
+											}
+
+											defaultGlobal = true;
+										}
+									}
+								}
 							} else if (kind === 'react') {
 								names = ['default', ...Object.keys(require(entry)).filter((name) => name !== 'default')];
 							} else if (kind !== 'commonjs') {

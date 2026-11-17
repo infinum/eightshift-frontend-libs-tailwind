@@ -5,6 +5,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { generateDiscovery } from '../bun/discovery.mjs';
 import { eightshiftDiscovery, editorLazyImports } from '../bun/eightshift-discovery.mjs';
+import { themeDiscoveryPlugin } from '../bun/theme-discovery.mjs';
 
 async function clean(directory) {
 	for (const item of await readdir(directory, { withFileTypes: true })) {
@@ -14,6 +15,31 @@ async function clean(directory) {
 	}
 	await rmdir(directory);
 }
+
+test('theme discovery tolerates formatting, quotes and comments but rejects ambiguous matches', async () => {
+	const root = await mkdtemp(join(await realpath(tmpdir()), 'theme-discovery-'));
+	try {
+		const path = join(root, 'entry.js');
+		let load;
+		themeDiscoveryPlugin({ root, entries: [{
+			path: 'entry.js', module: 'generated.mjs', imports: ['items'],
+			importStatement: "import { dynamicImport } from 'helpers';",
+			replacements: [['return import(/* webpackMode: "lazy" */ `./${directory}/index.js`);', 'return items(directory);']],
+		}] }).setup({ onLoad(_options, handler) { load = handler; } });
+		const importLine = 'import /* comment */ { dynamicImport } from "helpers";';
+		const expression = 'return /* changed */ import ( `./${directory}/index.js` ) ;';
+		await writeFile(path, `${importLine}\nfunction run(directory) {\n${expression}\n}`);
+		const result = await load({ path });
+		assert.match(result.contents, /return items\(directory\);/);
+		assert.match(result.contents, /import \{ items \} from/);
+		await writeFile(path, `${importLine}\nfunction run(directory) { ${expression} ${expression} }`);
+		await assert.rejects(load({ path }), /Source changed; cannot replace/);
+		await writeFile(path, `${importLine}\nfunction run(directory) { return null; }`);
+		await assert.rejects(load({ path }), /Source changed; cannot replace/);
+	} finally {
+		await clean(root);
+	}
+});
 
 test('context names cannot shadow generated runtime constructors', async () => {
 	const root = await mkdtemp(join(await realpath(tmpdir()), 'discovery-names-'));

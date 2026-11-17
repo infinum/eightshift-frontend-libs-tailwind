@@ -115,8 +115,8 @@ export async function packageRelease({ root, files, entries, aliases = {}, outpu
 		const target = releasePath(entry.entry);
 		const style = releasePath(entry.style);
 
-		if (!contents.has(target) || !contents.get(target).length) {
-			throw new Error(`Missing or empty entry for ${entry.name}`);
+		if (!contents.has(target)) {
+			throw new Error(`Missing entry for ${entry.name}`);
 		}
 
 		if (!contents.has(style)) {

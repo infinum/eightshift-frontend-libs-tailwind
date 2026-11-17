@@ -407,6 +407,24 @@ async function checkExplicitExtraCss(mode = 'lazy') {
 }
 
 try {
+	const corelessRoot = join(temporary, 'coreless');
+	await mkdir(corelessRoot);
+	await writeFile(join(corelessRoot, 'entry.js'), 'globalThis.corelessBuild = true;');
+	process.env.EIGHTSHIFT_WP_ROOT = corelessRoot;
+	const corelessOptions = { root: corelessRoot, publicPrefix: '/coreless/', entries: { app: 'entry.js' }, editor: false, css: false, responsive: false, discovery: false, publish: false, ssr: false, watch: false };
+	await assert.rejects(defineThemeBuild(corelessOptions).build({ quiet: true }), /Cannot read WordPress version/);
+	assert.throws(() => defineThemeBuild({ ...corelessOptions, wordpressVersion: '6.9' }), /wordpressVersion/);
+	assert.throws(() => defineThemeBuild({ ...corelessOptions, wordpressVersion: '7.0-beta' }), /wordpressVersion/);
+	await defineThemeBuild({ ...corelessOptions, wordpressVersion: '7.0' }).build({ quiet: true });
+	await writeFile(join(corelessRoot, 'setup.json'), JSON.stringify({ core: '6.9' }));
+	await assert.rejects(defineThemeBuild({ ...corelessOptions, wordpressVersion: '7.0' }).build({ quiet: true }), /found 6.9/);
+	await writeFile(join(corelessRoot, 'Dockerfile'), 'FROM wordpress:7.0');
+	await defineThemeBuild({ ...corelessOptions, wordpressVersion: '7.0' }).build({ quiet: true });
+	await writeFile(join(corelessRoot, 'Dockerfile'), 'FROM wordpress:latest');
+	await assert.rejects(defineThemeBuild({ ...corelessOptions, wordpressVersion: '7.0' }).build({ quiet: true }), /pinned WordPress version/);
+	await mkdir(join(corelessRoot, 'wp-includes'));
+	await writeFile(join(corelessRoot, 'wp-includes', 'version.php'), "<?php\n$wp_version = '6.9';\n");
+	await assert.rejects(defineThemeBuild({ ...corelessOptions, wordpressVersion: '7.0' }).build({ quiet: true }), /WordPress 7.0 or newer/);
 	await mkdir(join(temporary, 'wp-includes'), { recursive: true });
 	await writeFile(join(temporary, 'wp-includes', 'version.php'), "<?php\n$wp_version = '7.0';\n");
 	process.env.EIGHTSHIFT_WP_ROOT = temporary;
