@@ -17,20 +17,16 @@ concurrency:
 
 jobs:
   lint:
-    name: Lint assets JS and CSS using Node version - ${{ matrix.node }}
+    name: Lint and test with Bun
     runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        node: ['latest']
     steps:
+      - uses: actions/checkout@v6
       - uses: oven-sh/setup-bun@v2
         with:
           bun-version: 1.4.4
+      - name: Install dependencies
+        run: bun install --ignore-scripts --frozen-lockfile
       - name: Lint assets
-        uses: infinum/eightshift-deploy-actions-public/.github/actions/lint/assets@main
-        with:
-          NODE_VERSION: ${{ matrix.node }}
-          PROJECT_PATH: '.'
-          USE_BUILD: false
-          USE_LINT_STYLE: false
+        run: bun run lintJs
+      - name: Run regression tests
+        run: bun run test

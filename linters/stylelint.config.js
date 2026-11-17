@@ -145,5 +145,30 @@ module.exports = {
 				ignoreAtRules: ['tailwind'],
 			},
 		],
+
+		// Tailwind's `@apply` takes utility classes, but the CSS Mixins spec `@apply` in csstree's syntax data only accepts dashed idents.
+		// `media` is kept from stylelint-config-recommended, as setting options replaces its list.
+		'at-rule-prelude-no-invalid': [
+			true,
+			{
+				ignoreAtRules: ['media', 'apply'],
+			},
+		],
+
+		// In Tailwind's `@utility` and `@custom-variant`, `&` resolves to the generated utility class, so it has a scoping root.
+		'nesting-selector-no-missing-scoping-root': [
+			true,
+			{
+				ignoreAtRules: ['utility', 'custom-variant'],
+			},
+		],
+
+		// Tailwind's `@utility` acts as a style rule, so declarations in at-rules nested inside it (e.g. `@supports`) are valid.
+		'no-invalid-position-declaration': [
+			true,
+			{
+				ignoreAtRules: ['utility'],
+			},
+		],
 	},
 };
