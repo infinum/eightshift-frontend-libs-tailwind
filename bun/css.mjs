@@ -6,15 +6,17 @@ import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { createRequire } from 'node:module';
 import { delimiter, dirname, extname, relative, resolve } from 'node:path';
 import browserslist from 'browserslist';
+import enhancedResolve from 'enhanced-resolve';
 import { browserslistToTargets, transform } from 'lightningcss';
 import postcss from 'postcss';
 import valueParser from 'postcss-value-parser';
+import { unescapeCss } from './css-url.mjs';
 
 const require = createRequire(import.meta.url);
-// Use the compiler and CSS resolver shipped with our Tailwind Node adapter.
+// Use the compiler shipped with our Tailwind Node adapter.
 const tailwindRequire = createRequire(require.resolve('@tailwindcss/node'));
 const { compile } = tailwindRequire('tailwindcss');
-const { CachedInputFileSystem, ResolverFactory } = tailwindRequire('enhanced-resolve');
+const { CachedInputFileSystem, ResolverFactory } = enhancedResolve;
 
 /**
  * Compile ordered stylesheets to one CSS file.
@@ -49,7 +51,8 @@ export async function processCss({ projectDir, outputFile, files, production = f
 
 			const rewriteUrl = (node) => {
 				const reference = compiled ? assetReferences.get(node.value) : undefined;
-				const url = reference?.url ?? node.value;
+				const rawUrl = reference?.url ?? node.value;
+				const url = unescapeCss(rawUrl);
 				const assetBase = reference?.base ?? base;
 
 				if (!url || /^(?:[a-z][a-z\d+.-]*:|\/|#)/i.test(url)) {
@@ -58,7 +61,7 @@ export async function processCss({ projectDir, outputFile, files, production = f
 
 				if (!compiled) {
 					const token = `${assetPrefix}${assetReferences.size}`;
-					assetReferences.set(token, { url, base });
+					assetReferences.set(token, { url: rawUrl, base });
 					node.value = token;
 
 					return;

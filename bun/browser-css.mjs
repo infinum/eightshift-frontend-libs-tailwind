@@ -1,13 +1,50 @@
 import { createHash, randomUUID } from 'node:crypto';
+import fs from 'node:fs';
 import { link, readFile, realpath, unlink } from 'node:fs/promises';
 import { basename, dirname, isAbsolute, relative, resolve } from 'node:path';
+import enhancedResolve from 'enhanced-resolve';
 import { transform } from 'lightningcss';
 import postcss from 'postcss';
 import valueParser from 'postcss-value-parser';
 import { processCss } from './css.mjs';
 import { allowPureJsxGrouping } from './plugin-capabilities.mjs';
 
+const { CachedInputFileSystem, ResolverFactory } = enhancedResolve;
+
 export const browserCssRuntime = 'eightshift:browser-css-runtime';
+
+function matchesExternal(path, resolveDir, patterns) {
+	return patterns.some((pattern) => {
+		if (pattern.includes('*')) {
+			const expression = pattern
+				.split('*')
+				.map((part) => part.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'))
+				.join('.*');
+
+			return new RegExp(`^${expression}$`).test(path);
+		}
+
+		if (path === pattern || (!pattern.startsWith('.') && !isAbsolute(pattern) && path.startsWith(`${pattern}/`))) {
+			return true;
+		}
+
+		return (pattern.startsWith('.') || isAbsolute(pattern)) && (path.startsWith('.') || isAbsolute(path)) && resolve(pattern) === resolve(resolveDir, path);
+	});
+}
+
+function appendSuffix(href, suffix) {
+	if (!suffix) {
+		return href;
+	}
+
+	const hashIndex = href.indexOf('#');
+	const base = hashIndex < 0 ? href : href.slice(0, hashIndex);
+	const suffixHash = suffix.indexOf('#');
+	const query = suffix.startsWith('?') ? `${base.includes('?') ? '&' : '?'}${suffix.slice(1, suffixHash < 0 ? undefined : suffixHash)}` : '';
+	const hash = suffixHash < 0 ? (hashIndex < 0 ? '' : href.slice(hashIndex)) : suffix.slice(suffixHash);
+
+	return `${base}${query}${hash}`;
+}
 
 /** Find stylesheet inputs that the conventional compiler emits unconditionally. */
 export async function collectConventionalCss({ root, files }) {
@@ -108,6 +145,22 @@ export function browserCssPlugin({ root, outdir, conventionalCss, extraCssByFile
 				return;
 			}
 
+			const suffixedFiles = new Map();
+			const wordpressGlobals = builder.config.plugins?.some((plugin) => plugin.name === 'wordpress-globals');
+			const fileSystem = new CachedInputFileSystem(fs, 4000);
+			const makeResolver = (kind) =>
+				ResolverFactory.createResolver({
+					fileSystem,
+					extensions: ['.tsx', '.ts', '.jsx', '.js', '.json'],
+					mainFields: ['browser', 'module', 'main'],
+					aliasFields: ['browser'],
+					conditionNames: ['browser', 'module', kind, ...(builder.config.conditions ?? [])],
+					alias: builder.config.alias,
+					tsconfig: builder.config.tsconfig ? resolve(builder.config.tsconfig) : true,
+					symlinks: false,
+				});
+			const resolvers = { import: makeResolver('import'), require: makeResolver('require') };
+
 			const compileFile = (path) => {
 				const cacheKey = `${surface}\0${path}`;
 				let pending = compiled.get(cacheKey);
@@ -122,17 +175,44 @@ export function browserCssPlugin({ root, outdir, conventionalCss, extraCssByFile
 
 			builder.onResolve({ filter: /^eightshift:browser-css-runtime$/ }, () => ({ path: browserCssRuntime, namespace: 'eightshift-browser-css-runtime' }));
 			builder.onLoad({ filter: /.*/, namespace: 'eightshift-browser-css-runtime' }, () => ({ contents: runtimeSource, loader: 'js' }));
-			builder.onResolve({ filter: /\.css(?:[?#].*)?$/ }, async (args) => {
-				if (!['import-statement', 'dynamic-import', 'require-call'].includes(args.kind) || !['file', 'eightshift-browser-css'].includes(args.namespace)) {
+			builder.onResolve({ filter: /.*/ }, async (args) => {
+				const resolveDir = resolve(args.resolveDir || root);
+
+				if (!['import-statement', 'dynamic-import', 'require-call'].includes(args.kind) || !['file', 'eightshift-browser-css'].includes(args.namespace) || matchesExternal(args.path, resolveDir, builder.config.external ?? [])) {
+					return;
+				}
+
+				const start = args.path.startsWith('#') ? 1 : 0;
+				const position = args.path.slice(start).search(/[?#]/);
+				const suffixIndex = position < 0 ? -1 : position + start;
+				const specifier = suffixIndex < 0 ? args.path : args.path.slice(0, suffixIndex);
+				const suffix = suffixIndex < 0 ? '' : args.path.slice(suffixIndex);
+
+				if (/^[a-z][a-z\d+.-]*:/i.test(specifier) || (wordpressGlobals && /^@wordpress\/[a-z0-9]+(?:-[a-z0-9]+)*$/.test(specifier))) {
+					return;
+				}
+
+				let target;
+
+				try {
+					const resolver = resolvers[args.kind === 'require-call' ? 'require' : 'import'];
+					target = await new Promise((accept, reject) => {
+						resolver.resolve({}, resolveDir, specifier, {}, (error, result) => (error ? reject(error) : accept(result)));
+					});
+				} catch {
+					return;
+				}
+
+				if (typeof target !== 'string' || !/\.css$/i.test(target)) {
 					return;
 				}
 
 				let file;
 
 				try {
-					file = await realpath(Bun.resolveSync(args.path, args.resolveDir));
+					file = await realpath(target);
 				} catch (error) {
-					if (error.code === 'ENOENT' || error.code === 'MODULE_NOT_FOUND') {
+					if (error.code === 'ENOENT') {
 						return;
 					}
 
@@ -143,9 +223,16 @@ export function browserCssPlugin({ root, outdir, conventionalCss, extraCssByFile
 					throw new Error(`CSS imported through require() cannot be loaded before execution: ${args.path}`);
 				}
 
-				return { path: file, namespace: 'eightshift-browser-css' };
+				const key = suffix ? `?${JSON.stringify([file, suffix])}` : file;
+
+				if (suffix) {
+					suffixedFiles.set(key, { path: file, suffix });
+				}
+
+				return { path: key, namespace: 'eightshift-browser-css' };
 			});
-			builder.onLoad({ filter: /.*/, namespace: 'eightshift-browser-css' }, async ({ path }) => {
+			builder.onLoad({ filter: /.*/, namespace: 'eightshift-browser-css' }, async ({ path: key }) => {
+				const { path, suffix = '' } = suffixedFiles.get(key) ?? { path: key };
 				const isModule = /\.module\.css$/i.test(path);
 
 				if (!isModule && conventionalCss.get(surface)?.has(path)) {
@@ -155,7 +242,7 @@ export function browserCssPlugin({ root, outdir, conventionalCss, extraCssByFile
 				const groups = surface === 'frontend' && !isModule ? extraCssByFile.get(path) : undefined;
 
 				if (groups?.length === 1 && groups[0].files.length === 1) {
-					const href = groups[0].href;
+					const href = appendSuffix(groups[0].href, suffix);
 
 					return { contents: `import { loadStylesheet } from ${JSON.stringify(browserCssRuntime)};\nawait loadStylesheet(new URL(${JSON.stringify(href)}, import.meta.url).href);\nexport default {};`, loader: 'js', resolveDir: dirname(path) };
 				}
@@ -243,7 +330,7 @@ export function browserCssPlugin({ root, outdir, conventionalCss, extraCssByFile
 				const declarations = names.map((name, index) => `const value${index} = ${expression(name)};`);
 				const namedExports = names.flatMap((name, index) => (name === 'default' ? [] : [`export { value${index} as ${JSON.stringify(name)} };`]));
 				const mapping = names.map((name, index) => `[${JSON.stringify(name)}]: value${index}`).join(',');
-				const css = result.name ? `import { loadStylesheet } from ${JSON.stringify(browserCssRuntime)};\nawait loadStylesheet(new URL(${JSON.stringify(`../css/${result.name}`)}, import.meta.url).href);` : '';
+				const css = result.name ? `import { loadStylesheet } from ${JSON.stringify(browserCssRuntime)};\nawait loadStylesheet(new URL(${JSON.stringify(appendSuffix(`../css/${result.name}`, suffix))}, import.meta.url).href);` : '';
 
 				return { contents: [...imports, css, ...declarations, ...namedExports, `export default {${mapping}};`].join('\n'), loader: 'js', resolveDir: dirname(path) };
 			});

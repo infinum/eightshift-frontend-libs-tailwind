@@ -36,6 +36,13 @@ function externalFor(request) {
 
 	const name = request.slice('@wordpress/'.length);
 
+	// Stylesheets are assets, but JavaScript subpaths must not duplicate core singletons.
+	const resource = name.split(/[?#]/, 1)[0];
+
+	if (resource.includes('/') && /\.css$/i.test(resource)) {
+		return;
+	}
+
 	if (bundledWordPressPackages.has(name)) {
 		return;
 	}
