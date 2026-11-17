@@ -76,6 +76,7 @@ export const lockIfUndefined = (blockClientId, attributeKey, value) => {
 
 		return;
 	}
+
 	unlockPostEditing(blockClientId, attributeKey);
 };
 

@@ -2,7 +2,7 @@ import react from 'eslint-plugin-react';
 import reactHooks from 'eslint-plugin-react-hooks';
 import stylistic from '@stylistic/eslint-plugin';
 import unusedImports from 'eslint-plugin-unused-imports';
-import eslintPluginPrettierRecommended from 'eslint-plugin-prettier/recommended';
+import eslintConfigPrettier from 'eslint-config-prettier/flat';
 import globals from 'globals';
 
 export default [
@@ -30,6 +30,7 @@ export default [
 			'unused-imports': unusedImports,
 		},
 		rules: {
+			'react/jsx-uses-vars': 'error',
 			'newline-before-return': 'error',
 			'no-constant-binary-expression': 'error',
 			'no-implicit-coercion': 'error',
@@ -91,5 +92,5 @@ export default [
 			},
 		},
 	},
-	eslintPluginPrettierRecommended,
+	eslintConfigPrettier,
 ];

@@ -119,18 +119,21 @@ const reducer = (state = DEFAULT_STATE, action) => {
 				blocks: action.blocks,
 			};
 		}
+
 		case 'SET_COMPONENTS': {
 			return {
 				...state,
 				components: action.components,
 			};
 		}
+
 		case 'SET_VARIATIONS': {
 			return {
 				...state,
 				variations: action.variations,
 			};
 		}
+
 		case 'SET_CONFIG_USE_WRAPPER': {
 			return {
 				...state,
@@ -140,18 +143,21 @@ const reducer = (state = DEFAULT_STATE, action) => {
 				},
 			};
 		}
+
 		case 'SET_WRAPPER': {
 			return {
 				...state,
 				wrapper: action.wrapper,
 			};
 		}
+
 		case 'SET_SETTINGS': {
 			return {
 				...state,
 				settings: action.settings,
 			};
 		}
+
 		case 'SET_SETTINGS_GLOBAL_VARIABLES_BREAKPOINTS': {
 			return {
 				...state,
@@ -164,6 +170,7 @@ const reducer = (state = DEFAULT_STATE, action) => {
 				},
 			};
 		}
+
 		default: {
 			return state;
 		}

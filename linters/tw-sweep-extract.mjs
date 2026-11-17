@@ -68,6 +68,7 @@ function findClose(content, open) {
 			} else if (char === quote) {
 				quote = null;
 			}
+
 			continue;
 		}
 
@@ -255,6 +256,7 @@ function phpCommentRanges(content) {
 				ranges.push([i, end]);
 				i = end - 1;
 			}
+
 			continue;
 		}
 
@@ -264,6 +266,7 @@ function phpCommentRanges(content) {
 			} else if (char === quote) {
 				quote = null;
 			}
+
 			continue;
 		}
 
@@ -359,6 +362,7 @@ function callArgs(content, open, close) {
 			} else if (char === quote) {
 				quote = null;
 			}
+
 			continue;
 		}
 
@@ -399,6 +403,7 @@ function nestedParenRanges(content, from, to) {
 			} else if (char === quote) {
 				quote = null;
 			}
+
 			continue;
 		}
 

@@ -34,16 +34,25 @@ function parseArgs(argv) {
 	for (let i = 0; i < argv.length; i++) {
 		const a = argv[i];
 
-		if (a === '--entry') opts.entry = argv[++i];
-		else if (a === '--include') opts.include = argv[++i].split(',').map((s) => s.trim());
-		else if (a === '--exclude') opts.exclude = argv[++i].split(',').map((s) => s.trim());
-		else if (a === '--ignore-file') opts.ignoreFile = argv[++i];
-		else if (a === '--no-unknown') opts.unknown = false;
-		else if (a === '--root-font-size') opts.rootFontSize = Number(argv[++i]);
-		else if (a === '--write') opts.write = true;
-		else if (a === '--check') opts.write = false;
-		else if (a === '-h' || a === '--help') opts.help = true;
-		else if (a.startsWith('--')) {
+		if (a === '--entry') {
+			opts.entry = argv[++i];
+		} else if (a === '--include') {
+			opts.include = argv[++i].split(',').map((s) => s.trim());
+		} else if (a === '--exclude') {
+			opts.exclude = argv[++i].split(',').map((s) => s.trim());
+		} else if (a === '--ignore-file') {
+			opts.ignoreFile = argv[++i];
+		} else if (a === '--no-unknown') {
+			opts.unknown = false;
+		} else if (a === '--root-font-size') {
+			opts.rootFontSize = Number(argv[++i]);
+		} else if (a === '--write') {
+			opts.write = true;
+		} else if (a === '--check') {
+			opts.write = false;
+		} else if (a === '-h' || a === '--help') {
+			opts.help = true;
+		} else if (a.startsWith('--')) {
 			console.error(`Unknown flag: ${a}`);
 			process.exit(EXIT_USAGE);
 		} else {
@@ -96,7 +105,9 @@ function findDefaultEntry(cwd) {
 
 	for (let dir = cwd; ; dir = resolve(dir, '..')) {
 		for (const name of candidates) {
-			if (importsTailwind(resolve(dir, name))) return resolve(dir, name);
+			if (importsTailwind(resolve(dir, name))) {
+				return resolve(dir, name);
+			}
 		}
 
 		const wpThemes = resolve(dir, 'wp-content/themes');
@@ -104,12 +115,16 @@ function findDefaultEntry(cwd) {
 		if (existsSync(wpThemes)) {
 			for (const theme of readdirSync(wpThemes)) {
 				for (const name of candidates) {
-					if (importsTailwind(resolve(wpThemes, theme, name))) return resolve(wpThemes, theme, name);
+					if (importsTailwind(resolve(wpThemes, theme, name))) {
+						return resolve(wpThemes, theme, name);
+					}
 				}
 			}
 		}
 
-		if (resolve(dir, '..') === dir) return null;
+		if (resolve(dir, '..') === dir) {
+			return null;
+		}
 	}
 }
 
@@ -149,6 +164,7 @@ async function main() {
 
 	if (args.help) {
 		printHelp();
+
 		return EXIT_OK;
 	}
 
@@ -157,6 +173,7 @@ async function main() {
 
 	if (!entryPath || !existsSync(entryPath)) {
 		console.error(entryPath ? `Entry CSS not found: ${entryPath}` : "Could not locate a Tailwind CSS entry that imports 'tailwindcss'. Pass --entry <path>.");
+
 		return EXIT_USAGE;
 	}
 
@@ -166,6 +183,7 @@ async function main() {
 		ignore = loadTwIgnore(args.ignoreFile, cwd).map((pattern) => new RegExp(pattern));
 	} catch (error) {
 		console.error(error.message);
+
 		return EXIT_USAGE;
 	}
 
@@ -179,7 +197,9 @@ async function main() {
 		const found = new Set();
 
 		for (const pattern of includes) {
-			for (const m of await glob(pattern, { cwd, ignore: excludes, absolute: true })) found.add(m);
+			for (const m of await glob(pattern, { cwd, ignore: excludes, absolute: true })) {
+				found.add(m);
+			}
 		}
 
 		files = [...found].sort();
@@ -187,6 +207,7 @@ async function main() {
 
 	if (files.length === 0) {
 		process.stderr.write('No files matched.\n');
+
 		return EXIT_OK;
 	}
 

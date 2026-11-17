@@ -6,6 +6,28 @@ This projects adheres to [Semantic Versioning](https://semver.org/) and [Keep a 
 
 ---
 
+## [4.0.0]
+
+### Changed
+
+- **Breaking:** Replace the bundled Webpack configuration and `webpack/*` API with Bun build helpers. Existing projects must migrate their build scripts, configuration and WordPress asset integration. Bun 1.4.4 or newer is required. See the [migration guide](README.md#bun-build-migration).
+- **Breaking:** Conventional theme builds target WordPress 7.0 or newer and require PHP integration that reads generated asset metadata and enqueues its dependencies. Coreless builds require a detectable target version; some WordPress import forms still require core files or installed packages.
+- **Breaking:** Conventional theme editors use a unified ES module graph and register asynchronously by default. This requires PHP integration supporting `eightshift-editor-v1`. Dependent classic scripts must await readiness; projects requiring synchronous registration can configure independent editor sharing.
+- **Breaking:** Built-in theme publication uses structured asset directories. Integrations that assume flat asset paths must use the manifest and retain the generated directory structure. Successful default publication replaces `public/`; keep manually maintained files elsewhere.
+- Frontend and admin entry scripts load their bundled modules asynchronously. Keep their generated chunks alongside the entry scripts. Theme builds produce optimized assets even in watch mode; there is no hot reload.
+- Use Bun's formatter instead of Prettier for this repository. The published ESLint configuration no longer runs Prettier, so consumers must run a separate formatting check. Downgrade ESLint to 9 for compatibility with the React lint plugin.
+- Optimize `@eightshift/ui-components` imports by default in conventional theme builds.
+
+### Added
+
+- A conventional theme preset and lower-level Bun build APIs for frontend, editor and admin assets, Tailwind CSS, responsive classes, WordPress dependency metadata and standalone CommonJS SSR entries. External source maps are available on request.
+- Frontend and admin JavaScript imports of CSS, including package stylesheet exports and CSS modules. Lazy styles load with their importing modules, and local assets are published with their stylesheets.
+- The `eightshift-build` CLI with build and watch commands, progress output, and quiet and verbose modes. Watch builds run serially and restart the worker when the selected configuration, root package manifest or Bun lockfile changes.
+- Optional native editor sharing and `editor.pureJsxGroups` for unified builds. Lower-level editor builds default to independent sharing.
+- Staged theme publication with extra files, manifest aliases and explicit file retention. The `removeUnreferencedStyles` option enables cleanup for custom CSS when using the default publisher.
+- Optional same-origin shared fonts through `sharedFonts`. This is disabled by default and requires a compatible UI Components font manifest and PHP integration.
+- `lazyComponent` from `/scripts` and `/scripts/helpers` for deferred React components, with named or inferred exports, a Suspense fallback, and forwarded props and refs. It replaces `createChunkedComponent` without a compatibility alias; migrate imports to `lazyComponent` and review the default fallback.
+
 ## [3.5.1]
 
 ### Fixed
@@ -405,6 +427,7 @@ Co-authored with @piqusy
 
 - Initial release.
 
+[4.0.0]: https://github.com/infinum/eightshift-frontend-libs-tailwind/compare/3.5.1...4.0.0
 [3.5.1]: https://github.com/infinum/eightshift-frontend-libs-tailwind/compare/3.5.0...3.5.1
 [3.5.0]: https://github.com/infinum/eightshift-frontend-libs-tailwind/compare/3.4.0...3.5.0
 [3.4.0]: https://github.com/infinum/eightshift-frontend-libs-tailwind/compare/3.4.0...3.4.0

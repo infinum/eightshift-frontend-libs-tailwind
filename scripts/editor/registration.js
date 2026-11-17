@@ -375,14 +375,17 @@ export const getMergeCallback = (blockManifest) => {
 						outputObject[attribute] = `${receiver[attribute] ?? ''}${merger[attribute] ?? ''}`;
 						break;
 					}
+
 					case 'useDestinationAttribute': {
 						outputObject[attribute] = merger[attribute] ?? '';
 						break;
 					}
+
 					case 'addNumericIntValue': {
 						outputObject[attribute] = parseInt(receiver[attribute] ?? '0') + parseInt(merger[attribute] ?? '0');
 						break;
 					}
+
 					case 'addNumericFloatValue': {
 						outputObject[attribute] = parseFloat(receiver[attribute] ?? '0') + parseFloat(merger[attribute] ?? '0');
 						break;
