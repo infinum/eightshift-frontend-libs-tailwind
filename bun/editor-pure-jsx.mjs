@@ -7,7 +7,7 @@ const linter = new Linter();
 const inDependencies = (path) => path.split(sep).includes('node_modules');
 const comparePaths = (a, b) => (a.path < b.path ? -1 : Number(a.path > b.path));
 
-function parse(source) {
+export function parseJsx(source) {
 	let ast;
 	const messages = linter.verify(
 		source,
@@ -37,7 +37,7 @@ function parse(source) {
 }
 
 function inspect(source) {
-	const ast = parse(source);
+	const ast = parseJsx(source);
 
 	if (!ast) {
 		return;
@@ -374,7 +374,7 @@ export async function createPureJsxGroups({ result, metadata, directory, entries
 
 		if (!consumerCache.has(importer)) {
 			const source = await readFile(importer, 'utf8');
-			consumerCache.set(importer, source.includes('require.context') ? undefined : parse(source));
+			consumerCache.set(importer, source.includes('require.context') ? undefined : parseJsx(source));
 		}
 
 		const ast = consumerCache.get(importer);

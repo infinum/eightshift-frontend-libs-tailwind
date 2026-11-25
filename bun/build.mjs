@@ -1,3 +1,4 @@
+import { browserWatch } from './browser-watch-cache.mjs';
 import { lazyComponentPlugins } from './lazy-component.mjs';
 import { createHash, randomUUID } from 'node:crypto';
 import { lstat, mkdir, readFile, readdir, rename, rmdir, unlink, writeFile } from 'node:fs/promises';
@@ -193,6 +194,8 @@ export async function build({ root = process.cwd(), outdir, entries, wpRoot, wor
 		},
 	};
 
+	const watchBundles = buildOptions[browserWatch];
+	delete buildOptions[browserWatch];
 	validateEntryPublicPaths(entryPublicPaths, entries);
 	outdir = resolve(root, outdir);
 	const rootFromOutput = relative(outdir, root);
@@ -302,6 +305,13 @@ export async function build({ root = process.cwd(), outdir, entries, wpRoot, wor
 				continue;
 			}
 
+			const cached = await watchBundles?.restore(name, directory);
+
+			if (cached) {
+				manifest[name] = cached;
+				continue;
+			}
+
 			const result = await Bun.build({
 				target: 'browser',
 				format: 'esm',
@@ -313,7 +323,7 @@ export async function build({ root = process.cwd(), outdir, entries, wpRoot, wor
 				entrypoints: [resolve(root, entry)],
 				outdir: directory,
 				write: true,
-				plugins: lazyComponentPlugins([...(buildOptions.plugins ?? []), ...(wp ? [wp.plugin] : [])], { sourcemap: buildOptions.sourcemap }),
+				plugins: lazyComponentPlugins([...(watchBundles ? [watchBundles.observer] : []), ...(buildOptions.plugins ?? []), ...(wp ? [wp.plugin] : [])], { sourcemap: buildOptions.sourcemap }),
 			});
 
 			if (!result.success) {
@@ -359,6 +369,7 @@ export async function build({ root = process.cwd(), outdir, entries, wpRoot, wor
 
 			await writeFile(join(directory, `${name}.asset.json`), `${JSON.stringify(metadata, null, 2)}\n`);
 			manifest[name] = { entry: `${name}/${relative(directory, output[0].path).replaceAll('\\', '/')}`, styles: files.filter(({ path }) => path.endsWith('.css')).map(({ path }) => `${name}/${path}`), ...metadata };
+			await watchBundles?.capture(name, directory, manifest[name], result, files, resolve(root, entry), entryPublicPaths[name]);
 		}
 
 		await inspectTree(stage);

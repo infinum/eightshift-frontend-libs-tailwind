@@ -1,4 +1,5 @@
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
+import { isBuiltin } from 'node:module';
 import { basename, dirname, relative, resolve } from 'node:path';
 
 /** Discover SSR entries by their block/component directory name. */
@@ -42,14 +43,16 @@ export function ssrCssAsText() {
  * Paths are relative to root unless absolute; cssAsText: false disables the CSS
  * plugin. write: false returns in-memory outputs without touching the output tree.
  */
-export async function buildSsr({ root, outdir, pattern, mode = 'development', plugins = [], cssAsText = true, write = true }) {
-	if (typeof root !== 'string' || !root || typeof outdir !== 'string' || !outdir || !['development', 'production'].includes(mode) || !Array.isArray(plugins) || typeof cssAsText !== 'boolean' || typeof write !== 'boolean') {
+export async function buildSsr({ root, outdir, pattern, mode = 'development', plugins = [], cssAsText = true, write = true, collectDependencies = false }) {
+	if (typeof root !== 'string' || !root || typeof outdir !== 'string' || !outdir || !['development', 'production'].includes(mode) || !Array.isArray(plugins) || typeof cssAsText !== 'boolean' || typeof write !== 'boolean' || typeof collectDependencies !== 'boolean') {
 		throw new TypeError('Invalid SSR build options');
 	}
 
 	const directory = resolve(root, outdir);
 	const entries = await discoverSsrEntries({ root, pattern });
 	const outputs = [];
+	const dependencies = new Set();
+	let cacheable = plugins.length === 0;
 
 	// Caller plugins may keep per-build state, so retain their sequential lifecycle.
 	const groups = plugins.length ? [...entries].map((entry) => new Map([entry])) : [entries];
@@ -60,6 +63,7 @@ export async function buildSsr({ root, outdir, pattern, mode = 'development', pl
 			root: resolve(root),
 			// Omitting outdir is essential: Bun can write files despite write: false.
 			write: false,
+			metafile: collectDependencies,
 			naming: '[dir]/[name].[ext]',
 			target: 'node',
 			format: 'cjs',
@@ -77,6 +81,28 @@ export async function buildSsr({ root, outdir, pattern, mode = 'development', pl
 
 		if (result.outputs.length !== group.size || result.outputs.some((output) => output.kind !== 'entry-point')) {
 			throw new Error(`Unexpected SSR output count or kind: ${result.outputs.length}`);
+		}
+
+		if (collectDependencies) {
+			try {
+				const metadata = typeof result.metafile === 'string' ? JSON.parse(result.metafile) : result.metafile;
+
+				for (const [input, info] of Object.entries(metadata.inputs)) {
+					dependencies.add(resolve(input));
+
+					for (const edge of info.imports) {
+						if (edge.external && !isBuiltin(edge.path)) {
+							if (edge.path.startsWith('.')) {
+								dependencies.add(resolve(dirname(resolve(input)), edge.path));
+							} else {
+								cacheable = false;
+							}
+						}
+					}
+				}
+			} catch {
+				cacheable = false;
+			}
 		}
 
 		for (const [name, entrypoint] of group) {
@@ -99,5 +125,5 @@ export async function buildSsr({ root, outdir, pattern, mode = 'development', pl
 		}
 	}
 
-	return { entries, outputs };
+	return { entries, outputs, ...(collectDependencies ? { dependencies: [...dependencies], cacheable } : {}) };
 }
