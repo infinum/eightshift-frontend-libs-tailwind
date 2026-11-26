@@ -219,8 +219,12 @@ export function defineThemeBuild(options = {}) {
 	const snapshotSources = [...new Set([...watchSources, ...(Array.isArray(watch.sources) ? watch.sources : [])])];
 	const unsafeRoots = new Set(['', '..', 'public', 'eightshift', 'node_modules', 'vendor', 'vendor-prefixed', '.git', '.bun-pilot']);
 	const safeSources = snapshotSources.every((name) => {
-		if (typeof name !== 'string' || !name) return false;
+		if (typeof name !== 'string' || !name) {
+			return false;
+		}
+
 		const path = relative(root, resolve(root, name));
+
 		return !isAbsolute(path) && !unsafeRoots.has(path.split(sep)[0]);
 	});
 	const incremental =
@@ -568,7 +572,10 @@ export function defineThemeBuild(options = {}) {
 						if (hot?.plans) {
 							for (const entry of files) {
 								const file = resolve(root, typeof entry === 'string' ? entry : entry.file);
-								if (hot.sources?.has(file) && !hot.imports.has(file)) hot.imports.set(file, await importSignature(file));
+
+								if (hot.sources?.has(file) && !hot.imports.has(file)) {
+									hot.imports.set(file, await importSignature(file));
+								}
 							}
 						}
 
@@ -710,7 +717,7 @@ export function defineThemeBuild(options = {}) {
 			}
 
 			if (ssrNames.length && !ssr && !buildSsr) {
-				const graph = await defaultSsr({ root, mode: 'production', watchSession, changes });
+				const graph = await defaultSsr({ root, mode: 'production', watchSession, changes, quiet });
 
 				if (hot?.plans) {
 					if (!graph.cacheable || !graph.dependencies?.length) {
@@ -877,6 +884,7 @@ export function defineThemeBuild(options = {}) {
 			const previous = previousHot;
 			hot.styles = Object.fromEntries(entries.map(({ name }) => [name, published.manifest[name + '.css']]));
 			hot.extra = JSON.stringify([...retainedStyles].sort());
+
 			if (watch.hotUpdates) {
 				const marker = { version: hot.version, parent: previous?.version ?? null, delta: classify(previous, hot, changes) };
 				hot.marker = JSON.stringify(marker);
@@ -920,7 +928,7 @@ export function defineThemeBuild(options = {}) {
 	};
 
 	const cacheDefaultSsr = publish === undefined && !['createPlugins', 'extraCss', 'css', 'discovery', 'publication'].some((name) => typeof options[name] === 'function') && typeof media.editorWorker !== 'function' && !['sources', 'ignored', 'ignore'].some((name) => Object.hasOwn(watch || {}, name));
-	const defaultSsr = ({ root, mode, watchSession, changes }) => buildWatchSsr({ root, mode, changes, watchSession: cacheDefaultSsr ? watchSession : watchSession && hot?.plans ? new Map() : undefined, outdir: resolve(outdir, 'ssr', mode) });
+	const defaultSsr = ({ root, mode, watchSession, changes, quiet }) => buildWatchSsr({ root, mode, changes, quiet, watchSession: cacheDefaultSsr ? watchSession : watchSession && hot?.plans ? new Map() : undefined, outdir: resolve(outdir, 'ssr', mode) });
 	const customSsr = ssr ?? buildSsr;
 	const definition = defineBuild({
 		root,
@@ -942,7 +950,7 @@ export function defineThemeBuild(options = {}) {
 						}
 
 						for await (const _file of new Bun.Glob('src/**/assets-ssr/ssr.{js,mjs}').scan({ cwd: root, onlyFiles: true })) {
-							return defaultSsr({ root, mode: 'production', watchSession: state.watchSession });
+							return defaultSsr({ root, mode: 'production', watchSession: state.watchSession, quiet: state.quiet });
 						}
 					}
 				: undefined,

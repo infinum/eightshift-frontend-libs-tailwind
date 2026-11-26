@@ -157,6 +157,16 @@ export async function processCss({ projectDir, outputFile, files, production = f
 		return stat && `${stat.dev}:${stat.ino}:${stat.ctimeNs}:${stat.size}`;
 	};
 
+	let stylesheetStamps;
+	const readStylesheet = (path) => {
+		// Keep the first identity if the same stylesheet is imported more than once.
+		if (stylesheetStamps && !stylesheetStamps.has(path)) {
+			stylesheetStamps.set(path, stamp(path) ?? null);
+		}
+
+		return readFile(path, 'utf8');
+	};
+
 	const cssResolver = ResolverFactory.createResolver({
 		fileSystem: new CachedInputFileSystem(fs, 4000),
 		extensions: ['.css'],
@@ -179,7 +189,7 @@ export async function processCss({ projectDir, outputFile, files, production = f
 		dependencies.add(path);
 
 		// Retain each URL's source base through compilation; copy only emitted assets.
-		return { path, base: dirname(path), content: await rewriteAssets(await readFile(path, 'utf8'), dirname(path)) };
+		return { path, base: dirname(path), content: await rewriteAssets(await readStylesheet(path), dirname(path)) };
 	};
 
 	for (const entry of files) {
@@ -196,6 +206,7 @@ export async function processCss({ projectDir, outputFile, files, production = f
 		const file = resolve(root, options.file);
 		dependencies = new Set();
 		assetsToRestore = capture && new Map();
+		stylesheetStamps = capture && new Map();
 		const cached = reuse?.entries.get(file);
 
 		if (cached && cached.inputs.every(([path, identity]) => stamp(path) === identity)) {
@@ -204,23 +215,28 @@ export async function processCss({ projectDir, outputFile, files, production = f
 			if (!current || (current.length === cached.candidates.size && current.every((candidate) => cached.candidates.has(candidate)))) {
 				cached.inputs.forEach(([path]) => allDependencies.add(path));
 				dependencies.forEach((path) => allDependencies.add(path));
+
 				if (capture) {
 					// A full publication starts with empty staging, unlike the CSS-only path.
 					for (const [name, asset] of capture.existingAssets ? [] : cached.assetsToRestore) {
 						const bytes = await readFile(asset);
+
 						if (`${createHash('sha256').update(bytes).digest('hex').slice(0, 20)}${extname(asset)}` !== name) {
 							throw new Error(`CSS asset changed during compilation: ${asset}`);
 						}
+
 						await writeFile(resolve(outdir, name), bytes);
 					}
+
 					capture.entries.set(file, cached);
 				}
+
 				parts.push(cached.part);
 				continue;
 			}
 		}
 
-		let input = options.content ?? (await readFile(file, 'utf8'));
+		let input = options.content ?? (await readStylesheet(file));
 
 		dependencies.add(file);
 
@@ -304,7 +320,7 @@ export async function processCss({ projectDir, outputFile, files, production = f
 		if (capture) {
 			// Published sidecars stay valid under the watch generation's output stamp.
 			inputs.push(...[...dependencies].filter((path) => !beforeAssets.has(path)));
-			capture.entries.set(file, { part, sources, assetsToRestore, candidates: new Set(candidates), inputs: inputs.map((path) => [path, stamp(path)]) });
+			capture.entries.set(file, { part, sources, assetsToRestore, candidates: new Set(candidates), inputs: inputs.map((path) => [path, stylesheetStamps.has(path) ? stylesheetStamps.get(path) : stamp(path)]) });
 		}
 	}
 

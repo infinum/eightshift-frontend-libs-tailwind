@@ -1,5 +1,6 @@
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { isBuiltin } from 'node:module';
+import { possibleMacro } from './watch-macro.mjs';
 import { basename, dirname, relative, resolve } from 'node:path';
 
 /** Discover SSR entries by their block/component directory name. */
@@ -88,7 +89,13 @@ export async function buildSsr({ root, outdir, pattern, mode = 'development', pl
 				const metadata = typeof result.metafile === 'string' ? JSON.parse(result.metafile) : result.metafile;
 
 				for (const [input, info] of Object.entries(metadata.inputs)) {
-					dependencies.add(resolve(input));
+					const path = resolve(input);
+					dependencies.add(path);
+
+					// Compile-time macros may read files outside Bun's reported graph.
+					if (cacheable && /\.[cm]?[jt]sx?$/i.test(path) && possibleMacro(await readFile(path, 'utf8'))) {
+						cacheable = false;
+					}
 
 					for (const edge of info.imports) {
 						if (edge.external && !isBuiltin(edge.path)) {

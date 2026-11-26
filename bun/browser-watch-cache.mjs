@@ -1,23 +1,7 @@
 import { mkdir, readFile, realpath, stat, writeFile } from 'node:fs/promises';
 import { dirname, relative, resolve } from 'node:path';
 import { init, parse } from 'es-module-lexer';
-import { Linter } from 'eslint';
-
-function possibleMacro(source) {
-	const pattern = /\b(?:with|assert)\s*(?:\{|\/)|macro:/u;
-	if (!pattern.test(source)) {
-		return false;
-	}
-
-	// Ignore actual comments, not comment-like text in strings or templates.
-	const linter = new Linter();
-	const messages = linter.verify(source, { languageOptions: { ecmaVersion: 'latest', sourceType: 'module' } }, { allowInlineConfig: false });
-	if (messages.some(({ fatal }) => fatal)) {
-		return true;
-	}
-	const tokens = linter.getSourceCode().ast.tokens;
-	return tokens.some((token, index) => token.value.includes('macro:') || (['with', 'assert'].includes(token.value) && tokens[index + 1]?.value === '{'));
-}
+import { possibleMacro } from './watch-macro.mjs';
 
 // Private preset transport; never passed to Bun or serialized in the manifest.
 export const browserWatch = Symbol('browser watch bundles');
@@ -167,11 +151,13 @@ export async function browserWatchCache({ root, changes, watchSession, signature
 				const bytes = await Promise.all([...files.map(({ path }) => path), `${name}.asset.json`].map(async (path) => [path, await readFile(resolve(directory, path))]));
 				await init;
 				const modules = new Set(files.filter(({ path }) => path.endsWith('.js')).map(({ path }) => publicPath + path));
+
 				for (const [path, content] of bytes) {
 					if (path.endsWith('.js') && parse(content.toString())[0].some((edge) => edge.d !== -2 && !modules.has(edge.n))) {
 						throw new Error('unverified emitted import');
 					}
 				}
+
 				next.set(name, { signature: signature(), inputs, files: bytes, entry: structuredClone(entry) });
 				report(`${name}: rebuilt and cached`);
 			} catch (error) {

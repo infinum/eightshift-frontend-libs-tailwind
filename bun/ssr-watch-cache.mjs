@@ -3,15 +3,26 @@ import { readdirSync, existsSync } from 'node:fs';
 import { basename, dirname, relative, resolve, sep } from 'node:path';
 import { buildSsr } from './ssr.mjs';
 
-async function compileWatchSsr({ root, mode, outdir }) {
-	const child = Bun.spawn([process.execPath, resolve(import.meta.dir, 'ssr-watch-build.mjs'), JSON.stringify({ root, mode, outdir })], { cwd: root, stdout: 'pipe', stderr: 'pipe' });
-	const [stdout, stderr, exitCode] = await Promise.all([new Response(child.stdout).text(), new Response(child.stderr).text(), child.exited]);
+async function compileWatchSsr({ root, mode, outdir, quiet }) {
+	let result;
+	const child = Bun.spawn([process.execPath, resolve(import.meta.dir, 'ssr-watch-build.mjs'), JSON.stringify({ root, mode, outdir })], {
+		cwd: root,
+		stdout: quiet ? 'ignore' : 'inherit',
+		stderr: 'pipe',
+		ipc(message) {
+			result = message;
+		},
+	});
+	const [stderr, exitCode] = await Promise.all([new Response(child.stderr).text(), child.exited]);
 
 	if (exitCode !== 0) {
 		throw new Error(`SSR build failed: ${stderr}`);
 	}
 
-	const result = JSON.parse(stdout);
+	if (!result) {
+		throw new Error('SSR worker exited without a build result');
+	}
+
 	await mkdir(outdir, { recursive: true });
 
 	for (const item of result.outputs) {
@@ -45,7 +56,7 @@ function requiresRebuild(root, changes, dependencies) {
 }
 
 /** Watch events invalidate dependency graphs; cached bytes survive disposable staging. */
-export async function buildWatchSsr({ root, mode, outdir, watchSession, changes }) {
+export async function buildWatchSsr({ root, mode, outdir, watchSession, changes, quiet }) {
 	if (!watchSession) {
 		return buildSsr({ root, mode, outdir });
 	}
@@ -68,7 +79,7 @@ export async function buildWatchSsr({ root, mode, outdir, watchSession, changes 
 
 	// Bun retains package-resolution state across builds. A fresh compiler on
 	// misses preserves correctness after package maps or resolution targets change.
-	const result = await compileWatchSsr({ root, mode, outdir });
+	const result = await compileWatchSsr({ root, mode, outdir, quiet });
 
 	try {
 		const sourceEntries = readdirSync(resolve(root, 'src'), { recursive: true, withFileTypes: true });

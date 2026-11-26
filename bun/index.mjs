@@ -7,6 +7,7 @@ import { watchBuild } from './watch.mjs';
  * invocation context. `ssr` and `publish` run after the browser build, in that
  * order; neither is included in the browser build's atomic publication.
  * Watch options are passed to watchBuild, with root and build controlled here.
+ * Watchers sharing this definition serialize builds through preview rollback.
  */
 export function defineBuild({ root = process.cwd(), preset, ssr, publish, watch = {}, watchCss } = {}) {
 	if (typeof root !== 'string' || !root) {
@@ -67,10 +68,13 @@ export function defineBuild({ root = process.cwd(), preset, ssr, publish, watch 
 		const context = { ...options, root, watchSession, changes, rollbackPreview: undefined };
 		active = (async () => {
 			report('Starting build…');
+
 			if (watchSession && (await watchCss?.(context))) {
 				report(`CSS-only publication completed in ${((performance.now() - started) / 1000).toFixed(2)}s.`);
+
 				return context;
 			}
+
 			report('Preparing build…', true);
 			const configured = typeof preset === 'function' ? await preset(context) : preset;
 			outputs.clear();
@@ -103,18 +107,18 @@ export function defineBuild({ root = process.cwd(), preset, ssr, publish, watch 
 			report(`Build completed in ${((performance.now() - started) / 1000).toFixed(2)}s.`);
 
 			return state;
-		})();
+		})()
+			.catch(async (error) => {
+				watchSession?.clear();
+				await context.rollbackPreview?.();
 
-		try {
-			return await active;
-		} catch (error) {
-			watchSession?.clear();
-			await context.rollbackPreview?.();
+				throw error;
+			})
+			.finally(() => {
+				active = undefined;
+			});
 
-			throw error;
-		} finally {
-			active = undefined;
-		}
+		return active;
 	};
 
 	return {

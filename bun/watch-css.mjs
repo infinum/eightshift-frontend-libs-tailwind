@@ -1,7 +1,7 @@
 import { createHash, randomUUID } from 'node:crypto';
 import { lstatSync, readdirSync } from 'node:fs';
 import { lstat, readdir, readFile, mkdir, writeFile, rename, rm, link, unlink, realpath } from 'node:fs/promises';
-import { basename, resolve } from 'node:path';
+import { basename, resolve, sep } from 'node:path';
 import postcss from 'postcss';
 import { processCss } from './css.mjs';
 import { hotMarker } from './hot-watch.mjs';
@@ -43,7 +43,15 @@ export function outputStamp(root) {
 		rows.push(`${path}:${s.ino}:${s.ctimeNs}:${s.size}`);
 	}
 
-	visit(resolve(root, 'public'));
+	try {
+		visit(resolve(root, 'public'));
+	} catch (error) {
+		if (error.code === 'ENOENT') {
+			return null;
+		}
+
+		throw error;
+	}
 
 	try {
 		visit(resolve(root, 'eightshift/manifests.json'));
@@ -117,7 +125,11 @@ export async function quickCss({ root, changes, watchSources, previous, prefix, 
 	}
 
 	const targets = changes.paths.filter((path) => previous.imports.has(path));
-	if (targets.length !== 1) return false;
+
+	if (targets.length !== 1) {
+		return false;
+	}
+
 	const [target] = targets;
 	const sources = changes.structural ? atomicSources(root, watchSources, changes.paths, target, previous.sources) : sourceSnapshot(root, watchSources);
 
@@ -133,13 +145,11 @@ export async function quickCss({ root, changes, watchSources, previous, prefix, 
 		markerPath = resolve(pub, hotMarker),
 		manifestPath = resolve(pub, 'manifest.json'),
 		cachePath = resolve(root, 'eightshift/manifests.json');
-	const verify = async () => {
-		if (outputStamp(root) !== previous.stamp || (previous.marker && (await readFile(markerPath, 'utf8')) !== previous.marker)) {
-			throw Error('CSS publication refused: outputs no longer match this watch session');
-		}
-	};
+	const outputsMatch = async () => outputStamp(root) === previous.stamp && (!previous.marker || (await optional(markerPath))?.toString() === previous.marker);
 
-	await verify();
+	if (!(await outputsMatch())) {
+		return false;
+	}
 
 	if ((await importSignature(target)) !== previous.imports.get(target)) {
 		return false;
@@ -147,6 +157,7 @@ export async function quickCss({ root, changes, watchSources, previous, prefix, 
 
 	const stage = resolve(root, '.bun-pilot', `css-${randomUUID()}`);
 	await mkdir(stage, { recursive: true });
+	let publishing = false;
 
 	try {
 		const oldManifest = await readFile(manifestPath);
@@ -174,7 +185,11 @@ export async function quickCss({ root, changes, watchSources, previous, prefix, 
 			}
 
 			const sidecars = (snapshot) => [...new Set([...snapshot.entries.values()].flatMap((entry) => [...entry.assetsToRestore.keys()]))].sort();
-			if (JSON.stringify(sidecars(capture)) !== JSON.stringify(sidecars(plan.capture))) return false;
+
+			if (JSON.stringify(sidecars(capture)) !== JSON.stringify(sidecars(plan.capture))) {
+				return false;
+			}
+
 			const deps = result.dependencies.map((file) => (file === generated ? plan.generated : file));
 
 			if (deps.length !== plan.dependencies.length || deps.some((file) => !plan.dependencies.includes(file))) {
@@ -207,9 +222,7 @@ export async function quickCss({ root, changes, watchSources, previous, prefix, 
 			}
 		}
 
-		await verify();
-
-		if (!sameTree(sources, sourceSnapshot(root, watchSources))) {
+		if (!(await outputsMatch()) || !sameTree(sources, sourceSnapshot(root, watchSources))) {
 			return false;
 		}
 
@@ -260,8 +273,15 @@ export async function quickCss({ root, changes, watchSources, previous, prefix, 
 			await stageBytes(cachePath, JSON.stringify(data));
 		}
 
-		if (marker) await stageBytes(markerPath, marker);
-		await verify();
+		if (marker) {
+			await stageBytes(markerPath, marker);
+		}
+
+		if (!(await outputsMatch())) {
+			return false;
+		}
+
+		publishing = true;
 		const undo = [];
 
 		try {
@@ -295,6 +315,13 @@ export async function quickCss({ root, changes, watchSources, previous, prefix, 
 		commit({ ...previous, plans, sources, styles, marker, version, stamp: outputStamp(root) });
 
 		return true;
+	} catch (error) {
+		// Outputs can disappear between the stamp check and the staging reads.
+		if (!publishing && error.code === 'ENOENT' && (error.path === cachePath || error.path?.startsWith(pub + sep))) {
+			return false;
+		}
+
+		throw error;
 	} finally {
 		await rm(stage, { recursive: true, force: true });
 	}
