@@ -223,6 +223,23 @@ export function wordpressPlugin({ projectRoot = process.cwd(), wpRoot } = {}) {
 	const sideEffectDependencies = new Set();
 	const modules = new Map();
 	const handles = new Map();
+	const probes = new Map();
+	let previousProbe = Promise.resolve();
+	const discoverExports = (entry) => {
+		if (!probes.has(entry)) {
+			// Bun resolves imports concurrently. Share in-flight work and keep large package builds serial.
+			const pending = previousProbe.then(async () => {
+				const script = `const r = await Bun.build({ entrypoints: [process.argv[1]], target: 'browser', format: 'esm', write: false }); if (!r.success || r.outputs.length !== 1) throw new Error('Expected one bundled module'); console.log(JSON.stringify(new Bun.Transpiler().scan(await r.outputs[0].text()).exports));`;
+				const result = await execFileAsync(process.execPath, ['-e', script, entry], { cwd: projectRoot, maxBuffer: 1024 * 1024 });
+
+				return JSON.parse(result.stdout);
+			});
+			probes.set(entry, pending);
+			previousProbe = pending.catch(() => {});
+		}
+
+		return probes.get(entry);
+	};
 
 	return {
 		dependencies,
@@ -319,9 +336,7 @@ export function wordpressPlugin({ projectRoot = process.cwd(), wpRoot } = {}) {
 									}
 
 									if (packageEntry) {
-										const script = `const r = await Bun.build({ entrypoints: [process.argv[1]], target: 'browser', format: 'esm', write: false }); if (!r.success || r.outputs.length !== 1) { console.error(r.logs.join('\\n')); process.exit(1); } console.log(JSON.stringify(new Bun.Transpiler().scan(await r.outputs[0].text()).exports));`;
-										const result = await execFileAsync(process.execPath, ['-e', script, packageEntry], { cwd: projectRoot, maxBuffer: 1024 * 1024 });
-										names = JSON.parse(result.stdout);
+										names = await discoverExports(packageEntry);
 
 										if (!Array.isArray(names) || !names.length || names.some((name) => typeof name !== 'string' || !/^[A-Za-z_$][\w$]*$/.test(name)) || new Set(names).size !== names.length) {
 											throw new Error('Installed package exports cannot establish the core global mapping; provide wpRoot');

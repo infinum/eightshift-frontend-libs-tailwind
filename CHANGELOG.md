@@ -6,6 +6,16 @@ This projects adheres to [Semantic Versioning](https://semver.org/) and [Keep a 
 
 ---
 
+## [4.0.2]
+
+### Fixed
+
+- When WordPress core scripts are absent, reuse each installed WordPress package’s export lookup within the build adapter and run lookups serially to avoid launching competing Bun processes for repeated imports. No CI configuration change is required.
+
+### Added
+
+- Optional `scanExclusions` in `defineThemeBuild` to append project-specific globs to the conventional frontend and editor Tailwind scans without replacing built-in exclusions.
+
 ## [4.0.1]
 
 ### Changed
@@ -438,6 +448,7 @@ Co-authored with @piqusy
 
 - Initial release.
 
+[4.0.2]: https://github.com/infinum/eightshift-frontend-libs-tailwind/compare/4.0.1...4.0.2
 [4.0.1]: https://github.com/infinum/eightshift-frontend-libs-tailwind/compare/4.0.0...4.0.1
 [4.0.0]: https://github.com/infinum/eightshift-frontend-libs-tailwind/compare/3.5.1...4.0.0
 [3.5.1]: https://github.com/infinum/eightshift-frontend-libs-tailwind/compare/3.5.0...3.5.1

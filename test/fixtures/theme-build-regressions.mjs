@@ -192,6 +192,60 @@ async function checkConventionalStyleDedup() {
 	assert.match(importedStyles, /\.sm\\:p-4\b/, 'Imported Tailwind utilities must include generated responsive classes');
 }
 
+async function checkScanExclusions() {
+	const root = join(temporary, 'scan-exclusions');
+	const scripts = join(root, 'src/Blocks/assets/scripts');
+	const styles = join(root, 'src/Blocks/assets/styles');
+	await mkdir(scripts, { recursive: true });
+	await mkdir(styles, { recursive: true });
+	await writeFile(join(root, 'package.json'), '{"name":"scan-exclusions-fixture"}');
+	await writeFile(join(root, 'src/included.html'), '<div class="p-31"></div>');
+	await writeFile(join(root, 'src/excluded.html'), '<div class="p-32"></div>');
+	await writeFile(join(root, 'es-tw-unused-classes.txt'), 'p-33');
+	const tailwind = (surface) => `@theme { --spacing: 1px; } @tailwind utilities; @source './es-tw-${surface}-classes.txt';`;
+	for (const surface of ['frontend', 'editor']) {
+		await writeFile(join(root, `tailwind-${surface}.css`), tailwind(surface));
+	}
+	await writeFile(join(root, 'color-themes.css'), '.theme { color: red; }');
+	for (const entry of ['application-blocks-frontend', 'application-blocks-editor', 'application-admin']) {
+		const discovery = entry === 'application-blocks-editor' ? [] : [
+			"import { dynamicImport } from '@eightshift/frontend-libs-tailwind/scripts/helpers';",
+			"require.context('./../../components', true, /manifest\\.json$/);",
+			"require.context('./../../custom', true, /manifest\\.json$/);",
+			...(entry === 'application-admin' ? [
+				"require.context('./../../components', true, /assets-admin\\/index\\.js$/);",
+				"require.context('./../../custom', true, /assets-admin\\/index\\.js$/);",
+				'function load(assetContext, assetPath, directory) { return import(/* webpackMode: "lazy" */ `./../../${importBasePath}/${directory}/assets-admin/index.js`); }',
+			] : ['function load(importBasePath, directory) { return import(/* webpackMode: "lazy" */ `./../../${importBasePath}/${directory}/assets/index.js`); }']),
+		];
+		await writeFile(join(scripts, `${entry}.js`), [...discovery, 'console.log("fixture");'].join('\n'));
+		await writeFile(join(styles, `${entry}.css`), '.base { display: block; }');
+	}
+
+	const definition = defineThemeBuild({ root, wordpressVersion: '7.0', publicPrefix: '/scan-exclusions/', scanExclusions: ['src/excluded.html'] });
+	const session = new Map();
+	const readCss = async () => {
+		const publicDir = join(root, 'public');
+		const manifest = JSON.parse(await readFile(join(publicDir, 'manifest.json'), 'utf8'));
+		return Promise.all(['Frontend', 'Editor'].map((surface) => readStylesheetGraph(join(publicDir, manifest[`applicationBlocks${surface}.css`].slice('/scan-exclusions/'.length)))));
+	};
+	const assertExclusions = (css) => {
+		assert.match(css, /\.p-31\b/);
+		assert.doesNotMatch(css, /\.p-3[23]\b/);
+	};
+
+	assert.ok((await definition.build({ quiet: true }, session)).result);
+	const initial = await readCss();
+	initial.forEach(assertExclusions);
+	const edited = join(root, 'tailwind-frontend.css');
+	await writeFile(edited, `${tailwind('frontend')} .watch-edit-proof { display: grid; }`);
+	assert.equal((await definition.build({ quiet: true }, session, { paths: [edited] })).result, undefined, 'Expected CSS-only publication');
+	const updated = await readCss();
+	updated.forEach(assertExclusions);
+	assert.match(updated[0], /\.watch-edit-proof\b/);
+	assert.equal(updated[1], initial[1]);
+}
+
 async function checkInvalidCssFailsSafely(mode) {
 	const root = join(temporary, 'wp-content', 'themes', `invalid-css-${mode}`);
 	await mkdir(join(root, 'src'), { recursive: true });
@@ -594,6 +648,7 @@ try {
 	await checkInvalidCssFailsSafely('plugin');
 	await checkTailwindImports();
 	await checkConventionalStyleDedup();
+	await checkScanExclusions();
 	await checkExplicitExtraCss();
 	await checkExplicitExtraCss('static');
 	await checkExplicitExtraCss('bypass');
