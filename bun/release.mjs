@@ -258,9 +258,11 @@ export async function packageRelease({ root, files, entries, aliases = {}, outpu
 	};
 
 	const filesToWrite = [...contents];
+
 	for (let index = 0; index < filesToWrite.length; index += 16) {
 		const results = await Promise.allSettled(filesToWrite.slice(index, index + 16).map(emit));
 		const failed = results.find((result) => result.status === 'rejected');
+
 		if (failed) {
 			throw failed.reason;
 		}

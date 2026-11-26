@@ -129,6 +129,7 @@ function hotClient(prefix, marker, version, key) {
 							count++;
 							continue;
 						}
+
 						const link = owner.tagName === 'LINK' ? owner.cloneNode(false) : doc.createElement('link');
 						link.removeAttribute('id');
 						link.rel = 'stylesheet';
@@ -233,7 +234,10 @@ function hotClient(prefix, marker, version, key) {
 					await apply({ styles: Object.values(next.styles).map((path) => [path, path]), text: [] }, true);
 				} else if (next.parent === version && next.delta) {
 					await apply(next.delta);
-					if (!next.base) baseVersion = next.version;
+
+					if (!next.base) {
+						baseVersion = next.version;
+					}
 				} else {
 					throw Error();
 				}
