@@ -6,6 +6,17 @@ This projects adheres to [Semantic Versioning](https://semver.org/) and [Keep a 
 
 ---
 
+## [4.0.1]
+
+### Changed
+
+- `bun start` now publishes eligible frontend, editor and admin CSS changes without rebuilding JavaScript or SSR. No theme configuration change is required. Custom build hooks and changes with uncertain dependencies still trigger a full build.
+- Watch builds can reuse unchanged frontend and admin bundles on editor-only saves, and unchanged SSR bundles when edits fall outside their dependency graph.
+
+### Added
+
+- Two opt-in watch modes: `watch.hotUpdates` updates supported styles and plain JSX text in place and offers a manual refresh for other changes; `watch.autoRefresh` reloads the page after a successful build. Both are off by default. See the [watch configuration](README.md#bun-build-migration).
+
 ## [4.0.0]
 
 ### Changed
@@ -427,6 +438,7 @@ Co-authored with @piqusy
 
 - Initial release.
 
+[4.0.1]: https://github.com/infinum/eightshift-frontend-libs-tailwind/compare/4.0.0...4.0.1
 [4.0.0]: https://github.com/infinum/eightshift-frontend-libs-tailwind/compare/3.5.1...4.0.0
 [3.5.1]: https://github.com/infinum/eightshift-frontend-libs-tailwind/compare/3.5.0...3.5.1
 [3.5.0]: https://github.com/infinum/eightshift-frontend-libs-tailwind/compare/3.4.0...3.5.0
