@@ -352,10 +352,7 @@ export function wordpressPlugin({ projectRoot = process.cwd(), wpRoot } = {}) {
 									}
 								}
 							} else if (kind !== 'react' && kind !== 'commonjs') {
-								const script = `const r = await Bun.build({ entrypoints: [process.argv[1]], target: 'browser', format: 'esm', write: false }); if (!r.success || r.outputs.length !== 1) { console.error(r.logs.join('\\n')); process.exit(1); } console.log(JSON.stringify(new Bun.Transpiler().scan(await r.outputs[0].text()).exports));`;
-								const result = await execFileAsync(process.execPath, ['-e', script, entry], { cwd: projectRoot, maxBuffer: 1024 * 1024 });
-
-								names = JSON.parse(result.stdout);
+								names = await discoverExports(entry);
 							}
 						} catch (error) {
 							throw new Error(`Cannot determine exports for ${request}: ${error.message}`);

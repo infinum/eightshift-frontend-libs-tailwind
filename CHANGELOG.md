@@ -10,7 +10,7 @@ This projects adheres to [Semantic Versioning](https://semver.org/) and [Keep a 
 
 ### Fixed
 
-- When WordPress core scripts are absent, reuse each installed WordPress package’s export lookup within the build adapter and run lookups serially to avoid launching competing Bun processes for repeated imports. No CI configuration change is required.
+- Reuse export probes for installed WordPress packages (when core scripts are absent) and `lodash-es` within each build adapter. Run those probes serially to avoid competing Bun processes. No CI configuration change is required.
 
 ### Added
 
