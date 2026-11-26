@@ -7,8 +7,9 @@ import { watchBuild } from './watch.mjs';
  * invocation context. `ssr` and `publish` run after the browser build, in that
  * order; neither is included in the browser build's atomic publication.
  * Watch options are passed to watchBuild, with root and build controlled here.
+ * Watchers sharing this definition serialize builds through preview rollback.
  */
-export function defineBuild({ root = process.cwd(), preset, ssr, publish, watch = {} } = {}) {
+export function defineBuild({ root = process.cwd(), preset, ssr, publish, watch = {}, watchCss } = {}) {
 	if (typeof root !== 'string' || !root) {
 		throw new TypeError('root must be a non-empty string');
 	}
@@ -33,6 +34,10 @@ export function defineBuild({ root = process.cwd(), preset, ssr, publish, watch 
 		throw new TypeError('watch.ignore must be a function');
 	}
 
+	if (watch.onError !== undefined && typeof watch.onError !== 'function') {
+		throw new TypeError('watch.onError must be a function');
+	}
+
 	const validateOptions = (options) => {
 		if (Object.hasOwn(options, 'timings')) {
 			throw new Error('The timings option is no longer supported');
@@ -46,7 +51,7 @@ export function defineBuild({ root = process.cwd(), preset, ssr, publish, watch 
 	root = resolve(root);
 	let active;
 	const outputs = new Set();
-	const run = async (options = {}) => {
+	const run = async (options = {}, watchSession, changes) => {
 		validateOptions(options);
 
 		if (active) {
@@ -60,10 +65,17 @@ export function defineBuild({ root = process.cwd(), preset, ssr, publish, watch 
 			}
 		};
 
+		const context = { ...options, root, watchSession, changes, rollbackPreview: undefined };
 		active = (async () => {
 			report('Starting build…');
+
+			if (watchSession && (await watchCss?.(context))) {
+				report(`CSS-only publication completed in ${((performance.now() - started) / 1000).toFixed(2)}s.`);
+
+				return context;
+			}
+
 			report('Preparing build…', true);
-			const context = { ...options, root };
 			const configured = typeof preset === 'function' ? await preset(context) : preset;
 			outputs.clear();
 			const output = typeof configured?.outdir === 'string' && configured.outdir ? resolve(root, configured.outdir) : undefined;
@@ -95,13 +107,18 @@ export function defineBuild({ root = process.cwd(), preset, ssr, publish, watch 
 			report(`Build completed in ${((performance.now() - started) / 1000).toFixed(2)}s.`);
 
 			return state;
-		})();
+		})()
+			.catch(async (error) => {
+				watchSession?.clear();
+				await context.rollbackPreview?.();
 
-		try {
-			return await active;
-		} finally {
-			active = undefined;
-		}
+				throw error;
+			})
+			.finally(() => {
+				active = undefined;
+			});
+
+		return active;
 	};
 
 	return {
@@ -113,7 +130,8 @@ export function defineBuild({ root = process.cwd(), preset, ssr, publish, watch 
 				throw new Error('Watch builds with ssr or publish callbacks require explicit watch.sources or watch.ignored');
 			}
 
-			return watchBuild({
+			const watchSession = new Map();
+			const watcher = watchBuild({
 				sources: ['.'],
 				...watch,
 				projectDir: root,
@@ -138,14 +156,25 @@ export function defineBuild({ root = process.cwd(), preset, ssr, publish, watch 
 
 					return false;
 				},
-				build: async () => {
+				onError: (error) => {
+					watchSession.clear();
+					(watch.onError ?? console.error)(error);
+				},
+				build: async (changes) => {
 					while (active) {
 						await active.catch(() => {});
 					}
 
-					return run(options);
+					return run(options, watchSession, changes);
 				},
 			});
+
+			return {
+				stop: async () => {
+					await watcher.stop();
+					watchSession.clear();
+				},
+			};
 		},
 	};
 }

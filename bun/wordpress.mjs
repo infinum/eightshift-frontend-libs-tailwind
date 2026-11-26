@@ -336,9 +336,7 @@ export function wordpressPlugin({ projectRoot = process.cwd(), wpRoot } = {}) {
 										}
 									}
 								}
-							} else if (kind === 'react') {
-								names = ['default', ...Object.keys(require(entry)).filter((name) => name !== 'default')];
-							} else if (kind !== 'commonjs') {
+							} else if (kind !== 'react' && kind !== 'commonjs') {
 								const script = `const r = await Bun.build({ entrypoints: [process.argv[1]], target: 'browser', format: 'esm', write: false }); if (!r.success || r.outputs.length !== 1) { console.error(r.logs.join('\\n')); process.exit(1); } console.log(JSON.stringify(new Bun.Transpiler().scan(await r.outputs[0].text()).exports));`;
 								const result = await execFileAsync(process.execPath, ['-e', script, entry], { cwd: projectRoot, maxBuffer: 1024 * 1024 });
 

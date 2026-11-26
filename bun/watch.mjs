@@ -7,6 +7,7 @@ import { basename, dirname, isAbsolute, relative, resolve, sep } from 'node:path
  * Ignored paths exclude themselves and their descendants, including outputs.
  * `ignore` optionally filters absolute event paths in addition to ignored paths.
  * Events without filenames are reconciled against file metadata and directory entries.
+ * build receives { paths, structural, unknown }; initial/nameless batches are unknown.
  * Returns { stop }, whose promise settles after any running build finishes.
  * Build and watcher errors are passed to onError; watcher errors stop watching.
  */
@@ -41,6 +42,9 @@ export function watchBuild({ projectDir, sources, ignored = [], ignore = () => f
 	let timer;
 	let running;
 	let pending = false;
+	let changedPaths = new Set();
+	let structuralChange = false;
+	let unknownChange = true;
 	let stopped = false;
 	const watchers = new Map();
 	const directoryStamps = new Map();
@@ -165,8 +169,12 @@ export function watchBuild({ projectDir, sources, ignored = [], ignore = () => f
 		}
 
 		pending = false;
+		const changes = { paths: [...changedPaths], structural: structuralChange, unknown: unknownChange };
+		changedPaths = new Set();
+		structuralChange = false;
+		unknownChange = false;
 		running = Promise.resolve()
-			.then(build)
+			.then(() => build(changes))
 			.catch(report)
 			.finally(() => {
 				running = undefined;
@@ -184,7 +192,12 @@ export function watchBuild({ projectDir, sources, ignored = [], ignore = () => f
 
 		pending = true;
 		clearTimeout(timer);
+		const scheduled = performance.now();
 		timer = setTimeout(() => {
+			if (process.env.EIGHTSHIFT_WATCH_TIMINGS) {
+				console.info(`[watch] debounce: ${Math.round(performance.now() - scheduled)}ms`);
+			}
+
 			timer = undefined;
 			run();
 		}, debounce);
@@ -206,7 +219,7 @@ export function watchBuild({ projectDir, sources, ignored = [], ignore = () => f
 		await running;
 	};
 
-	const onEvent = (path) => {
+	const onEvent = (path, { structural = false, unknown = true } = {}) => {
 		if (stopped) {
 			return;
 		}
@@ -226,6 +239,9 @@ export function watchBuild({ projectDir, sources, ignored = [], ignore = () => f
 		}
 
 		if (inputs.some((item) => within(item, path) || within(path, item))) {
+			changedPaths.add(path);
+			structuralChange ||= structural;
+			unknownChange ||= unknown;
 			schedule();
 
 			return true;
@@ -334,8 +350,8 @@ export function watchBuild({ projectDir, sources, ignored = [], ignore = () => f
 						}
 
 						for (const path of new Set([...previous.keys(), ...current.keys()])) {
-							if (previous.get(path)?.stamp !== current.get(path)?.stamp && onEvent(path)) {
-								break;
+							if (previous.get(path)?.stamp !== current.get(path)?.stamp) {
+								onEvent(path);
 							}
 						}
 
@@ -391,7 +407,17 @@ export function watchBuild({ projectDir, sources, ignored = [], ignore = () => f
 						}
 					}
 
-					const accepted = onEvent(path);
+					let structural = _event !== 'change';
+					const previous = watcher.snapshot.get(path);
+
+					try {
+						const info = lstatSync(path);
+						structural ||= !info.isFile() || !previous || !previous.stamp.startsWith(`${info.dev}:${info.ino}:${info.mode}:`);
+					} catch {
+						structural = true;
+					}
+
+					const accepted = onEvent(path, { structural, unknown: false });
 
 					if (accepted && within(config.directory, path)) {
 						updateSnapshot(watcher.snapshot, path, config.recursive, path === config.directory);

@@ -130,7 +130,7 @@ export function loadStylesheet(href) {
 `;
 
 /** Compile JS-imported CSS and attach it to the module that imports it. */
-export function browserCssPlugin({ root, outdir, conventionalCss, extraCssByFile, responsiveFiles, retainedStyles }) {
+export function browserCssPlugin({ root, outdir, conventionalCss, extraCssByFile, responsiveFiles, retainedStyles, onCompile }) {
 	const compiled = new Map();
 	const compositions = new Map();
 	const cssImports = new Map();
@@ -166,6 +166,8 @@ export function browserCssPlugin({ root, outdir, conventionalCss, extraCssByFile
 				let pending = compiled.get(cacheKey);
 
 				if (!pending) {
+					// Even empty sidecars may emit CSS after a scan candidate changes.
+					onCompile?.();
 					pending = compileStylesheet({ root, outdir, path, isModule: /\.module\.css$/i.test(path), responsiveFile: responsiveFiles[surface], retainedStyles, compileFile, conventionalCss: conventionalCss.get(surface), cssImports });
 					compiled.set(cacheKey, pending);
 				}

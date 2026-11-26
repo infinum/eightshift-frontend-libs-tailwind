@@ -1,6 +1,6 @@
 {
 	"name": "@eightshift/frontend-libs-tailwind",
-	"version": "4.0.0",
+	"version": "4.0.1",
 	"description": "A framework for creating modern Gutenberg themes with styling provided by Tailwind CSS.",
 	"author": {
 		"name": "Eightshift team",
@@ -47,6 +47,7 @@
 		"@tailwindcss/oxide": "^4.3.3",
 		"browserslist": "^4.29.4",
 		"enhanced-resolve": "^5.24.1",
+		"es-module-lexer": "^2.1.0",
 		"eslint": "^9.39.5",
 		"eslint-config-prettier": "^10.1.8",
 		"eslint-plugin-better-tailwindcss": "^4.10.0",

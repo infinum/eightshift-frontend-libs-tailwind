@@ -1,5 +1,6 @@
+import { browserWatch, browserWatchCache } from './browser-watch-cache.mjs';
 import { createHash, randomUUID } from 'node:crypto';
-import { link, lstat, mkdir, readFile, realpath, unlink } from 'node:fs/promises';
+import { link, lstat, mkdir, readFile, realpath, rename, unlink, writeFile } from 'node:fs/promises';
 import { createRequire } from 'node:module';
 import { basename, dirname, isAbsolute, relative, resolve, sep } from 'node:path';
 import { defineBuild } from './index.mjs';
@@ -12,7 +13,11 @@ import { browserCssPlugin, browserCssRuntime, collectConventionalCss } from './b
 import { editorWorkerPlugin } from './media.mjs';
 import { allowPureJsxGrouping } from './plugin-capabilities.mjs';
 import { processCss } from './css.mjs';
-import { buildSsr as buildDefaultSsr } from './ssr.mjs';
+import { sourceSnapshot, quickCss, outputStamp, importSignature } from './watch-css.mjs';
+import { classify, hotMarker, hotScript } from './hot-watch.mjs';
+import { createTextAnalyzer, textPlugin } from './hot-text.mjs';
+import { refreshMarker, refreshScript } from './auto-refresh.mjs';
+import { buildWatchSsr } from './ssr-watch-cache.mjs';
 import { prepareSharedFonts } from './shared-fonts.mjs';
 
 /**
@@ -94,6 +99,14 @@ export function defineThemeBuild(options = {}) {
 
 	if (watch !== false && (!watch || typeof watch !== 'object' || Array.isArray(watch))) {
 		throw new TypeError('watch must be false or an object');
+	}
+
+	if (watch && watch.hotUpdates !== undefined && (typeof watch.hotUpdates !== 'boolean' || (watch.hotUpdates && (watch.autoRefresh || publish !== undefined)))) {
+		throw new TypeError('watch.hotUpdates requires default publication and cannot be combined with autoRefresh');
+	}
+
+	if (watch && watch.autoRefresh !== undefined && (typeof watch.autoRefresh !== 'boolean' || (watch.autoRefresh && publish !== undefined))) {
+		throw new TypeError('watch.autoRefresh must be a boolean and requires default publication when enabled');
 	}
 
 	for (const [name, value] of Object.entries({ css, discovery, ssr, publish })) {
@@ -202,7 +215,92 @@ export function defineThemeBuild(options = {}) {
 	let outdir;
 	let editorWorker;
 	let retainedStyles;
-	const makePreset = async ({ sourcemaps }) => {
+	const watchSources = ['src', 'build', 'eightshift.build.mjs', 'package.json', 'bun.lock', 'bun.lockb', 'bunfig.toml', 'tsconfig.json', 'jsconfig.json', 'tailwind.css', 'tailwind-editor.css', 'tailwind-frontend.css', 'color-themes.css'];
+	const snapshotSources = [...new Set([...watchSources, ...(Array.isArray(watch.sources) ? watch.sources : [])])];
+	const unsafeRoots = new Set(['', '..', 'public', 'eightshift', 'node_modules', 'vendor', 'vendor-prefixed', '.git', '.bun-pilot']);
+	const safeSources = snapshotSources.every((name) => {
+		if (typeof name !== 'string' || !name) {
+			return false;
+		}
+
+		const path = relative(root, resolve(root, name));
+
+		return !isAbsolute(path) && !unsafeRoots.has(path.split(sep)[0]);
+	});
+	const incremental =
+		safeSources &&
+		!watch.autoRefresh &&
+		typeof options.extraCss !== 'function' &&
+		Object.keys(options).every((key) => ['root', 'wordpressVersion', 'publicPrefix', 'watch', 'extraCss'].includes(key)) &&
+		Object.keys(watch).every((key) => ['hotUpdates', 'debounce', 'sources', 'autoRefresh'].includes(key));
+	const hotKey = `eightshift:hot:${publicPath}`;
+	let hot;
+	const writeMarker = async (data) => {
+		const target = resolve(root, 'public', hotMarker),
+			pending = target + '.' + randomUUID();
+
+		try {
+			await writeFile(pending, data, { flag: 'wx' });
+			await rename(pending, target);
+		} finally {
+			await unlink(pending).catch((e) => {
+				if (e.code !== 'ENOENT') {
+					throw e;
+				}
+			});
+		}
+	};
+
+	const makePreset = async (context) => {
+		const { sourcemaps, watchSession, changes } = context;
+		hot =
+			watchSession && (watch.hotUpdates || incremental)
+				? {
+						version: randomUUID(),
+						plans: !sourcemaps && incremental ? new Map() : null,
+						imports: new Map(),
+						excluded: new Set(),
+						records: new Map(),
+						textAnalysis: new Map(),
+						css: new Set(),
+						enabled: !['createPlugins', 'css', 'discovery', 'publication', 'editor', 'entries', 'frontendStyles', 'buildSsr'].some((k) => Object.hasOwn(options, k)) && typeof options.extraCss !== 'function' && typeof ssr !== 'function' && typeof media.editorWorker !== 'function',
+					}
+				: undefined;
+
+		if (hot?.enabled && hot.plans) {
+			hot.sources = sourceSnapshot(root, snapshotSources);
+		}
+
+		const previous = hot && watchSession.get(hotKey);
+		const analyzeText = watch.hotUpdates && hot?.enabled && !sourcemaps ? createTextAnalyzer(root, hot.textAnalysis, previous?.textAnalysis) : undefined;
+
+		if (watch.hotUpdates && previous?.enabled && hot.enabled && !sourcemaps && changes?.paths.length && !changes.unknown && !changes.structural && changes.paths.every((path) => previous.records.has(path))) {
+			const records = new Map();
+
+			for (const path of changes.paths) {
+				const analysis = await analyzeText(path).catch(() => null);
+
+				if (!analysis) {
+					break;
+				}
+
+				records.set(path, analysis.record);
+			}
+
+			const delta = classify(previous, { ...previous, records }, changes);
+
+			if (delta?.text.length && (await readFile(resolve(root, 'public', hotMarker), 'utf8').catch(() => null)) === previous.marker) {
+				const preview = { id: hot.version, expires: Date.now() + 60000, text: delta.text };
+				hot.previewMarker = JSON.stringify({ ...JSON.parse(previous.marker), preview });
+				await writeMarker(hot.previewMarker);
+				context.rollbackPreview = async () => {
+					if ((await readFile(resolve(root, 'public', hotMarker), 'utf8').catch(() => null)) === hot.previewMarker) {
+						await writeMarker(previous.marker);
+					}
+				};
+			}
+		}
+
 		const versionFile = resolve(wpRoot, 'wp-includes/version.php');
 		const readOptional = async (file) => {
 			try {
@@ -369,8 +467,40 @@ export function defineThemeBuild(options = {}) {
 		const workerFactory = media.editorWorker === undefined ? editorWorkerPlugin : media.editorWorker;
 		const plugins = workerFactory ? [workerFactory(pluginContext), ...callerPlugins] : [...callerPlugins];
 
+		if (hot?.plans) {
+			// CSS read directly by a JS bundle (including text/file loaders) is not CSS-only.
+			plugins.unshift(
+				allowPureJsxGrouping({
+					name: 'watch-css-inputs',
+					setup(builder) {
+						builder.onLoad({ filter: /\.css$/i, namespace: 'file' }, ({ path }) => {
+							hot.excluded.add(path);
+						});
+					},
+				}),
+			);
+		}
+
 		if (publish === undefined) {
-			plugins.push(browserCssPlugin({ root, outdir, conventionalCss, extraCssByFile, responsiveFiles, retainedStyles }));
+			plugins.push(
+				browserCssPlugin({
+					root,
+					outdir,
+					conventionalCss,
+					extraCssByFile,
+					responsiveFiles,
+					retainedStyles,
+					onCompile: hot?.plans
+						? () => {
+								hot.plans = null;
+							}
+						: undefined,
+				}),
+			);
+		}
+
+		if (watch.hotUpdates && hot?.enabled && !sourcemaps) {
+			plugins.push(textPlugin(analyzeText, hotKey, hot.records));
 		}
 
 		if (discovery === undefined) {
@@ -383,6 +513,28 @@ export function defineThemeBuild(options = {}) {
 			}
 
 			plugins.push(plugin);
+		}
+
+		const browserEligible =
+			watchSession && !sourcemaps && Object.keys(options).every((key) => ['root', 'wordpressVersion', 'publicPrefix', 'watch', 'extraCss'].includes(key)) && typeof options.extraCss !== 'function' && Object.keys(watch).every((key) => ['debounce', 'hotUpdates', 'autoRefresh'].includes(key));
+		const browserBundles = browserEligible
+			? await browserWatchCache({
+					root,
+					changes,
+					watchSession,
+					wpRoot,
+					signature: () => JSON.stringify([target, frontendImporters, [...conventionalCss].map(([surface, paths]) => [surface, [...paths].sort()]), [...extraCssByFile].map(([file, groups]) => [file, groups.map(({ href, files }) => [href, files.length])])]),
+					isStaticCss: (name, file) => !/\.module\.css$/i.test(file) && (conventionalCss.get(name)?.has(file) || (name === 'frontend' && extraCssByFile.get(file)?.length === 1 && extraCssByFile.get(file)[0].files.length === 1)),
+					report: (message) => {
+						if (context.verbose) {
+							console.log(`[eightshift-build] browser ${message}`);
+						}
+					},
+				})
+			: undefined;
+
+		if (!browserEligible) {
+			watchSession?.delete(browserWatch);
 		}
 
 		return {
@@ -410,7 +562,30 @@ export function defineThemeBuild(options = {}) {
 						const name = surface === 'admin' ? 'applicationAdmin' : `applicationBlocks${surface === 'frontend' ? 'Frontend' : 'Editor'}`;
 
 						const files = await eightshiftCssEntries({ projectDir: root, surface, responsiveFile: generated[surface] });
-						await processCss({ projectDir: root, files, outputFile: resolve(stage, 'css', `${name}.css`), production: true });
+
+						if (hot?.enabled) {
+							for (const entry of files) {
+								hot.css.add(resolve(root, typeof entry === 'string' ? entry : entry.file));
+							}
+						}
+
+						if (hot?.plans) {
+							for (const entry of files) {
+								const file = resolve(root, typeof entry === 'string' ? entry : entry.file);
+
+								if (hot.sources?.has(file) && !hot.imports.has(file)) {
+									hot.imports.set(file, await importSignature(file));
+								}
+							}
+						}
+
+						const capture = hot?.plans ? { entries: new Map() } : undefined;
+						const reuse = capture && !changes?.unknown && !changes?.structural && changes?.paths.length && changes.paths.every((path) => previous?.records.has(path)) ? previous?.plans?.get(name)?.capture : undefined;
+						const compiled = await processCss({ projectDir: root, files, capture, reuse, outputFile: resolve(stage, 'css', `${name}.css`), production: true });
+
+						if (hot?.enabled && hot.plans) {
+							hot.plans.set(name, { files, capture, dependencies: compiled.dependencies, generated: generated[surface], bytes: generated[surface] && (await readFile(generated[surface])) });
+						}
 
 						if (surface !== 'editor' && publish === undefined) {
 							conventionalCss.set(surface, await collectConventionalCss({ root, files }));
@@ -440,7 +615,18 @@ export function defineThemeBuild(options = {}) {
 					const outputFile = output ? resolve(stage, 'css', output) : temporary;
 					const resolvedFiles = files.map((entry) => (typeof entry === 'string' ? resolveFile(entry) : { ...entry, file: resolveFile(entry?.file) }));
 
-					await processCss({ projectDir: root, outputFile, files: resolvedFiles, production: true });
+					const extra = await processCss({ projectDir: root, outputFile, files: resolvedFiles, production: true });
+
+					if (hot?.plans) {
+						if (resolvedFiles.some((entry) => typeof entry !== 'string')) {
+							hot.plans = null;
+						}
+
+						for (const file of extra.dependencies) {
+							hot.excluded.add(await realpath(file));
+						}
+					}
+
 					let name = output;
 
 					if (!name) {
@@ -491,6 +677,7 @@ export function defineThemeBuild(options = {}) {
 			},
 			entryPublicPaths: Object.fromEntries(['frontend', 'admin'].filter((name) => entries === undefined || Object.hasOwn(entries, name)).map((name) => [name, `${publicPath}${name}/`])),
 			buildOptions: {
+				...(browserBundles && { [browserWatch]: browserBundles }),
 				optimizeImports,
 				minify: true,
 				drop: ['console'],
@@ -504,7 +691,7 @@ export function defineThemeBuild(options = {}) {
 		};
 	};
 
-	const defaultPublish = async ({ result, verbose, quiet }) => {
+	const defaultPublish = async ({ result, verbose, quiet, watchSession, changes }) => {
 		const editorScript = await readFile(resolve(outdir, result.entries.editor.entry), 'utf8');
 
 		if (requireEditorWorker && !editorWorker) {
@@ -530,7 +717,17 @@ export function defineThemeBuild(options = {}) {
 			}
 
 			if (ssrNames.length && !ssr && !buildSsr) {
-				await defaultSsr({ root, mode: 'production' });
+				const graph = await defaultSsr({ root, mode: 'production', watchSession, changes, quiet });
+
+				if (hot?.plans) {
+					if (!graph.cacheable || !graph.dependencies?.length) {
+						hot.plans = null;
+					} else {
+						for (const file of graph.dependencies) {
+							hot.excluded.add(file);
+						}
+					}
+				}
 			}
 
 			if (!ssrNames.length && (ssr || buildSsr)) {
@@ -564,6 +761,7 @@ export function defineThemeBuild(options = {}) {
 			standaloneAssets.set(name, resolve(root, file));
 		}
 
+		const refreshToken = watchSession && watch.autoRefresh ? randomUUID() : undefined;
 		const entries = Object.entries(surfaces).map(([surface, name]) => {
 			const entry = result.entries[surface];
 			let script;
@@ -593,6 +791,8 @@ export function defineThemeBuild(options = {}) {
 				style: `css/${name}.css`,
 				dependencies: entry.dependencies,
 				...(script && { script }),
+				...(watch.hotUpdates && hot && { scriptSuffix: hotScript(publicPath, hot.version, hotKey) }),
+				...(refreshToken && { scriptSuffix: refreshScript(publicPath, refreshToken) }),
 				...(entry.format === 'module' ? { format: entry.format, readiness: entry.readiness } : {}),
 			};
 		});
@@ -669,15 +869,79 @@ export function defineThemeBuild(options = {}) {
 			aliases: { ...aliases, ...additions.aliases, ...fontAssets.aliases },
 		});
 
-		await publishFlatRelease({ root, wpRoot, release, manifest, version, publicPrefix: publicPath });
+		const previousHot = hot && watchSession.get(hotKey);
+
+		if (watch.hotUpdates && previousHot) {
+			// Keep polling the last completed generation while the PHP cache synchronizes.
+			await writeFile(resolve(release, hotMarker), hot.previewMarker ?? previousHot.marker, { flag: 'wx' });
+		}
+
+		const published = await publishFlatRelease({ root, wpRoot, release, manifest, version, publicPrefix: publicPath });
 		await clearBuildDirectory(outdir, root);
+
+		// Signal only after the public swap and PHP manifest synchronization succeed.
+		if (hot) {
+			const previous = previousHot;
+			hot.styles = Object.fromEntries(entries.map(({ name }) => [name, published.manifest[name + '.css']]));
+			hot.extra = JSON.stringify([...retainedStyles].sort());
+
+			if (watch.hotUpdates) {
+				const marker = { version: hot.version, parent: previous?.version ?? null, delta: classify(previous, hot, changes) };
+				hot.marker = JSON.stringify(marker);
+				await writeMarker(hot.marker);
+			}
+
+			if (
+				hot.plans &&
+				hot.enabled &&
+				hot.imports.size &&
+				!result.entries.editor.styles.length &&
+				!(
+					await Promise.all(
+						entries.map(({ style }) =>
+							lstat(resolve(root, 'public', style)).then(
+								() => true,
+								(e) => {
+									if (e.code !== 'ENOENT') {
+										throw e;
+									}
+
+									return false;
+								},
+							),
+						),
+					)
+				).some(Boolean) &&
+				[...retainedStyles].every((name) => /^extra-[a-f0-9]{20}\.css$/.test(name))
+			) {
+				hot.stamp = await outputStamp(root);
+				hot.base = hot.version;
+			}
+
+			delete hot.previewMarker;
+			watchSession.set(hotKey, hot);
+		}
+
+		if (refreshToken) {
+			await writeFile(resolve(root, 'public', refreshMarker), JSON.stringify(refreshToken), { flag: 'wx' });
+		}
 	};
 
-	const defaultSsr = ({ root, mode }) => buildDefaultSsr({ root, mode, outdir: resolve(outdir, 'ssr', mode) });
+	const cacheDefaultSsr = publish === undefined && !['createPlugins', 'extraCss', 'css', 'discovery', 'publication'].some((name) => typeof options[name] === 'function') && typeof media.editorWorker !== 'function' && !['sources', 'ignored', 'ignore'].some((name) => Object.hasOwn(watch || {}, name));
+	const defaultSsr = ({ root, mode, watchSession, changes, quiet }) => buildWatchSsr({ root, mode, changes, quiet, watchSession: cacheDefaultSsr ? watchSession : watchSession && hot?.plans ? new Map() : undefined, outdir: resolve(outdir, 'ssr', mode) });
 	const customSsr = ssr ?? buildSsr;
 	const definition = defineBuild({
 		root,
 		preset: makePreset,
+		watchCss: async ({ watchSession, changes, sourcemaps }) => {
+			const reused = !sourcemaps && (await quickCss({ root, changes, watchSources: snapshotSources, previous: watchSession.get(hotKey), prefix: publicPath, commit: (next) => watchSession.set(hotKey, next) }));
+
+			if (reused) {
+				watchSession.delete(browserWatch);
+			}
+
+			return reused;
+		},
 		ssr:
 			publish !== undefined && ssr !== false
 				? async (state) => {
@@ -686,12 +950,17 @@ export function defineThemeBuild(options = {}) {
 						}
 
 						for await (const _file of new Bun.Glob('src/**/assets-ssr/ssr.{js,mjs}').scan({ cwd: root, onlyFiles: true })) {
-							return defaultSsr({ root, mode: 'production' });
+							return defaultSsr({ root, mode: 'production', watchSession: state.watchSession, quiet: state.quiet });
 						}
 					}
 				: undefined,
 		publish: publish === undefined ? defaultPublish : publish || undefined,
-		watch: { sources: ['src', 'build', 'eightshift.build.mjs', 'package.json', 'bun.lock', 'tailwind.css', 'tailwind-editor.css', 'tailwind-frontend.css', 'color-themes.css'], ignored: ['.git', '.bun-pilot', 'node_modules', 'vendor', 'vendor-prefixed', 'public'], ...(watch || {}) },
+		watch: {
+			sources: watchSources,
+			...(watch.hotUpdates && { debounce: 35 }),
+			ignored: ['.git', '.bun-pilot', 'node_modules', 'vendor', 'vendor-prefixed', 'public'],
+			...(watch || {}),
+		},
 	});
 
 	if (watch === false) {

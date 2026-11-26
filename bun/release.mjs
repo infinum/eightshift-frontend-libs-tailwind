@@ -139,7 +139,9 @@ export async function packageRelease({ root, files, entries, aliases = {}, outpu
 			throw new TypeError(`Readiness requires a module entry: ${entry.name}`);
 		}
 
-		const script = entry.script ?? `(() => { const url = new URL(${JSON.stringify(target)}, document.currentScript.src); import(url.href).catch((error) => console.error(${JSON.stringify(`Failed to load ${entry.name}:`)}, error)); })();\n`;
+		const bootstrap = entry.script ?? `(() => { const url = new URL(${JSON.stringify(target)}, document.currentScript.src); import(url.href).catch((error) => console.error(${JSON.stringify(`Failed to load ${entry.name}:`)}, error)); })();\n`;
+
+		const script = entry.scriptSuffix ? `${bootstrap}\n${entry.scriptSuffix}` : bootstrap;
 
 		if (scripts.has(entry.name)) {
 			throw new Error(`Duplicate entry: ${entry.name}`);
@@ -244,7 +246,7 @@ export async function packageRelease({ root, files, entries, aliases = {}, outpu
 
 	await ensureDirectory(release, parent);
 
-	for (const [path, bytes] of contents) {
+	const emit = async ([path, bytes]) => {
 		const target = resolve(release, ...path.split('/'));
 
 		if (relative(release, target).startsWith(`..${sep}`)) {
@@ -253,6 +255,17 @@ export async function packageRelease({ root, files, entries, aliases = {}, outpu
 
 		await ensureDirectory(dirname(target), parent);
 		await writeFile(target, bytes, { flag: 'wx' });
+	};
+
+	const filesToWrite = [...contents];
+
+	for (let index = 0; index < filesToWrite.length; index += 16) {
+		const results = await Promise.allSettled(filesToWrite.slice(index, index + 16).map(emit));
+		const failed = results.find((result) => result.status === 'rejected');
+
+		if (failed) {
+			throw failed.reason;
+		}
 	}
 
 	return { release, version, manifest: { ...manifest } };
