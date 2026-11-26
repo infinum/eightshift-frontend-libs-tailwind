@@ -19,6 +19,7 @@ export async function eightshiftCssEntries({
 	applicationFile = surface === 'admin' ? `${blocksDir}/assets/styles/application-admin.css` : `${blocksDir}/assets/styles/application-blocks-${surface}.css`,
 	groups = surface === 'admin' ? ['components', 'custom'] : ['components', 'custom', 'wrapper'],
 	scanExclusions = ['.bun-pilot/**', 'es-tw-*-classes.txt'],
+	additionalScanExclusions = [],
 	responsiveSource = `@source './es-tw-${surface}-classes.txt';`,
 } = {}) {
 	if (!projectDir || !['frontend', 'editor', 'admin'].includes(surface)) {
@@ -49,7 +50,7 @@ export async function eightshiftCssEntries({
 			file: tailwindFile,
 			scan: true,
 			removeSources: responsiveSource ? [responsiveSource] : [],
-			sources: scanExclusions.map((pattern) => ({ pattern, negated: true })),
+			sources: [...scanExclusions, ...additionalScanExclusions].map((pattern) => ({ pattern, negated: true })),
 			scanFiles: [responsiveFile, ...manifests],
 		},
 		colorThemesFile,

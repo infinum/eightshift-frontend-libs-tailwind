@@ -6,6 +6,54 @@ import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
 
+test('installed WordPress export probes are shared across importers and run serially', async () => {
+	const root = await mkdtemp(join(await realpath(tmpdir()), 'wordpress-export-probes-'));
+	try {
+		for (const [name, member] of [['data', 'select'], ['blocks', 'registerBlockType']]) {
+			const directory = join(root, 'node_modules/@wordpress', name);
+			await mkdir(directory, { recursive: true });
+			await writeFile(join(directory, 'package.json'), '{"exports":"./index.js"}');
+			await writeFile(join(directory, 'index.js'), `export const ${member} = () => 'installed';`);
+		}
+		await writeFile(join(root, 'first.js'), 'export { select as first } from "@wordpress/data";');
+		await writeFile(join(root, 'second.js'), 'export { select as second } from "@wordpress/data";');
+		await writeFile(join(root, 'entry.js'), 'import { first } from "./first.js"; import { second } from "./second.js"; import { registerBlockType } from "@wordpress/blocks"; globalThis.calls = [first(), second(), registerBlockType()];');
+		const wrapper = join(root, 'probe');
+		await writeFile(wrapper, `#!/bin/sh
+printf 'start %s\\n' "$3" >> probes.log
+sleep 0.1
+"$REAL_BUN" "$@"
+status=$?
+printf 'end %s\\n' "$3" >> probes.log
+exit "$status"
+`, { mode: 0o700 });
+		const adapter = pathToFileURL(resolve(import.meta.dirname, '../bun/wordpress.mjs')).href;
+		const script = `
+import assert from 'node:assert/strict';
+import { readFile } from 'node:fs/promises';
+import { wordpressPlugin } from ${JSON.stringify(adapter)};
+const root = process.cwd();
+process.env.REAL_BUN = process.execPath;
+process.execPath = ${JSON.stringify(wrapper)};
+const wp = wordpressPlugin({ projectRoot: root });
+const result = await Bun.build({ entrypoints: [root + '/entry.js'], target: 'browser', format: 'esm', write: false, plugins: [wp.plugin] });
+assert.equal(result.success, true);
+globalThis.wp = { data: { select: () => 'data' }, blocks: { registerBlockType: () => 'blocks' } };
+new Function(await result.outputs[0].text())();
+assert.deepEqual(globalThis.calls, ['data', 'data', 'blocks']);
+const events = (await readFile('probes.log', 'utf8')).trim().split('\\n');
+const entries = ['blocks', 'data'].map(name => root + '/node_modules/@wordpress/' + name + '/index.js');
+assert.deepEqual(events.filter(event => event.startsWith('start ')).sort(), entries.map(entry => 'start ' + entry));
+assert.deepEqual(events, [events[0], events[0].replace(/^start /, 'end '), events[2], events[2].replace(/^start /, 'end ')]);
+`;
+		const result = spawnSync('bun', ['--no-install', '--eval', script], { cwd: root, encoding: 'utf8', timeout: 30000 });
+		assert.ifError(result.error);
+		assert.equal(result.status, 0, `${result.stdout}\n${result.stderr}`);
+	} finally {
+		await removeFixture(root);
+	}
+});
+
 async function removeFixture(directory) {
 	for (const item of await readdir(directory, { withFileTypes: true })) {
 		const path = join(directory, item.name);

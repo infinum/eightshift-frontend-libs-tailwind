@@ -65,6 +65,10 @@ export function defineThemeBuild(options = {}) {
 		publish,
 	} = options;
 
+	if (options.scanExclusions !== undefined && (!Array.isArray(options.scanExclusions) || options.scanExclusions.some((pattern) => typeof pattern !== 'string' || !pattern.trim()))) {
+		throw new TypeError('scanExclusions must be an array of non-empty glob strings');
+	}
+
 	if (typeof root !== 'string' || !root) {
 		throw new TypeError('root must be a non-empty string');
 	}
@@ -231,7 +235,7 @@ export function defineThemeBuild(options = {}) {
 		safeSources &&
 		!watch.autoRefresh &&
 		typeof options.extraCss !== 'function' &&
-		Object.keys(options).every((key) => ['root', 'wordpressVersion', 'publicPrefix', 'watch', 'extraCss'].includes(key)) &&
+		Object.keys(options).every((key) => ['root', 'wordpressVersion', 'publicPrefix', 'watch', 'extraCss', 'scanExclusions'].includes(key)) &&
 		Object.keys(watch).every((key) => ['hotUpdates', 'debounce', 'sources', 'autoRefresh'].includes(key));
 	const hotKey = `eightshift:hot:${publicPath}`;
 	let hot;
@@ -516,7 +520,11 @@ export function defineThemeBuild(options = {}) {
 		}
 
 		const browserEligible =
-			watchSession && !sourcemaps && Object.keys(options).every((key) => ['root', 'wordpressVersion', 'publicPrefix', 'watch', 'extraCss'].includes(key)) && typeof options.extraCss !== 'function' && Object.keys(watch).every((key) => ['debounce', 'hotUpdates', 'autoRefresh'].includes(key));
+			watchSession &&
+			!sourcemaps &&
+			Object.keys(options).every((key) => ['root', 'wordpressVersion', 'publicPrefix', 'watch', 'extraCss', 'scanExclusions'].includes(key)) &&
+			typeof options.extraCss !== 'function' &&
+			Object.keys(watch).every((key) => ['debounce', 'hotUpdates', 'autoRefresh'].includes(key));
 		const browserBundles = browserEligible
 			? await browserWatchCache({
 					root,
@@ -561,7 +569,7 @@ export function defineThemeBuild(options = {}) {
 					for (const surface of ['frontend', 'editor', 'admin']) {
 						const name = surface === 'admin' ? 'applicationAdmin' : `applicationBlocks${surface === 'frontend' ? 'Frontend' : 'Editor'}`;
 
-						const files = await eightshiftCssEntries({ projectDir: root, surface, responsiveFile: generated[surface] });
+						const files = await eightshiftCssEntries({ projectDir: root, surface, responsiveFile: generated[surface], additionalScanExclusions: options.scanExclusions });
 
 						if (hot?.enabled) {
 							for (const entry of files) {

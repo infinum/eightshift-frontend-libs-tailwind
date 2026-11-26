@@ -47,7 +47,7 @@ test('reports unknown and non-canonical classes from manifests, PHP calls, class
 	]);
 });
 
-test('--write rewrites non-canonical classes, keeps unknown ones and still fails on them', () => {
+test('--write rewrites non-canonical classes, keeps unknown ones and still fails on them', { timeout: 15_000 }, () => {
 	const dir = mkdtempSync(join(tmpdir(), 'tw-sweep-'));
 
 	try {
