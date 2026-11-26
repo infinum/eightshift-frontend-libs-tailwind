@@ -13,7 +13,7 @@ function watchPublication(url, current) {
 	window[key] = true;
 	const poll = async () => {
 		try {
-			const response = await fetch(url, { cache: 'no-store', credentials: 'omit', mode: 'same-origin', redirect: 'error' });
+			const response = await fetch(url, { cache: 'no-store', credentials: 'omit', mode: 'same-origin', redirect: 'error', signal: AbortSignal.timeout(5000) });
 
 			if (response.ok) {
 				const next = await response.json();

@@ -12,6 +12,10 @@ This library is meant to bring you the modern front-end development tools to the
 ## Documentation
 **For the full documentation please check this [link](https://eightshift.com).**
 
+## Browser support
+
+The minimum supported Safari version is **Safari 18**, on both macOS and iOS/iPadOS. This applies to the library’s frontend and editor scripts, including the optional watch features. The Bun CSS compiler’s `browsers` option controls CSS optimization targets, not runtime browser support.
+
 ## Lazy React components
 
 Import `lazyComponent` from `@eightshift/frontend-libs-tailwind/scripts`
